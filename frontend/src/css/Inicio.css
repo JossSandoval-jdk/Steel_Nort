@@ -1,0 +1,291 @@
+.inicio {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid rgba(19, 41, 61, 0.08);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(16, 42, 67, 0.05);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #13293d;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stat-trend {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7683;
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.stat-icon.blue {
+  background: #e8f3fa;
+  color: #0269a1;
+}
+
+.stat-icon.green {
+  background: #e7f7ed;
+  color: #15803d;
+}
+
+.stat-icon.red {
+  background: #fdecec;
+  color: #dc2626;
+}
+
+.stat-icon.cyan {
+  background: #e6f6f8;
+  color: #0891b2;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #13293d;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.stat-value small {
+  font-size: 16px;
+  font-weight: 600;
+  color: #6b7683;
+  margin-left: 3px;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7683;
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.chart-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.chart-badge.blue {
+  background: #e8f3fa;
+  color: #0269a1;
+}
+
+.chart-badge.red {
+  background: #fdecec;
+  color: #dc2626;
+}
+
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 10px;
+}
+
+.bottom-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.alert-list,
+.status-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(19, 41, 61, 0.06);
+}
+
+.alert-list .alert-item:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
+}
+
+.alert-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.alert-dot.critica {
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+.alert-dot.alta {
+  background: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+}
+
+.alert-dot.media {
+  background: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+
+.alert-dot.baja {
+  background: #0891b2;
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.15);
+}
+
+.alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.alert-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #243b4f;
+}
+
+.alert-meta {
+  font-size: 12px;
+  color: #6b7683;
+}
+
+.alert-time {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a94a0;
+  white-space: nowrap;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(19, 41, 61, 0.06);
+}
+
+.status-list .status-item:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
+}
+
+.status-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #243b4f;
+}
+
+.status-desc {
+  font-size: 12px;
+  color: #6b7683;
+}
+
+.pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.pill.ok {
+  background: #e7f7ed;
+  color: #15803d;
+}
+
+.pill.warn {
+  background: #fef4e6;
+  color: #b45309;
+}
+
+.pill.info {
+  background: #eef2f7;
+  color: #52606d;
+}
+
+@media (max-width: 1200px) {
+  .stats-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bottom-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .charts-row,
+  .bottom-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .stats-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

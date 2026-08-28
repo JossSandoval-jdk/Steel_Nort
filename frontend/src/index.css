@@ -1,0 +1,27 @@
+:root {
+  --text: #33414f;
+  --text-h: #1b2733;
+  --bg: #f5f7f9;
+  --border: #d7dee5;
+  --accent: #3d7fb8;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.45;
+  color-scheme: light;
+  color: var(--text);
+  background: var(--bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
