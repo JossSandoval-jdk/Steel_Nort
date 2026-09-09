@@ -1,5 +1,10 @@
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
+import CorrelacionRaiz from '../components/CorrelacionRaiz.jsx'
+import HistoriaSesion from '../components/HistoriaSesion.jsx'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../context/AuthContext.jsx'
+import api from '../services/api.js'
 import '../css/Layout.css'
 import '../css/Alertas.css'
 
@@ -117,7 +122,7 @@ function TendenciaChart() {
           {d}
         </text>
       ))}
-      {SERIES.map(({ key, stroke }) => (
+      {SERIES.map(({ key }) => (
         <polygon
           key={`area-${key}`}
           points={`${PAD_L},${baseY} ${seriePoints(tendencia[key])} ${W - PAD_R},${baseY}`}
@@ -161,11 +166,31 @@ const tendencia = {
 const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom', 'Hoy']
 
 function Alertas() {
+  const { user, accessToken } = useAuth()
+  const [alertas, setAlertas] = useState([])
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let activo = true
+    api.get('/alertas', { token: accessToken })
+      .then((data) => {
+        if (activo) setAlertas(data)
+      })
+      .catch((err) => {
+        if (activo) setError(err.message || 'No se pudieron cargar las alertas.')
+      })
+    return () => { activo = false }
+  }, [accessToken])
+
+  const visibles = alertas.length ? alertas : alertasRecientes
+  const nombre = user?.usu_nom || 'Nombre Usuario'
+  const cargo = user?.usu_rol || 'Cargo'
+
   return (
     <div className="layout">
       <Sidebar />
       <div className="layout-main">
-        <Topbar nombre="Nombre Usuario" cargo="Cargo" />
+        <Topbar nombre={nombre} cargo={cargo} />
         <main className="layout-content">
           <div className="alertas">
             <article className="card">
@@ -208,6 +233,7 @@ function Alertas() {
                 <div className="card-head">
                   <h3 className="card-title">Alertas recientes</h3>
                 </div>
+                {error && <p className="login-error">{error}</p>}
                 <table className="alerts-table">
                   <thead>
                     <tr>
@@ -219,14 +245,14 @@ function Alertas() {
                     </tr>
                   </thead>
                   <tbody>
-                    {alertasRecientes.map((a) => (
-                      <tr key={a.tiempo}>
-                        <td className="t-marca">{a.tiempo}</td>
-                        <td>{a.tipo}</td>
+                    {visibles.map((a) => (
+                      <tr key={a.alt_cod || a.tiempo}>
+                        <td className="t-marca">{a.alt_fec ? new Date(a.alt_fec).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : a.tiempo}</td>
+                        <td>{a.alt_tipo || a.tipo}</td>
                         <td>
-                          <span className={`rol-pill ${a.severidad}`}>{a.severidad}</span>
+                          <span className={`rol-pill ${a.alt_sev || a.severidad}`}>{a.alt_sev || a.severidad}</span>
                         </td>
-                        <td className="t-diagnostico">{a.diagnostico}</td>
+                        <td className="t-diagnostico">{a.alt_diag || a.diagnostico}</td>
                         <td>
                           <div className="row-actions">
                             <button type="button" className="icon-btn" title="Ver">
@@ -253,6 +279,22 @@ function Alertas() {
                   <span className="leyenda-item advertencia">Advertencia</span>
                   <span className="leyenda-item informacion">Información</span>
                 </div>
+              </article>
+            </div>
+
+            <div className="alertas-raiz-row">
+              <article className="card">
+                <div className="card-head">
+                  <h3 className="card-title">Análisis de correlación y causa raíz</h3>
+                </div>
+                <CorrelacionRaiz />
+              </article>
+
+              <article className="card">
+                <div className="card-head">
+                  <h3 className="card-title">Historia de eventos de la sesión</h3>
+                </div>
+                <HistoriaSesion />
               </article>
             </div>
           </div>

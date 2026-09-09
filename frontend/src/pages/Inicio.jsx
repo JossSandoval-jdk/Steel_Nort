@@ -1,16 +1,16 @@
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
+import { useSystemMetrics } from '../hooks/useSystemMetrics.js'
 import '../css/Layout.css'
 import '../css/Inicio.css'
 
-const cpuData = [38, 42, 35, 40, 46, 44, 52, 49, 58, 54, 63, 57, 66, 72, 64, 70, 78, 74, 82, 76, 84, 79, 88, 81]
-const memData = [55, 57, 56, 60, 58, 62, 61, 65, 63, 67, 66, 70, 68, 72, 71, 74, 73, 77, 75, 79, 78, 82, 80, 84]
 const anomaliasData = [1, 0, 2, 1, 0, 1, 3, 2, 4, 3, 5, 4, 2, 6, 3, 4, 12, 5, 3, 4, 2, 3, 1, 2]
 
 const CHART_W = 640
 const CHART_H = 250
-const PAD_L = 36
-const PAD_R = 14
+const PAD_L = 42
+const PAD_R = 16
 const PAD_T = 14
 const PAD_B = 30
 const PLOT_W = CHART_W - PAD_L - PAD_R
@@ -73,16 +73,35 @@ function IconSesiones() {
   )
 }
 
+// Formatea un timestamp ISO a HH:MM:SS local.
+function fmtHora(ts) {
+  if (!ts) return ''
+  const d = new Date(ts)
+  const p = (n) => String(n).padStart(2, '0')
+  return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+}
+
+// Formatea un timestamp ISO a HH:MM (para marcas del eje X).
+function fmtHoraMinuto(ts) {
+  if (!ts) return ''
+  const d = new Date(ts)
+  const p = (n) => String(n).padStart(2, '0')
+  return `${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
+// Construye los puntos del grafico a partir de un array de valores 0..max.
 function buildPoints(data, max) {
-  return data.map((v, i) => ({
+  if (!data || data.length < 2) return [[]]
+  return [data.map((v, i) => ({
     x: PAD_L + (i * PLOT_W) / (data.length - 1),
     y: PAD_T + (1 - v / max) * PLOT_H,
-  }))
+  }))]
 }
 
 const fmtPoint = (p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`
 
-function ChartGrid({ max }) {
+// Eje Y simple de fondo.
+function PintarEjes({ max }) {
   const levels = [0, max / 2, max]
   return (
     <g>
@@ -92,24 +111,33 @@ function ChartGrid({ max }) {
           <g key={lv}>
             <line x1={PAD_L} y1={y} x2={CHART_W - PAD_R} y2={y} stroke="rgba(19,41,61,0.08)" strokeDasharray="4 4" />
             <text x={PAD_L - 8} y={y + 4} textAnchor="end" fontSize="11" fill="#8a94a0">
-              {lv}
+              {Math.round(lv)}
             </text>
           </g>
         )
       })}
-      {HOUR_TICKS.map(([i, label]) => (
-        <text key={label} x={PAD_L + (i * PLOT_W) / 23} y={CHART_H - 8} textAnchor="middle" fontSize="11" fill="#8a94a0">
-          {label}
-        </text>
-      ))}
     </g>
   )
 }
 
-function LineChart({ id, data, max = 100 }) {
-  const pts = buildPoints(data, max)
+// Grafico de linea unico para las series en vivo.
+function LineChart({ id, data, labels, max = 100, estado }) {
+  const [pts] = buildPoints(data, max)
+  if (!pts.length) {
+    return (
+      <div className="chart-empty">
+        {estado || 'Esperando datos del sistema…'}
+      </div>
+    )
+  }
   const ptsStr = pts.map(fmtPoint).join(' ')
   const last = pts[pts.length - 1]
+  // Ticks de hora: toma hasta 4 marcas distribuidas en el historial.
+  const tickIdxs = []
+  for (let i = 0; i < 5; i += 1) {
+    const idx = Math.round((i * (data.length - 1)) / 4)
+    if (!tickIdxs.includes(idx)) tickIdxs.push(idx)
+  }
   return (
     <svg className="chart-svg" viewBox={`0 0 ${CHART_W} ${CHART_H}`} role="img">
       <defs>
@@ -118,7 +146,19 @@ function LineChart({ id, data, max = 100 }) {
           <stop offset="100%" stopColor="#0269a1" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <ChartGrid max={max} />
+      <PintarEjes max={max} />
+      {tickIdxs.map((idx) => (
+        <text
+          key={idx}
+          x={PAD_L + (idx * PLOT_W) / (data.length - 1)}
+          y={CHART_H - 8}
+          textAnchor="middle"
+          fontSize="11"
+          fill="#8a94a0"
+        >
+          {labels[idx] != null ? labels[idx] : ''}
+        </text>
+      ))}
       <polygon points={`${PAD_L},${CHART_H - PAD_B} ${ptsStr} ${CHART_W - PAD_R},${CHART_H - PAD_B}`} fill={`url(#grad-${id})`} />
       <polyline points={ptsStr} fill="none" stroke="#0269a1" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
       <circle cx={last.x} cy={last.y} r="4.5" fill="#0269a1" stroke="#ffffff" strokeWidth="2" />
@@ -128,7 +168,7 @@ function LineChart({ id, data, max = 100 }) {
 
 function AnomalyChart({ data }) {
   const max = Math.max(...data) + 2
-  const pts = buildPoints(data, max)
+  const pts = buildPoints(data, max)[0]
   const peakIdx = data.indexOf(Math.max(...data))
   const ptsStr = pts.map(fmtPoint).join(' ')
 
@@ -148,7 +188,15 @@ function AnomalyChart({ data }) {
           <stop offset="100%" stopColor="#0269a1" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <ChartGrid max={max} />
+      <PintarEjes max={max} />
+      {HOUR_TICKS.map(([i, label]) => {
+        const idx = Math.round((i * (data.length - 1)) / 23)
+        return (
+          <text key={label} x={PAD_L + (idx * PLOT_W) / (data.length - 1)} y={CHART_H - 8} textAnchor="middle" fontSize="11" fill="#8a94a0">
+            {label}
+          </text>
+        )
+      })}
       <polygon points={`${PAD_L},${CHART_H - PAD_B} ${ptsStr} ${CHART_W - PAD_R},${CHART_H - PAD_B}`} fill="url(#grad-anomalias)" />
       <polyline points={beforeStr} fill="none" stroke="#0269a1" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
       {afterStr && (
@@ -163,13 +211,6 @@ function AnomalyChart({ data }) {
     </svg>
   )
 }
-
-const stats = [
-  { id: 'cpu', label: 'CPU', value: '62', unit: '%', trend: '+4.2% vs hora anterior', icon: IconCpu, tone: 'blue' },
-  { id: 'memoria', label: 'Memoria', value: '71', unit: '%', trend: 'Estable últimas 6 h', icon: IconMemoria, tone: 'green' },
-  { id: 'anomalias', label: 'Anomalías detectadas', value: '14', unit: 'hoy', trend: '+3 respecto a ayer', icon: IconAnomalia, tone: 'red' },
-  { id: 'sesiones', label: 'Sesiones activas', value: '8', unit: '', trend: '2 administradores', icon: IconSesiones, tone: 'cyan' },
-]
 
 const alertas = [
   { severidad: 'critica', titulo: 'Pico anómalo de CPU en nodo SCADA-02', meta: 'Crítica · Umbral superado por 6 min', hora: '16:04' },
@@ -186,13 +227,51 @@ const estados = [
 ]
 
 function Inicio() {
+  const { actual, historico, error } = useSystemMetrics(3000, 80)
+  const user = useAuth().user
+
+  // Series listas para los graficos.
+  const cpuSerie = historico.map((h) => h.cpuTotal)
+  const memSerie = historico.map((h) => h.memPercent)
+  const labels = historico.map((h) => fmtHoraMinuto(h.ts))
+
+  // Promedios mostrados en las insignias.
+  const cpuProm = cpuSerie.length ? Math.round(cpuSerie.reduce((a, b) => a + b, 0) / cpuSerie.length) : 0
+  const memProm = memSerie.length ? Math.round(memSerie.reduce((a, b) => a + b, 0) / memSerie.length) : 0
+  const ultimaTs = historico.length ? fmtHora(historico[historico.length - 1].ts) : '—'
+
+  const stats = [
+    {
+      id: 'cpu',
+      label: 'CPU',
+      value: actual ? String(actual.cpu) : '—',
+      unit: '%',
+      trend: actual ? `Última lectura ${ultimaTs}` : 'Conectando…',
+      icon: IconCpu,
+      tone: 'blue',
+    },
+    {
+      id: 'memoria',
+      label: 'Memoria',
+      value: actual ? String(actual.mem) : '—',
+      unit: '%',
+      trend: actual ? `${Math.round(actual.memUsed)} / ${Math.round(actual.memTotal)} MB` : 'Conectando…',
+      icon: IconMemoria,
+      tone: 'green',
+    },
+    { id: 'anomalias', label: 'Anomalías detectadas', value: '14', unit: 'hoy', trend: '+3 respecto a ayer', icon: IconAnomalia, tone: 'red' },
+    { id: 'sesiones', label: 'Sesiones activas', value: '8', unit: '', trend: '2 administradores', icon: IconSesiones, tone: 'cyan' },
+  ]
+
   return (
     <div className="layout">
       <Sidebar />
       <div className="layout-main">
-        <Topbar nombre="Nombre Usuario" cargo="Cargo" />
+        <Topbar nombre={user ? user.usu_nom : 'Nombre Usuario'} cargo={user ? user.usu_rol : 'Cargo'} />
         <main className="layout-content">
           <div className="inicio">
+            {error && <div className="metrics-error">No se pudo conectar con las métricas del sistema: {error}</div>}
+
             <section className="stats-row">
               {stats.map(({ id, label, value, unit, trend, icon: Icon, tone }) => (
                 <article key={id} className="card stat-card">
@@ -215,17 +294,29 @@ function Inicio() {
               <article className="card">
                 <div className="card-head">
                   <h3 className="card-title">Uso de CPU</h3>
-                  <span className="chart-badge blue">Promedio 64%</span>
+                  <span className="chart-badge blue">Promedio {cpuProm}%</span>
                 </div>
-                <LineChart id="cpu" data={cpuData} max={100} />
+                <LineChart
+                  id="cpu"
+                  data={cpuSerie}
+                  labels={labels}
+                  max={100}
+                  estado="Esperando datos de CPU…"
+                />
               </article>
 
               <article className="card">
                 <div className="card-head">
                   <h3 className="card-title">Uso de memoria</h3>
-                  <span className="chart-badge blue">Promedio 71%</span>
+                  <span className="chart-badge blue">Promedio {memProm}%</span>
                 </div>
-                <LineChart id="memoria" data={memData} max={100} />
+                <LineChart
+                  id="memoria"
+                  data={memSerie}
+                  labels={labels}
+                  max={100}
+                  estado="Esperando datos de memoria…"
+                />
               </article>
             </section>
 

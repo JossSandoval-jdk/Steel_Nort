@@ -1,0 +1,30 @@
+.sesion-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 10px;
+}
+
+.sesion-leyenda {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.sesion-leyenda-item {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7683;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sesion-leyenda-sq {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}

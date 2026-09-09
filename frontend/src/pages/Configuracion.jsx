@@ -1,14 +1,11 @@
+import { useState, useEffect } from 'react'
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
+import ModalUsuario from '../components/ModalUsuario.jsx'
+import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import '../css/Layout.css'
 import '../css/Configuracion.css'
-
-const usuarios = [
-  { id: 1, nombre: 'Carlos Mendoza', mail: 'cmendoza@steelnort.com', rol: 'Administrador', iniciales: 'CM' },
-  { id: 2, nombre: 'Ana Torres', mail: 'atorres@steelnort.com', rol: 'Operador', iniciales: 'AT' },
-  { id: 3, nombre: 'Jorge Salazar', mail: 'jsalazar@steelnort.com', rol: 'Supervisor', iniciales: 'JS' },
-  { id: 4, nombre: 'Lucía Fernández', mail: 'lfernandez@steelnort.com', rol: 'Operador', iniciales: 'LF' },
-]
 
 const logsInfo = [
   { label: 'Host', value: 'logs.steelnort.local' },
@@ -71,6 +68,36 @@ function InfoRow({ label, value }) {
 }
 
 function Configuracion() {
+  const [usuarios, setUsuarios] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { accessToken } = useAuth()
+
+  const handleSaveUsuario = async (nuevoUsuario) => {
+    try {
+      await api.post('/usuarios', nuevoUsuario, { token: accessToken })
+      setIsModalOpen(false)
+      // Recargar lista
+      const data = await api.get('/usuarios', { token: accessToken })
+        setUsuarios(data)
+      } catch (err) {
+      console.error("Error al guardar usuario:", err)
+      }
+    }
+
+  useEffect(() => {
+    async function loadUsuarios() {
+      if (!accessToken) return
+      try {
+        const data = await api.get('/usuarios', { token: accessToken })
+        console.log("Usuarios recibidos:", data) // <--- Agregamos este log para debug
+        setUsuarios(data)
+      } catch (err) {
+        console.error("Error al cargar usuarios:", err)
+      }
+    }
+    loadUsuarios()
+  }, [accessToken])
+
   return (
     <div className="layout">
       <Sidebar />
@@ -94,25 +121,27 @@ function Configuracion() {
                     </tr>
                   </thead>
                   <tbody>
-                    {usuarios.map((u) => (
-                      <tr key={u.id}>
+                    {usuarios.map((u, index) => (
+                      <tr key={u.usu_cod || index}>
                         <td>
                           <div className="user-cell">
-                            <span className="user-avatar">{u.iniciales}</span>
+                            <span className="user-avatar">{u.usu_ini || (u.usu_nom ? u.usu_nom[0] : '?')}</span>
                             <span className="user-name">
-                              {u.nombre}
-                              <span className="user-mail">{u.mail}</span>
+                              {u.usu_nom}
+                              <span className="user-mail">{u.usu_ema}</span>
                             </span>
                           </div>
                         </td>
                         <td>
-                          <span className={`rol-pill ${u.rol.toLowerCase()}`}>{u.rol}</span>
+                          <span className={`rol-pill ${u.usu_rol ? u.usu_rol.toLowerCase() : ''}`}>{u.usu_rol}</span>
                         </td>
                         <td>
                           <div className="row-actions">
+                            {u.usu_rol !== 'Administrador' && (
                             <button type="button" className="icon-btn" title="Ver usuario">
                               <IconEye />
                             </button>
+                            )}
                             <button type="button" className="icon-btn danger" title="Eliminar usuario">
                               <IconTrash />
                             </button>
@@ -124,7 +153,11 @@ function Configuracion() {
                 </table>
 
                 <div className="card-actions">
-                  <button type="button" className="btn btn-primary">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setIsModalOpen(true)}
+                  >
                     <IconPlus />
                     Crear usuario
                   </button>
@@ -208,8 +241,14 @@ function Configuracion() {
           </div>
         </main>
       </div>
+      <ModalUsuario
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveUsuario}
+      />
     </div>
   )
 }
 
 export default Configuracion
+

@@ -1,0 +1,318 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Top row: two summary cards ─────────────────────────────── */
+
+.dash-top-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.dash-top-row .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* ── Disponibilidad ─────────────────────────────────────────── */
+
+.dash-top-row .card {
+  padding: 14px 16px;
+}
+
+.dash-disp-top,
+.dash-anom-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dash-disp-text,
+.dash-anom-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dash-disp-sub,
+.dash-anom-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7683;
+}
+
+.card-title .dash-disp-sub,
+.card-title .dash-anom-sub {
+  font-size: 14px;
+  font-weight: 500;
+  color: #8a94a0;
+  white-space: nowrap;
+}
+
+.dash-disp-top .card-title,
+.dash-anom-top .card-title {
+  font-size: 15px;
+}
+
+.dash-disp-value {
+  font-size: 40px;
+  font-weight: 700;
+  color: #13293d;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.dash-disp-value small {
+  font-size: 20px;
+  font-weight: 600;
+  color: #6b7683;
+  margin-left: 2px;
+}
+
+.dash-disp-chart {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ── Tasa de anomalías ──────────────────────────────────────── */
+
+.dash-anom-value {
+  font-size: 40px;
+  font-weight: 700;
+  color: #13293d;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-top: 8px;
+}
+
+.dash-anom-value small {
+  font-size: 18px;
+  font-weight: 600;
+  color: #6b7683;
+  margin-left: 2px;
+}
+
+.dash-anom-icon {
+  display: grid;
+  place-items: center;
+  opacity: 0.85;
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+
+/* ── Rendimiento por consultas ──────────────────────────────── */
+
+.dash-rend-value {
+  font-size: 40px;
+  font-weight: 700;
+  color: #13293d;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.dash-rend-value small {
+  font-size: 20px;
+  font-weight: 600;
+  color: #6b7683;
+  margin-left: 2px;
+}
+
+.dash-bar-chart {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ── Estado de sesiones transaccionales ─────────────────────── */
+
+.dash-ses-value {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.dash-ses-activas {
+  font-size: 40px;
+  font-weight: 700;
+  color: #0269a1;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.dash-ses-sep {
+  font-size: 26px;
+  font-weight: 600;
+  color: #8a94a0;
+  line-height: 1;
+}
+
+.dash-ses-inactivas {
+  font-size: 40px;
+  font-weight: 700;
+  color: #13293d;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.dash-ses-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7683;
+  margin-left: 4px;
+}
+
+/* ── Uso de recursos detallado ──────────────────────────────── */
+
+.dash-rec-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.dash-rec-leyenda {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.dash-ley-item {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7683;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dash-ley-sq {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.dash-rec-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 8px;
+}
+
+/* ── Mapa de anomalías temporales ───────────────────────────── */
+
+.dash-mapa {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: space-evenly;
+  margin-top: 16px;
+  flex: 1;
+}
+
+.dash-mapa-leyenda {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.dash-mapa-ley-item {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7683;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.dash-mapa-corner {
+  flex-shrink: 0;
+  min-width: 78px;
+}
+
+.dash-mapa-hora {
+  flex: 1;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: #8a94a0;
+  white-space: nowrap;
+}
+
+.dash-mapa-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.dash-mapa-etiqueta {
+  font-size: 13px;
+  font-weight: 600;
+  color: #243b4f;
+  flex-shrink: 0;
+  min-width: 78px;
+  white-space: nowrap;
+}
+
+.dash-mapa-nivel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #243b4f;
+  flex-shrink: 0;
+  min-width: 78px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dash-mapa-chip {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.dash-mapa-cuadros {
+  display: flex;
+  gap: 5px;
+  flex-wrap: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-mapa-cuadro {
+  width: 100%;
+  height: 26px;
+  border-radius: 3px;
+  flex: 1;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .dash-top-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

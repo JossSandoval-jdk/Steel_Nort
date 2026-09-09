@@ -7,6 +7,11 @@ import alertaIcon from '../assets/icons/alerta_icon.png'
 import configuracionIcon from '../assets/icons/configuracion_icon.png'
 import '../css/Sidebar.css'
 
+/*
+ * Sidebar: Componente de navegación lateral.
+ * Renderiza una lista de enlaces de navegación con iconos correspondientes.
+ * Utiliza NavLink para manejar el estado activo/inactivo de cada sección.
+ */
 const items = [
   { to: '/inicio', label: 'Inicio', icon: inicioIcon },
   { to: '/dashboard', label: 'Dashboard', icon: dashboardIcon },
@@ -41,3 +46,4 @@ function Sidebar() {
 }
 
 export default Sidebar
+

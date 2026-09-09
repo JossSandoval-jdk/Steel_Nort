@@ -1,0 +1,21 @@
+# ============================================================
+# SteelNort Backend — Dependencias (Python / pip)
+# ------------------------------------------------------------
+#  - API: FastAPI + Uvicorn (servidor ASGI)
+#  - BD : SQLAlchemy ORM + pyodbc (driver SQL Server)
+#  - Seg: JWT (pyjwt) + bcrypt (hash de claves) + pydantic
+#  - Env: python-dotenv (variables de entorno)
+#  - Met: psutil (lectura de CPU/memoria de la maquina)
+# ============================================================
+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+sqlalchemy==2.0.36
+pyodbc==5.2.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+PyJWT==2.10.1
+bcrypt==4.2.1
+python-dotenv==1.0.1
+email-validator==2.2.0
+psutil==6.1.1

@@ -118,6 +118,25 @@
   transform: scale(0.98);
 }
 
+.login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  filter: brightness(1);
+  transform: none;
+}
+
+.login-error {
+  margin: 0;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  text-align: left;
+}
+
 .login-links {
   margin-top: 14px;
   display: flex;

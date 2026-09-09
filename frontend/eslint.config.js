@@ -18,4 +18,13 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // Permite que los archivos de contexto exporten hooks (p. ej.
+    // AuthContext: <AuthProvider> + useAuth()). Es un patron estandar
+    // de React y no rompe el fast refresh.
+    files: ['**/context/*.jsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
