@@ -227,14 +227,6 @@ function Configuracion() {
                     <IconPlus />
                     Crear usuario
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={() => navigate('/roles-permisos')}
-                  >
-                    <IconShield />
-                    Administrar roles
-                  </button>
                 </div>
               </article>
             </section>

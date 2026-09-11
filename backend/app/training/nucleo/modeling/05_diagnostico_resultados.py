@@ -97,7 +97,14 @@ EPS = 1e-9
 
 
 def log(msg):
-    print(msg, flush=True)
+    """Print a message safely, handling UnicodeEncodeError on Windows consoles."""
+    try:
+        print(msg, flush=True)
+    except UnicodeEncodeError:
+        # Fallback: encode to UTF‑8 with replacement characters, then decode for printing
+        safe_msg = msg.encode('utf-8', errors='replace').decode('utf-8')
+        print(safe_msg, flush=True)
+
 
 
 # ---------------------------------------------------------------------
@@ -290,7 +297,12 @@ def main():
 
     # Reglas
     reglas = pd.read_csv(RUTA_REGLAS, encoding="utf-8-sig")
-    diag_r = json.load(open(RUTA_DIAG_REGLAS, encoding="utf-8"))
+    if os.path.exists(RUTA_DIAG_REGLAS):
+        with open(RUTA_DIAG_REGLAS, encoding="utf-8") as f:
+            diag_r = json.load(f)
+    else:
+        log(f"Archivo de diagnóstico de reglas no encontrado: {RUTA_DIAG_REGLAS}")
+        diag_r = {}
 
     # ---- Análisis ------------------------------------------------
     atribucion = atribuir_variables(c5, features, timeline)

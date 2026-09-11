@@ -6,6 +6,7 @@
 // llamadas van a la ruta relativa "/api" del mismo origen.
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || 'http://localhost:5173/api'
+  import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 // URL del socket para telemetria en tiempo real (mismo origen que la API).
 const SOCKET_URL =

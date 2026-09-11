@@ -1,0 +1,11 @@
+{
+  "R1": {"diagnostico": "Cuello de botella de I/O físico: si el evento coincide con picos en los contadores de disco, el subsistema de almacenamiento (no la consulta) es la causa; el motor pidió una página o está confirmando una escritura en el log y el disco tarda en responder (disco lento o log saturado)."},
+  "R2": {"diagnostico": "Bloqueo o contención entre sesiones: problema de CONCURRENCIA, no de recursos físicos."},
+  "R3": {"diagnostico": "Presión real de CPU (no solo un pico puntual de una consulta): planes ineficientes, estadísticas desactualizadas, índices faltantes o parameter sniffing."},
+  "R3b": {"diagnostico": "El gasto de CPU es del sistema operativo procesando I/O (drivers/controlador de disco), no de SQL Server procesando lógica de negocio."},
+  "R4": {"diagnostico": "Contención de asignación en tempdb bajo carga concurrente alta (contienda por páginas PFS/GAM/SGAM)."},
+  "R5": {"diagnostico": "Presión de memoria: buffer pool insuficiente para la carga de consultas concurrentes, con memory grants muy grandes."},
+  "R6": {"diagnostico": "El cuello de botella está en la aplicación cliente, no en el motor."},
+  "R7": {"diagnostico": "La consulta se la pasa ejecutando (no esperando) porque tiene que escanear muchas más páginas de las necesarias: plan subóptimo por falta de índice o estadísticas obsoletas; si además hay muchas recompilaciones (ratio compilaciones/batches alto) apunta a falta de parametrización."}
+}
+

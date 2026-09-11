@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import api from '../services/api.js'
 import '../css/Layout.css'
 import '../css/Alertas.css'
+import AnomaliasTable from '../components/AnomaliasTable.jsx'
 
 const anomalias24h = [0.06, 0.09, 0.07, 0.11, 0.14, 0.1, 0.13, 0.17, 0.12, 0.15, 0.19, 0.16, 0.12, 0.14, 0.18, 0.2, 0.16, 0.15, 0.13, 0.17, 0.14, 0.18, 0.15, 0.13]
 
@@ -231,42 +232,9 @@ function Alertas() {
             <div className="alertas-secundario">
               <article className="card alerts-tabla-card">
                 <div className="card-head">
-                  <h3 className="card-title">Alertas recientes</h3>
+                  <h3 className="card-title">Anomalías detectadas</h3>
                 </div>
-                {error && <p className="login-error">{error}</p>}
-                <table className="alerts-table">
-                  <thead>
-                    <tr>
-                      <th>Marca de tiempo</th>
-                      <th>Tipo de anomalía</th>
-                      <th>Severidad</th>
-                      <th>Diagnóstico / Causa</th>
-                      <th style={{ textAlign: 'right' }}>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibles.map((a) => (
-                      <tr key={a.alt_cod || a.tiempo}>
-                        <td className="t-marca">{a.alt_fec ? new Date(a.alt_fec).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : a.tiempo}</td>
-                        <td>{a.alt_tipo || a.tipo}</td>
-                        <td>
-                          <span className={`rol-pill ${a.alt_sev || a.severidad}`}>{a.alt_sev || a.severidad}</span>
-                        </td>
-                        <td className="t-diagnostico">{a.alt_diag || a.diagnostico}</td>
-                        <td>
-                          <div className="row-actions">
-                            <button type="button" className="icon-btn" title="Ver">
-                              <IconEye />
-                            </button>
-                            <button type="button" className="icon-btn" title="Descargar">
-                              <IconDownload />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <AnomaliasTable />
               </article>
 
               <article className="card tendencia-card">

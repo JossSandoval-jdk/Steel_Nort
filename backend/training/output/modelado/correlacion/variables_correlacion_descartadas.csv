@@ -1,4 +1,3 @@
 ﻿columna,motivo,media_abs_corr
-cpu_sys,correlación >= 0.85 con ['transactions_per_sec'],
-disk_read_per_sec,correlación >= 0.85 con ['transactions_per_sec'],
-total_writes,correlación >= 0.85 con ['transactions_per_sec'],
+active_requests,correlación >= 0.85 con ['active_sessions'],
+duration_avg_ms,correlación >= 0.85 con ['duration_max_ms'],

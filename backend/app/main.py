@@ -187,7 +187,8 @@ app.include_router(roles.router)
 app.include_router(dominio.router)
 app.include_router(telemetria.router)
 app.include_router(dashboard.router)
-app.include_router(reentrenamiento.router)
+from app.routers import anomalias
+app.include_router(anomalias.router)
 
 
 @app.get("/")

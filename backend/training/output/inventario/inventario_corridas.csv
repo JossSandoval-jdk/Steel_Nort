@@ -14,6 +14,9 @@
 carga1,metrics.log,True,2788
 carga1,events.log,True,602
 carga1,sqlserver_logs.log,True,152
+carga11,metrics.log,True,760
+carga11,events.log,True,475
+carga11,sqlserver_logs.log,True,154
 carga2,metrics.log,True,805
 carga2,events.log,True,344
 carga2,sqlserver_logs.log,True,155
@@ -24,8 +27,8 @@ carga4,metrics.log,True,18334
 carga4,events.log,True,708
 carga4,sqlserver_logs.log,True,162
 carga5,metrics.log,True,1615
-carga5,events.log,True,391
-carga5,sqlserver_logs.log,True,152
+carga5,events.log,True,465
+carga5,sqlserver_logs.log,True,154
 carga7,metrics.log,True,850
 carga7,events.log,True,454
 carga7,sqlserver_logs.log,True,152

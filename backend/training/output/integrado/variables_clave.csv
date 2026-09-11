@@ -1,72 +1,72 @@
 ﻿columna,presente,senal,nulos_pct,unicos,media,decision_modelo,motivo_decision
-cpu_usr,True,CLAVE,0.0,262,33.5352,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-cpu_sys,True,CLAVE,0.0,239,20.2597,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-cpu_idl,True,CLAVE,0.0,325,40.3302,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-cpu_wai,True,CLAVE,0.0,15,0.0662,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+cpu_usr,True,CLAVE,0.0,282,33.9885,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+cpu_sys,True,CLAVE,0.0,250,21.1646,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+cpu_idl,True,CLAVE,0.0,330,39.0017,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+cpu_wai,True,CLAVE,0.0,15,0.0646,MANTENER,variabilidad y disponibilidad suficientes para el modelado
 cpu_stl,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
-memory_percent,True,CLAVE,0.0,162,64.4993,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-memory_used_mb,True,CLAVE,0.0,373,5210.6667,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-memory_available_mb,True,CLAVE,0.0,340,1621.4242,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-disk_read_per_sec,True,CLAVE,0.0,335,1321717.9683,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-disk_write_per_sec,True,CLAVE,0.0,668,3118163.5382,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-net_send_per_sec,True,CLAVE,0.0,669,68067.29,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-net_recv_per_sec,True,CLAVE,0.0,679,87199.6349,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-load1,True,CLAVE,0.0,257,6.7482,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-load5,True,CLAVE,0.0,255,5.1866,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-load15,True,CLAVE,0.0,252,3.7803,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-active_sessions,True,CLAVE,0.0,29,29.4921,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-active_requests,True,CLAVE,0.0,23,14.9481,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+memory_percent,True,CLAVE,0.0,181,65.3727,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+memory_used_mb,True,CLAVE,0.0,394,5476.6535,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+memory_available_mb,True,CLAVE,0.0,372,1578.8704,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+disk_read_per_sec,True,CLAVE,0.0,352,2129961.5099,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+disk_write_per_sec,True,CLAVE,0.0,684,3390518.2197,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+net_send_per_sec,True,CLAVE,0.0,689,68674.8479,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+net_recv_per_sec,True,CLAVE,0.0,701,89791.4676,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+load1,True,CLAVE,0.0,276,6.6772,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+load5,True,CLAVE,0.0,270,5.0869,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+load15,True,CLAVE,0.0,267,3.6984,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+active_sessions,True,CLAVE,0.0,29,29.3085,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+active_requests,True,CLAVE,0.0,23,14.6535,MANTENER,variabilidad y disponibilidad suficientes para el modelado
 long_queries,True,MUCHO_NAN,100.0,0,,ELIMINAR,supera el límite permitido de valores NaN
 long_transactions,True,MUCHO_NAN,100.0,0,,ELIMINAR,supera el límite permitido de valores NaN
-idle_sessions,True,CLAVE,0.0,30,27.1775,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-lock_waits,True,CLAVE,0.0,6,0.1789,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-total_locks,True,CLAVE,0.0,68,420.3521,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-deadlocks_per_sec,True,CLAVE,0.0,12,7.0418,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-venta_locks,True,CLAVE,0.0,7,0.1082,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-detalle_venta_locks,True,CLAVE,0.0,3,0.0216,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-inventario_locks,True,CLAVE,0.0,4,0.0188,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-kardex_locks,True,CLAVE,0.0,7,0.0779,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+idle_sessions,True,CLAVE,0.0,29,26.8535,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+lock_waits,True,CLAVE,0.0,5,0.1915,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+total_locks,True,CLAVE,0.0,70,403.5394,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+deadlocks_per_sec,True,CLAVE,0.0,14,11.3197,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+venta_locks,True,CLAVE,0.0,7,0.1141,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+detalle_venta_locks,True,CLAVE,0.0,3,0.0211,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+inventario_locks,True,CLAVE,0.0,4,0.0183,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+kardex_locks,True,CLAVE,0.0,7,0.0761,MANTENER,variabilidad y disponibilidad suficientes para el modelado
 caja_locks,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
-movimiento_caja_locks,True,CLAVE,0.0,3,0.0332,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-auditoria_locks,True,CLAVE,0.0,3,0.0072,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-transactions_per_sec,True,CLAVE,1.44,569,167.2237,MANTENER,senal suficiente; contiene algunos NaN que pueden corresponder a muestras iniciales o datos faltantes
-total_reads,True,CLAVE,1.44,19,0.7632,MANTENER,senal suficiente; contiene algunos NaN que pueden corresponder a muestras iniciales o datos faltantes
-total_writes,True,CLAVE,1.44,161,8.9532,MANTENER,senal suficiente; contiene algunos NaN que pueden corresponder a muestras iniciales o datos faltantes
-page_life_expectancy,True,CLAVE,0.0,650,2346.0173,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-page_reads_per_sec,True,CONSTANTE,1.44,1,0.0,ELIMINAR,todos los valores disponibles son 0
-page_writes_per_sec,True,CONSTANTE,1.44,1,0.0,ELIMINAR,todos los valores disponibles son 0
-rollbacks_per_sec,True,CONSTANTE,1.44,1,0.0,ELIMINAR,todos los valores disponibles son 0
-batch_requests_per_sec,True,CONSTANTE,1.44,1,0.0,ELIMINAR,todos los valores disponibles son 0
-sql_compilations_per_sec,True,CONSTANTE,1.44,1,0.0,ELIMINAR,todos los valores disponibles son 0
-api_status,True,CLAVE,0.0,3,182.2944,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-api_latency_ms,True,CLAVE,0.0,143,2734.4646,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-products_count,True,CLAVE,0.0,5,7.6537,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+movimiento_caja_locks,True,CLAVE,0.0,3,0.0324,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+auditoria_locks,True,CLAVE,0.0,3,0.007,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+transactions_per_sec,True,CLAVE,1.55,586,175.9976,MANTENER,senal suficiente; contiene algunos NaN que pueden corresponder a muestras iniciales o datos faltantes
+total_reads,True,CLAVE,1.55,18,0.4944,MANTENER,senal suficiente; contiene algunos NaN que pueden corresponder a muestras iniciales o datos faltantes
+total_writes,True,CLAVE,1.55,176,9.8793,MANTENER,senal suficiente; contiene algunos NaN que pueden corresponder a muestras iniciales o datos faltantes
+page_life_expectancy,True,CLAVE,0.0,669,2791.6873,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+page_reads_per_sec,True,CONSTANTE,1.55,1,0.0,ELIMINAR,todos los valores disponibles son 0
+page_writes_per_sec,True,CONSTANTE,1.55,1,0.0,ELIMINAR,todos los valores disponibles son 0
+rollbacks_per_sec,True,CONSTANTE,1.55,1,0.0,ELIMINAR,todos los valores disponibles son 0
+batch_requests_per_sec,True,CONSTANTE,1.55,1,0.0,ELIMINAR,todos los valores disponibles son 0
+sql_compilations_per_sec,True,CONSTANTE,1.55,1,0.0,ELIMINAR,todos los valores disponibles son 0
+api_status,True,CLAVE,0.0,3,187.0113,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+api_latency_ms,True,CLAVE,0.0,152,2679.9915,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+products_count,True,CLAVE,0.0,5,7.4704,MANTENER,variabilidad y disponibilidad suficientes para el modelado
 sales_count,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
 events_login_count,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
 events_logout_count,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
-events_batch_count,True,CLAVE,0.0,12,0.9509,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-events_lock_count,True,CLAVE,0.0,35,3.4949,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+events_batch_count,True,CLAVE,0.0,12,0.9282,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+events_lock_count,True,CLAVE,0.0,37,3.9676,MANTENER,variabilidad y disponibilidad suficientes para el modelado
 events_wait_count,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
-duration_max_ms,True,CLAVE,0.0,231,9982.5022,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-duration_avg_ms,True,CLAVE,0.0,244,6071.0183,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-query_duration_max_ms,True,CLAVE,0.0,231,9982.5022,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-query_duration_avg_ms,True,CLAVE,0.0,244,6071.0183,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-cpu_time_sum_ms,True,CLAVE,0.0,147,162.6912,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-logical_reads_sum,True,CLAVE,0.0,2,0.0577,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+duration_max_ms,True,CLAVE,0.0,231,9743.4845,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+duration_avg_ms,True,CLAVE,0.0,244,5925.6559,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+query_duration_max_ms,True,CLAVE,0.0,231,9743.4845,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+query_duration_avg_ms,True,CLAVE,0.0,244,5925.6559,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+cpu_time_sum_ms,True,CLAVE,0.0,147,158.7958,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+logical_reads_sum,True,CLAVE,0.0,2,0.0563,MANTENER,variabilidad y disponibilidad suficientes para el modelado
 writes_sum,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
 wait_lck_count,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
 wait_io_count,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
-wait_log_count,True,CLAVE,0.0,2,0.0029,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-distinct_sessions_count,True,CLAVE,0.0,6,0.6089,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-cpu_total,True,CLAVE,0.0,332,53.7949,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-query_count,True,CLAVE,0.0,12,0.9509,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+wait_log_count,True,CLAVE,0.0,2,0.0028,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+distinct_sessions_count,True,CLAVE,0.0,6,0.5944,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+cpu_total,True,CLAVE,0.0,350,55.1531,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+query_count,True,CLAVE,0.0,12,0.9282,MANTENER,variabilidad y disponibilidad suficientes para el modelado
 wait_count,True,CONSTANTE,0.0,1,0.0,ELIMINAR,todos los valores disponibles son 0
-lock_event_count,True,CLAVE,0.0,35,3.4949,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-error_count,True,CLAVE,0.0,10,0.2886,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-requests_per_session,True,CLAVE,0.0,117,0.5036,MANTENER,variabilidad y disponibilidad suficientes para el modelado
-max_server_memory,True,MUCHO_NAN,98.56,1,4096.0,ELIMINAR,supera el límite permitido de valores NaN
-user_connections_setting,True,MUCHO_NAN,98.56,1,0.0,ELIMINAR,supera el límite permitido de valores NaN
-cost_threshold,True,MUCHO_NAN,98.56,1,5.0,ELIMINAR,supera el límite permitido de valores NaN
-log_error_count,True,CLAVE,23.81,5,0.0341,MANTENER,senal suficiente; contiene algunos NaN que pueden corresponder a muestras iniciales o datos faltantes
-log_warning_count,True,CONSTANTE,23.81,1,0.0,ELIMINAR,todos los valores disponibles son 0
-log_fatal_count,True,CONSTANTE,23.81,1,0.0,ELIMINAR,todos los valores disponibles son 0
+lock_event_count,True,CLAVE,0.0,37,3.9676,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+error_count,True,CLAVE,0.0,12,0.4507,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+requests_per_session,True,CLAVE,0.0,123,0.4975,MANTENER,variabilidad y disponibilidad suficientes para el modelado
+max_server_memory,True,MUCHO_NAN,98.59,1,4096.0,ELIMINAR,supera el límite permitido de valores NaN
+user_connections_setting,True,MUCHO_NAN,98.59,1,0.0,ELIMINAR,supera el límite permitido de valores NaN
+cost_threshold,True,MUCHO_NAN,98.59,1,5.0,ELIMINAR,supera el límite permitido de valores NaN
+log_error_count,True,CLAVE,25.63,5,0.0341,MANTENER,senal suficiente; contiene algunos NaN que pueden corresponder a muestras iniciales o datos faltantes
+log_warning_count,True,CONSTANTE,25.63,1,0.0,ELIMINAR,todos los valores disponibles son 0
+log_fatal_count,True,CONSTANTE,25.63,1,0.0,ELIMINAR,todos los valores disponibles son 0

@@ -1,24 +1,24 @@
 {
-  "corrida": "11",
-  "ruta_corrida": "D:\\SteelNort_web\\backend\\training\\output\\anomalias\\11",
+  "corrida": "carga5",
+  "ruta_corrida": "D:\\SteelNort_web\\backend\\training\\output\\anomalias\\carga5",
   "fecha": "2026-09-11",
   "resumen_deteccion": {
     "ventanas_corrida_anomalia_test": 27,
     "ventanas_fault": 27,
     "ventanas_normal": 0,
-    "alertas_en_fault": 22,
+    "alertas_en_fault": 10,
     "alertas_en_normal_fp": 0,
-    "recall": 0.815,
+    "recall": 0.37,
     "fpr": null
   },
   "por_fault": {
     "lockwait": {
-      "ventana": "2026-09-11 08:50:33 → 2026-09-11 08:50:50",
+      "ventana": "2026-09-11 10:39:37 → 2026-09-11 10:39:54",
       "sospecha_esperada": "Retención de lock con sesiones bloqueadas: contención de concurrencia",
       "variables_causantes_top": [
         {
           "variable": "deadlocks_per_sec",
-          "desviacion": 52000000000.0
+          "desviacion": 53000000000.0
         },
         {
           "variable": "lock_waits",
@@ -26,19 +26,19 @@
         },
         {
           "variable": "total_writes",
-          "desviacion": 8.347
+          "desviacion": 6.871
         },
         {
           "variable": "transactions_per_sec",
-          "desviacion": 7.607
-        },
-        {
-          "variable": "active_sessions",
-          "desviacion": 3.372
+          "desviacion": 5.27
         },
         {
           "variable": "active_requests",
           "desviacion": 3.372
+        },
+        {
+          "variable": "cpu_sys",
+          "desviacion": 1.852
         }
       ],
       "coincidencia_con_huella": [
@@ -52,22 +52,22 @@
         "diagnostico": null
       },
       "deteccion": {
-        "ventanas_total": 8,
-        "ventanas_alertadas": 8,
-        "tpr": 1.0
+        "ventanas_total": 7,
+        "ventanas_alertadas": 4,
+        "tpr": 0.571
       }
     },
     "fault1": {
-      "ventana": "2026-09-11 08:51:06 → 2026-09-11 08:51:24",
+      "ventana": "2026-09-11 10:40:10 → 2026-09-11 10:40:27",
       "sospecha_esperada": "Escrituras al log de transacciones por INSERTs altamente concurrentes",
       "variables_causantes_top": [
         {
           "variable": "deadlocks_per_sec",
-          "desviacion": 49000000000.0
+          "desviacion": 45500000000.0
         },
         {
           "variable": "lock_waits",
-          "desviacion": 2000000000.0
+          "desviacion": 3500000000.0
         },
         {
           "variable": "error_count",
@@ -75,15 +75,15 @@
         },
         {
           "variable": "total_writes",
-          "desviacion": 8.178
+          "desviacion": 6.576
         },
         {
           "variable": "transactions_per_sec",
-          "desviacion": 7.385
+          "desviacion": 5.083
         },
         {
-          "variable": "active_sessions",
-          "desviacion": 6.07
+          "variable": "active_requests",
+          "desviacion": 4.721
         }
       ],
       "coincidencia_con_huella": [
@@ -97,42 +97,43 @@
         "diagnostico": null
       },
       "deteccion": {
-        "ventanas_total": 6,
-        "ventanas_alertadas": 3,
-        "tpr": 0.5
+        "ventanas_total": 7,
+        "ventanas_alertadas": 0,
+        "tpr": 0.0
       }
     },
     "fault2": {
-      "ventana": "2026-09-11 08:51:40 → 2026-09-11 08:51:57",
+      "ventana": "2026-09-11 10:40:44 → 2026-09-11 10:41:01",
       "sospecha_esperada": "Falta de índice (full scan): lecturas físicas muy altas y esperas de página",
       "variables_causantes_top": [
         {
-          "variable": "cpu_sys",
-          "desviacion": 14.007
-        },
-        {
           "variable": "total_writes",
-          "desviacion": 8.347
+          "desviacion": 6.871
         },
         {
           "variable": "transactions_per_sec",
-          "desviacion": 7.655
+          "desviacion": 5.201
         },
         {
-          "variable": "disk_read_per_sec",
-          "desviacion": 3.675
-        },
-        {
-          "variable": "active_sessions",
-          "desviacion": 2.023
+          "variable": "cpu_sys",
+          "desviacion": 3.955
         },
         {
           "variable": "active_requests",
-          "desviacion": 2.023
+          "desviacion": 3.372
+        },
+        {
+          "variable": "disk_read_per_sec",
+          "desviacion": 3.045
+        },
+        {
+          "variable": "cpu_usr",
+          "desviacion": 2.735
         }
       ],
       "coincidencia_con_huella": [
-        "disk_read_per_sec"
+        "disk_read_per_sec",
+        "cpu_usr"
       ],
       "reglas": {
         "detecciones_reglas": 0,
@@ -141,38 +142,38 @@
         "diagnostico": null
       },
       "deteccion": {
-        "ventanas_total": 7,
-        "ventanas_alertadas": 5,
-        "tpr": 0.714
+        "ventanas_total": 6,
+        "ventanas_alertadas": 1,
+        "tpr": 0.167
       }
     },
     "fault5": {
-      "ventana": "2026-09-11 08:52:13 → 2026-09-11 08:52:30",
+      "ventana": "2026-09-11 10:41:17 → 2026-09-11 10:41:34",
       "sospecha_esperada": "Commits altamente concurrentes: confirmaciones de log simultáneas",
       "variables_causantes_top": [
         {
+          "variable": "disk_read_per_sec",
+          "desviacion": 10.464
+        },
+        {
           "variable": "cpu_sys",
-          "desviacion": 15.873
+          "desviacion": 6.631
         },
         {
           "variable": "transactions_per_sec",
-          "desviacion": 7.654
+          "desviacion": 5.293
         },
         {
           "variable": "total_writes",
-          "desviacion": 3.372
+          "desviacion": 4.483
         },
         {
           "variable": "cpu_usr",
-          "desviacion": 1.401
+          "desviacion": 3.485
         },
         {
           "variable": "load1",
-          "desviacion": 1.349
-        },
-        {
-          "variable": "active_sessions",
-          "desviacion": 1.349
+          "desviacion": 3.372
         }
       ],
       "coincidencia_con_huella": [
@@ -187,41 +188,41 @@
       },
       "deteccion": {
         "ventanas_total": 6,
-        "ventanas_alertadas": 6,
-        "tpr": 1.0
+        "ventanas_alertadas": 4,
+        "tpr": 0.667
       }
     },
     "fault3": {
-      "ventana": "2026-09-11 08:52:46 → 2026-09-11 08:52:55",
+      "ventana": "2026-09-11 10:41:50 → 2026-09-11 10:42:05",
       "sospecha_esperada": "Carga de trabajo pesada sobre la API: CPU alta y latencia del endpoint elevada",
       "variables_causantes_top": [
         {
-          "variable": "cpu_sys",
-          "desviacion": 15.109
+          "variable": "load1",
+          "desviacion": 7.916
         },
         {
           "variable": "total_writes",
-          "desviacion": 6.576
+          "desviacion": 6.871
+        },
+        {
+          "variable": "cpu_sys",
+          "desviacion": 5.556
         },
         {
           "variable": "transactions_per_sec",
-          "desviacion": 5.971
-        },
-        {
-          "variable": "disk_write_per_sec",
-          "desviacion": 3.243
+          "desviacion": 5.285
         },
         {
           "variable": "active_requests",
-          "desviacion": 1.349
+          "desviacion": 2.023
         },
         {
-          "variable": "cpu_usr",
-          "desviacion": 0.986
+          "variable": "disk_write_per_sec",
+          "desviacion": 1.827
         }
       ],
       "coincidencia_con_huella": [
-        "cpu_usr"
+        "load1"
       ],
       "reglas": {
         "detecciones_reglas": 0,
@@ -229,7 +230,11 @@
         "conteo_por_regla": {},
         "diagnostico": null
       },
-      "deteccion": {}
+      "deteccion": {
+        "ventanas_total": 1,
+        "ventanas_alertadas": 1,
+        "tpr": 1.0
+      }
     }
   },
   "conclusion": {

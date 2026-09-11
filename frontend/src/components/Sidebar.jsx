@@ -28,6 +28,7 @@ const items = [
   { to: '/reportes', label: 'Reportes', icon: reporteIcon },
   { to: '/alertas', label: 'Alertas', icon: alertaIcon },
   { to: '/roles-permisos', label: 'Roles y Permisos', icon: 'shield' },
+
   { to: '/configuracion', label: 'Configuración', icon: configuracionIcon },
 ]
 

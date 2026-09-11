@@ -235,9 +235,9 @@ def main():
     # términos de correlación. La corrida de anomalías (carga5) NUNCA
     # participa del análisis de correlación.
     presentes = set(datos["run_name"].unique())
-    corridas_train = [
-        c for c in config.CORRIDAS_ENTRENAMIENTO if c in presentes
-    ]
+    # Detect all normal runs (exclude anomaly runs)
+    corridas_anom = set(config.corridas_anomalia())
+    corridas_train = [c for c in presentes if c not in corridas_anom]
     train = datos[datos["run_name"].isin(corridas_train)].copy()
 
     log(f"Correlacion solo sobre corridas normales: {corridas_train}")

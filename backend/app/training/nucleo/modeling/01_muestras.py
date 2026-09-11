@@ -169,9 +169,9 @@ def main():
 
     todas_corridas = set(datos["run_name"].unique())
 
-    corridas_train = [
-        c for c in config.CORRIDAS_ENTRENAMIENTO if c in todas_corridas
-    ]
+    # Entrenamiento con todas las corridas normales (excluyendo anomalías)
+    corridas_anom = set(config.corridas_anomalia())
+    corridas_train = [c for c in todas_corridas if c not in corridas_anom]
 
     corridas_test = [
         c for c in config.corridas_anomalia() if c in todas_corridas
