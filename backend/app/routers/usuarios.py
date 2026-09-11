@@ -11,7 +11,7 @@ from app.database import get_db
 from app.models.model_usuario import Usuarios
 from app.routers.auth import get_current_user, require_csrf
 from app.schemas import PermisosOut, UsuarioCreate, UsuarioOut, UsuarioUpdate
-from app.services.permisos import PERMISOS_POR_ROL, permisos_del_usuario, require_permission
+from app.services.permisos import matriz_permisos, permisos_del_usuario, require_permission
 from app.services.usuarios import actualizar_usuario, crear_usuario, eliminar_usuario, listar_usuarios
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
@@ -28,14 +28,15 @@ def obtener_usuarios(
 
 @router.get("/roles/permisos", response_model=PermisosOut)
 def obtener_permisos(
-    _current: Annotated[Usuarios, Depends(require_permission("permisos:leer"))],
+    db: Db,
+    _current: Annotated[Usuarios, Depends(require_permission("roles:leer"))],
 ) -> PermisosOut:
-    return PermisosOut(roles={rol: sorted(permisos) for rol, permisos in PERMISOS_POR_ROL.items()})
+    return PermisosOut(roles=matriz_permisos(db))
 
 
 @router.get("/me/permisos", response_model=list[str])
-def mis_permisos(current: Annotated[Usuarios, Depends(get_current_user)]) -> list[str]:
-    return permisos_del_usuario(current)
+def mis_permisos(current: Annotated[Usuarios, Depends(get_current_user)], db: Db) -> list[str]:
+    return permisos_del_usuario(current, db)
 
 
 @router.post("", response_model=UsuarioOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_csrf)])

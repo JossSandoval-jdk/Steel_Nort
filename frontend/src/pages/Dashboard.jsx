@@ -1,9 +1,14 @@
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
+import { useSystemMetrics } from '../hooks/useSystemMetrics.js'
+import { useTelemetria } from '../hooks/useTelemetria.js'
+import {
+  useDashboardHeatmap,
+  useDashboardDisponibilidad,
+  useDashboardAnomaliasResumen,
+} from '../hooks/useDashboardData.js'
 import '../css/Layout.css'
 import '../css/Dashboard.css'
-
-const disponibilidadData = [99.98, 99.95, 100, 99.97, 99.99, 99.96, 100]
 
 const DISP_CHART_W = 520
 const DISP_CHART_H = 130
@@ -25,7 +30,8 @@ function barChartData(data, min, max) {
 }
 
 function BarChart({ data }) {
-  const pts = barChartData(data, DISP_MIN, DISP_MAX)
+  const safe = data.length >= 2 ? data : [100, 100, 100, 100, 100, 100, 100]
+  const pts = barChartData(safe, DISP_MIN, DISP_MAX)
   const ptsStr = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
   const last = pts[pts.length - 1]
   const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
@@ -49,8 +55,6 @@ function BarChart({ data }) {
   )
 }
 
-const rendimientoData = [380, 420, 400, 460, 440, 410, 430]
-
 const BARS_W = 340
 const BARS_H = 130
 const BARS_PAD_L = 8
@@ -63,18 +67,19 @@ const BAR_W = 26
 const BAR_MAX = 500
 
 function BarraChart({ data }) {
-  const n = data.length
+  const safe = data.length >= 2 ? data : [0, 0, 0, 0, 0, 0, 0]
+  const n = safe.length
   const step = BARS_PLOT_W / n
   const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
   return (
     <svg className="dash-bar-chart" viewBox={`0 0 ${BARS_W} ${BARS_H}`} role="img">
-      {data.map((v, i) => {
+      {safe.map((v, i) => {
         const bw = Math.min(BAR_W, step * 0.6)
         const x = BARS_PAD_L + i * step + (step - bw) / 2
         const h = (v / BAR_MAX) * BARS_PLOT_H
         const y = BARS_H - BARS_PAD_B - h
         return (
-          <g key={dias[i]}>
+          <g key={dias[i] || i}>
             <rect x={x} y={y} width={bw} height={h} rx="5" fill="#0269a1" />
             <text x={x + bw / 2} y={BARS_H - 8} textAnchor="middle" fontSize="12" fill="#6b7683" fontWeight="500">
               {dias[i]}
@@ -105,9 +110,6 @@ const REC_PAD_B = 26
 const REC_PLOT_W = REC_W - REC_PAD_L - REC_PAD_R
 const REC_PLOT_H = REC_H - REC_PAD_T - REC_PAD_B
 
-const cpuPercentData = [42, 45, 40, 47, 52, 49, 55, 53, 60, 57, 62, 58]
-const memPercentData = [58, 60, 59, 63, 62, 66, 64, 68, 67, 71, 69, 73]
-
 const REC_HORAS = [
   [0, '00:00'],
   [4, '04:00'],
@@ -119,6 +121,7 @@ const REC_HORAS = [
 ]
 
 function recPts(data) {
+  if (data.length < 2) data = [0, 0]
   return data.map((v, i) => ({
     x: REC_PAD_L + (i * REC_PLOT_W) / (data.length - 1),
     y: REC_PAD_T + (1 - v / 100) * REC_PLOT_H,
@@ -192,34 +195,49 @@ function RecursoChart({ series }) {
   )
 }
 
-const anomaliasTemporales = [
-  { nivel: 'Normal', color: '#16a34a' },
-  { nivel: 'Alerta baja', color: '#eab308' },
-  { nivel: 'Alerta alta', color: '#dc2626' },
+const NIVELES_HEATMAP = [
+  { nivel: 'Normal', sev: 'normal', color: '#16a34a' },
+  { nivel: 'Alerta baja', sev: 'alerta_baja', color: '#eab308' },
+  { nivel: 'Alerta alta', sev: 'alerta_alta', color: '#dc2626' },
 ]
 
-const GRID_COLS = 30
+const GRID_COLS = 24
 
-function MapaAnomalias() {
-  const generateRow = (row, baseColor) =>
-    Array.from({ length: GRID_COLS }).map((_, c) => {
-      if (row === 0 && c % 11 === 3) return '#eab308'
-      if (row === 0 && c % 17 === 9) return '#dc2626'
-      if (row === 1 && c % 9 === 2) return '#f97316'
-      if (row === 1 && c % 13 === 5) return '#16a34a'
-      if (row === 1 && c % 13 === 6) return '#dc2626'
-      if (row === 2 && c % 7 === 3) return '#f97316'
-      if (row === 2 && c % 9 === 1) return '#eab308'
-      if (row === 2 && c % 11 === 8) return '#16a34a'
-      return baseColor
-    })
+function MapaAnomalias({ datos }) {
+  const grid = Array.from({ length: 3 }).map(() => Array(GRID_COLS).fill(0))
+  if (datos && datos.length > 0) {
+    for (const d of datos) {
+      const sevIdx = NIVELES_HEATMAP.findIndex((n) => n.sev === d.severidad)
+      if (sevIdx >= 0 && d.hora >= 0 && d.hora < GRID_COLS) {
+        grid[sevIdx][d.hora] = d.cantidad
+      }
+    }
+  }
 
-  const filasCuadros = anomaliasTemporales.map((a, row) => (
-    <div key={a.nivel} className="dash-mapa-fila">
+  const maxCant = Math.max(1, ...grid.flat())
+
+  const colorCell = (cant, baseColor) => {
+    if (cant === 0) return baseColor
+    const intensity = Math.min(cant / maxCant, 1)
+    if (intensity < 0.3) return baseColor
+    if (intensity < 0.7) return baseColor
+    return baseColor
+  }
+
+  const filasCuadros = NIVELES_HEATMAP.map((a, row) => (
+    <div key={a.sev} className="dash-mapa-fila">
       <span className="dash-mapa-etiqueta">{a.nivel}</span>
       <div className="dash-mapa-cuadros">
-        {generateRow(row, a.color).map((color, c) => (
-          <span key={c} className="dash-mapa-cuadro" style={{ background: color }} />
+        {grid[row].map((cant, c) => (
+          <span
+            key={c}
+            className="dash-mapa-cuadro"
+            style={{
+              background: cant > 0 ? a.color : '#e5e7eb',
+              opacity: cant > 0 ? 0.5 + (cant / maxCant) * 0.5 : 1,
+            }}
+            title={`${c}:00 - ${cant} anomalías`}
+          />
         ))}
       </div>
     </div>
@@ -227,8 +245,8 @@ function MapaAnomalias() {
 
   const leyenda = (
     <div className="dash-mapa-leyenda">
-      {anomaliasTemporales.map((a) => (
-        <span key={a.nivel} className="dash-mapa-ley-item">
+      {NIVELES_HEATMAP.map((a) => (
+        <span key={a.sev} className="dash-mapa-ley-item">
           <span className="dash-mapa-chip" style={{ background: a.color }} />
           {a.nivel}
         </span>
@@ -240,12 +258,45 @@ function MapaAnomalias() {
     <div className="dash-mapa">
       {leyenda}
       {filasCuadros}
-      {leyenda}
     </div>
   )
 }
 
 function Dashboard() {
+  const { actual, historico } = useSystemMetrics(3000, 80)
+  const { conectado, ultimaMuestra, serie } = useTelemetria(80)
+  const { datos: heatmapDatos } = useDashboardHeatmap(60000)
+  const { dias: dispDias, promedio: dispPromedio } = useDashboardDisponibilidad(300000)
+  const { total_hoy, alertas_activas } = useDashboardAnomaliasResumen(30000)
+
+  const nodo = 'Servidor Negocio'
+  const muestra = ultimaMuestra(nodo) || {}
+  const serieNodo = serie(nodo, 80)
+
+  const cpuActual = actual?.cpu ?? 0
+  const memActual = actual?.mem ?? 0
+
+  const cpuData = serieNodo.length > 0
+    ? serieNodo.map((m) => m.muestra?.cpu_usr ?? m.muestra?.cpu_idl ?? 0)
+    : []
+  const memData = serieNodo.length > 0
+    ? serieNodo.map((m) => m.muestra?.memory_percent ?? 0)
+    : []
+
+  const activas = muestra.active_sessions ?? 0
+  const inactivas = muestra.idle_sessions ?? 0
+
+  const durationData = serieNodo.length > 0
+    ? serieNodo.map((m) => m.muestra?.duration_avg_ms ?? 0)
+    : []
+  const duracionPromedio = durationData.length > 0
+    ? Math.round(durationData.reduce((a, b) => a + b, 0) / durationData.length)
+    : 0
+
+  const tasaAnomalias = total_hoy > 0
+    ? `${(total_hoy / 60).toFixed(2)}/min`
+    : '0/min'
+
   return (
     <div className="layout">
       <Sidebar />
@@ -261,9 +312,9 @@ function Dashboard() {
                       Disponibilidad del sistema{' '}
                       <span className="dash-disp-sub">(Últimos 7 días)</span>
                     </h3>
-                    <span className="dash-disp-value">99.97<small>%</small></span>
+                    <span className="dash-disp-value">{dispPromedio}<small>%</small></span>
                   </div>
-                  <BarChart data={disponibilidadData} />
+                  <BarChart data={dispDias} />
                 </div>
               </article>
 
@@ -274,7 +325,7 @@ function Dashboard() {
                       Tasa de anomalías{' '}
                       <span className="dash-anom-sub">(Hora actual)</span>
                     </h3>
-                    <span className="dash-anom-value">0.12<small>/min</small></span>
+                    <span className="dash-anom-value">{tasaAnomalias}</span>
                   </div>
                   <span className="dash-anom-icon">
                     <IconInfo />
@@ -291,9 +342,9 @@ function Dashboard() {
                       Rendimiento por consultas{' '}
                       <span className="dash-disp-sub">(Promedio)</span>
                     </h3>
-                    <span className="dash-rend-value">420<small>ms</small></span>
+                    <span className="dash-rend-value">{duracionPromedio}<small>ms</small></span>
                   </div>
-                  <BarraChart data={rendimientoData} />
+                  <BarraChart data={durationData.length > 0 ? durationData.slice(-7) : []} />
                 </div>
               </article>
 
@@ -302,9 +353,9 @@ function Dashboard() {
                   <div className="dash-anom-text">
                     <h3 className="card-title">Estado de sesiones transaccionales</h3>
                     <div className="dash-ses-value">
-                      <span className="dash-ses-activas">250</span>
+                      <span className="dash-ses-activas">{activas}</span>
                       <span className="dash-ses-sep">/</span>
-                      <span className="dash-ses-inactivas">15</span>
+                      <span className="dash-ses-inactivas">{inactivas}</span>
                       <span className="dash-ses-label">activas / inactivas</span>
                     </div>
                   </div>
@@ -317,14 +368,14 @@ function Dashboard() {
                 <h3 className="card-title">Uso de recursos detallado</h3>
                 <div className="dash-rec-head">
                   <div className="dash-rec-leyenda">
-                    <span className="dash-ley-item"><span className="dash-ley-sq" style={{ background: '#0269a1' }} />CPU · 62%</span>
-                    <span className="dash-ley-item"><span className="dash-ley-sq" style={{ background: '#d97706' }} />Memoria · 71%</span>
+                    <span className="dash-ley-item"><span className="dash-ley-sq" style={{ background: '#0269a1' }} />CPU · {cpuActual}%</span>
+                    <span className="dash-ley-item"><span className="dash-ley-sq" style={{ background: '#d97706' }} />Memoria · {memActual}%</span>
                   </div>
                 </div>
                 <RecursoChart
                   series={[
-                    { label: 'CPU', color: '#0269a1', data: cpuPercentData },
-                    { label: 'Memoria', color: '#d97706', data: memPercentData, dashed: true },
+                    { label: 'CPU', color: '#0269a1', data: cpuData.length > 0 ? cpuData : [0] },
+                    { label: 'Memoria', color: '#d97706', data: memData.length > 0 ? memData : [0], dashed: true },
                   ]}
                 />
               </article>
@@ -334,7 +385,7 @@ function Dashboard() {
                   Mapa de anomalías temporales{' '}
                   <span className="dash-disp-sub">(Día)</span>
                 </h3>
-                <MapaAnomalias />
+                <MapaAnomalias datos={heatmapDatos} />
               </article>
             </div>
           </div>

@@ -98,3 +98,59 @@ class SesionOut(BaseModel):
     ses_est: str
 
     model_config = {"from_attributes": True}
+
+
+# =====================================================================
+# ROLES Y PERMISOS
+# =====================================================================
+
+class RolOut(BaseModel):
+    """Representacion de salida de un rol."""
+
+    rol_cod: int
+    rol_nom: str
+    rol_desc: str | None
+    rol_act: bool
+
+    model_config = {"from_attributes": True}
+
+
+class RolCreate(BaseModel):
+    """Datos para crear un rol."""
+
+    rol_nom: str = Field(..., min_length=1, max_length=30)
+    rol_desc: str | None = Field(default=None, max_length=200)
+
+
+class RolUpdate(BaseModel):
+    """Campos editables de un rol."""
+
+    rol_nom: str | None = Field(default=None, min_length=1, max_length=30)
+    rol_desc: str | None = Field(default=None, max_length=200)
+    rol_act: bool | None = None
+
+
+class PermisoOut(BaseModel):
+    """Representacion de salida de un permiso."""
+
+    prm_cod: int
+    prm_clave: str
+    prm_nom: str
+    prm_mod: str
+    prm_act: bool
+
+    model_config = {"from_attributes": True}
+
+
+class PermisoCreate(BaseModel):
+    """Datos para crear un permiso."""
+
+    prm_clave: str = Field(..., min_length=3, max_length=50, pattern=r"^[a-z]+:[a-z]+$")
+    prm_nom: str = Field(..., min_length=1, max_length=100)
+    prm_mod: str = Field(..., min_length=1, max_length=50)
+
+
+class RolPermisosUpdate(BaseModel):
+    """Lista de permisos a asignar a un rol (reemplaza los existentes)."""
+
+    prm_ids: list[int]

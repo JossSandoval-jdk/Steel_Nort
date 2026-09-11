@@ -1,0 +1,29 @@
+﻿columna,clasificacion,motivo,detalle
+api_status,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+auditoria_locks,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+cpu_idl,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+cpu_total,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+detalle_venta_locks,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+distinct_sessions_count,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+events_batch_count,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+events_lock_count,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+idle_sessions,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+inventario_locks,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+kardex_locks,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+load15,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+load5,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+lock_event_count,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+log_error_count,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+logical_reads_sum,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+memory_available_mb,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+memory_used_mb,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+movimiento_caja_locks,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+net_recv_per_sec,disponible,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+net_send_per_sec,disponible,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+products_count,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+query_duration_avg_ms,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+query_duration_max_ms,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+requests_per_session,redundante,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+total_locks,disponible,supera el filtro de señal pero no forma parte del conjunto principal,redundante o de menor relevancia para el modelo de anomalías
+venta_locks,diagnostico,supera el filtro de señal pero no forma parte del conjunto principal,usada para diagnóstico o descartada por redundancia/dominio
+buffer_cache_hit_ratio,excluida,medición no confiable o incorrecta en el collector,

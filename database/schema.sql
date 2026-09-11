@@ -17,7 +17,8 @@
 --  * Nombres de tablas COMPLETOS: Usuarios, Sesiones,
 --    Eventos_Sesion, Nodos_SCADA, Servicios, Alertas,
 --    Causas_Raiz, Heatmap_Anomalias, Configuracion_Sistema,
---    Modelos_ML, Reportes, Predicciones_ML.
+--    Modelos_ML, Reportes, Predicciones_ML, Roles,
+--    Permisos, Rol_Permiso, Muestras_Normales.
 --  * Cada columna lleva el prefijo de 3 letras de su tabla mas
 --    una abreviatura corta (ej: usu_cod, usu_nom, usu_ema).
 --  * Las 4 ultimas columnas de cada tabla son la auditoria de
@@ -270,7 +271,7 @@ CREATE TABLE Reportes (
 GO
 
 -- ============================================================
--- 12. PREDICCIONES_ML (prefijo prd) — SOLO ANOMALIAS
+-- 17. PREDICCIONES_ML (prefijo prd) — SOLO ANOMALIAS
 -- Resultado del detector que corre en tiempo real en el
 -- navegador. SOLO se persisten las muestras marcadas como
 -- anomalia (es_anomalia = 1), descartando la telemetria normal
@@ -292,6 +293,85 @@ CREATE TABLE Predicciones_ML (
     fec_eli         DATETIME2       NULL,
     FOREIGN KEY (prd_mdl) REFERENCES Modelos_ML(mdl_cod),
     FOREIGN KEY (prd_ndo) REFERENCES Nodos_SCADA(ndo_cod)
+);
+GO
+
+-- ============================================================
+-- 13. ROLES (prefijo rol)
+-- Catálogo de roles del sistema. Cada usuario tiene un usu_rol
+-- que referencia a un rol de esta tabla.
+-- ============================================================
+CREATE TABLE Roles (
+    rol_cod         INT IDENTITY(1,1) PRIMARY KEY,
+    rol_nom         NVARCHAR(30)    NOT NULL UNIQUE,
+    rol_desc        NVARCHAR(200)   NULL,
+    rol_act         BIT             NOT NULL DEFAULT 1,
+    reg_usu         NVARCHAR(60)    NULL,
+    fec_reg         DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    eli_usu         NVARCHAR(60)    NULL,
+    fec_eli         DATETIME2       NULL
+);
+GO
+
+-- ============================================================
+-- 14. PERMISOS (prefijo prm)
+-- Catálogo de permisos disponibles. Clave única con formato
+-- "modulo:accion" (ej: usuarios:leer, ml:reentrenar).
+-- ============================================================
+CREATE TABLE Permisos (
+    prm_cod         INT IDENTITY(1,1) PRIMARY KEY,
+    prm_clave       NVARCHAR(50)    NOT NULL UNIQUE,
+    prm_nom         NVARCHAR(100)   NOT NULL,
+    prm_mod         NVARCHAR(50)    NOT NULL,
+    prm_act         BIT             NOT NULL DEFAULT 1,
+    reg_usu         NVARCHAR(60)    NULL,
+    fec_reg         DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    eli_usu         NVARCHAR(60)    NULL,
+    fec_eli         DATETIME2       NULL
+);
+GO
+
+-- ============================================================
+-- 15. ROL_PERMISO (tabla puente N:N)
+-- Relaciona roles con sus permisos asignados.
+-- ============================================================
+CREATE TABLE Rol_Permiso (
+    rp_rol          INT             NOT NULL,
+    rp_prm          INT             NOT NULL,
+    reg_usu         NVARCHAR(60)    NULL,
+    fec_reg         DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    PRIMARY KEY (rp_rol, rp_prm),
+    FOREIGN KEY (rp_rol) REFERENCES Roles(rol_cod),
+    FOREIGN KEY (rp_prm) REFERENCES Permisos(prm_cod)
+);
+GO
+
+-- ============================================================
+-- 18. MUESTRAS_NORMALES (prefijo mno) — REENTRENAMIENTO
+-- Almacena SOLO las muestras que el detector clasifica como
+-- normales (score >= umbral). Se usan para reentrenar el
+-- modelo periodicamente sin contaminar con anomalías.
+--
+-- Flujo:
+--   1. Daemon envía muestra → detector evalúa
+--   2. Si NO es anomalía → se guarda aquí
+--   3. Servicio de reentrenamiento lee estas muestras
+--   4. Filtra outliers (score muy bajo) y re-entrena
+--   5. Solo normales entran al entrenamiento
+-- ============================================================
+CREATE TABLE Muestras_Normales (
+    mno_cod         INT IDENTITY(1,1) PRIMARY KEY,
+    mno_ndo         INT             NOT NULL,
+    mno_fec         DATETIME2       NOT NULL,
+    mno_score       DECIMAL(6,4)    NOT NULL,
+    mno_umbral      DECIMAL(5,2)    NOT NULL,
+    mno_feats       NVARCHAR(MAX)   NULL,
+    mno_ventana     INT             NOT NULL DEFAULT 10,
+    reg_usu         NVARCHAR(60)    NULL,
+    fec_reg         DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    eli_usu         NVARCHAR(60)    NULL,
+    fec_eli         DATETIME2       NULL,
+    FOREIGN KEY (mno_ndo) REFERENCES Nodos_SCADA(ndo_cod)
 );
 GO
 
@@ -338,4 +418,18 @@ CREATE INDEX IX_mdl_act    ON Modelos_ML(mdl_act);
 -- Reportes
 CREATE INDEX IX_rpt_usu    ON Reportes(rpt_usu);
 CREATE INDEX IX_rpt_tipo   ON Reportes(rpt_tipo);
+
+-- Muestras_Normales (reentrenamiento)
+CREATE INDEX IX_mno_ndo    ON Muestras_Normales(mno_ndo, mno_fec);
+CREATE INDEX IX_mno_fec    ON Muestras_Normales(mno_fec);
+
+-- Roles
+CREATE INDEX IX_rol_nom    ON Roles(rol_nom);
+
+-- Permisos
+CREATE INDEX IX_prm_clave  ON Permisos(prm_clave);
+CREATE INDEX IX_prm_mod    ON Permisos(prm_mod);
+
+-- Rol_Permiso
+CREATE INDEX IX_rp_prm     ON Rol_Permiso(rp_prm);
 GO

@@ -19,6 +19,11 @@ export default defineConfig([
     },
   },
   {
+    // El servidor Express corre en Node.js, no en el browser.
+    files: ['server/**/*.js', 'vite.config.js'],
+    languageOptions: { globals: globals.node },
+  },
+  {
     // Permite que los archivos de contexto exporten hooks (p. ej.
     // AuthContext: <AuthProvider> + useAuth()). Es un patron estandar
     // de React y no rompe el fast refresh.

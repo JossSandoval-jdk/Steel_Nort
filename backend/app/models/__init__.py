@@ -13,7 +13,9 @@ from app.models.model_usuario import EventosSesion, Sesiones, Usuarios
 from app.models.model_alerta import Alertas, CausasRaiz, HeatmapAnomalias
 from app.models.model_configuracion import ConfiguracionSistema
 from app.models.model_ml import ModelosML, PrediccionesML
+from app.models.model_muestra_normal import MuestrasNormales
 from app.models.model_reporte import Reportes
+from app.models.model_rol_permiso import Permisos, RolPermiso, Roles
 from app.models.model_scada import NodosSCADA, Servicios
 
 __all__ = [
@@ -23,9 +25,13 @@ __all__ = [
 	"EventosSesion",
 	"HeatmapAnomalias",
 	"ModelosML",
+	"MuestrasNormales",
 	"NodosSCADA",
+	"Permisos",
 	"PrediccionesML",
 	"Reportes",
+	"RolPermiso",
+	"Roles",
 	"Servicios",
 	"Sesiones",
 	"Usuarios",

@@ -1,0 +1,27 @@
+﻿columna,clasificacion,fuente,dominio,tipo,descripcion
+cpu_usr,principal,metrics,sistema,numerica,Porcentaje de CPU utilizado por procesos de usuario
+cpu_sys,principal,metrics,sistema,numerica,Porcentaje de CPU utilizado por procesos del sistema
+cpu_wai,principal,metrics,sistema,numerica,Porcentaje de CPU esperando operaciones de E/S
+load1,principal,metrics,sistema,numerica,Carga promedio del sistema durante 1 minuto
+memory_percent,principal,metrics,sistema,numerica,Porcentaje de memoria utilizada
+page_life_expectancy,principal,metrics,sqlserver,numerica,Page Life Expectancy
+disk_read_per_sec,principal,metrics,sistema,numerica,Lecturas de disco por segundo
+disk_write_per_sec,principal,metrics,sistema,numerica,Escrituras de disco por segundo
+total_reads,principal,metrics,sqlserver,numerica,Lecturas totales
+total_writes,principal,metrics,sqlserver,numerica,Escrituras totales
+active_sessions,principal,metrics,sesiones,numerica,Número de sesiones activas
+active_requests,principal,metrics,sesiones,numerica,Número de solicitudes activas
+long_queries,principal,metrics,sesiones,numerica,Cantidad de consultas de larga duración
+long_transactions,principal,metrics,sesiones,numerica,Cantidad de transacciones de larga duración
+lock_waits,principal,metrics,bloqueos,numerica,Cantidad de esperas por bloqueos
+deadlocks_per_sec,principal,metrics,bloqueos,numerica,Deadlocks por segundo
+transactions_per_sec,principal,metrics,sqlserver,numerica,Transacciones por segundo
+query_count,principal,events,eventos,numerica,Cantidad de consultas
+duration_avg_ms,principal,events,eventos,numerica,Duración promedio de consultas
+duration_max_ms,principal,events,eventos,numerica,Duración máxima de consultas
+cpu_time_sum_ms,principal,events,eventos,numerica,Tiempo total de CPU utilizado
+wait_lck_count,principal,events,eventos,numerica,Esperas asociadas a locks
+wait_io_count,principal,events,eventos,numerica,Esperas asociadas a operaciones de E/S
+wait_log_count,principal,events,eventos,numerica,Esperas asociadas al log
+api_latency_ms,principal,metrics,api,numerica,Latencia de la API en milisegundos
+error_count,principal,events,eventos,numerica,Cantidad de errores registrados

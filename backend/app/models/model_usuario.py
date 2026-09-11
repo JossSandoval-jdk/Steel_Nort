@@ -26,6 +26,7 @@ from app.database import Base
 if TYPE_CHECKING:
     from app.models.model_alerta import Alertas
     from app.models.model_reporte import Reportes
+    from app.models.model_rol_permiso import Roles
 
 
 class Usuarios(Base):
@@ -44,6 +45,14 @@ class Usuarios(Base):
     fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
     eli_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    # Relacion con el catálogo de Roles (opcional, para FK).
+    rol: Mapped["Roles | None"] = relationship(
+        "Roles",
+        primaryjoin="Usuarios.usu_rol == Roles.rol_nom",
+        foreign_keys="Usuarios.usu_rol",
+        viewonly=True,
+    )
 
     # Relacion con las sesiones del usuario.
     sesiones: Mapped[list["Sesiones"]] = relationship(

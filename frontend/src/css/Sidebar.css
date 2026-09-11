@@ -55,6 +55,13 @@
   filter: brightness(0) invert(1);
 }
 
+.sidebar-item svg {
+  width: 22px;
+  height: 22px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
 .sidebar-item:hover {
   background: rgba(255, 255, 255, 0.12);
 }

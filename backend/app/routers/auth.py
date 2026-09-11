@@ -53,15 +53,21 @@ def get_current_user(
     Extrae y valida el JWT. Si es valido, carga al usuario activo desde
     la BD. Lanza 401 si el token es invalido/expirado o 403 si el
     usuario fue desactivado o eliminado (baja logica).
+
+    Alternativa: acepta ``?token=<JWT>`` como query param para
+    endpoints SSE donde EventSource no puede enviar headers custom.
     """
     auth = request.headers.get("Authorization", "")
-    if not auth.startswith("Bearer "):
+    token = None
+    if auth.startswith("Bearer "):
+        token = auth.removeprefix("Bearer ").strip()
+    else:
+        token = request.query_params.get("token")
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token de autorizacion faltante o malformado.",
         )
-
-    token = auth.removeprefix("Bearer ").strip()
     payload = decode_access_token(token)
     if payload is None:
         raise HTTPException(

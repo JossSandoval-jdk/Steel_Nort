@@ -7,6 +7,16 @@ import alertaIcon from '../assets/icons/alerta_icon.png'
 import configuracionIcon from '../assets/icons/configuracion_icon.png'
 import '../css/Sidebar.css'
 
+function ShieldIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M12 8v4" />
+      <path d="M12 16h.01" />
+    </svg>
+  )
+}
+
 /*
  * Sidebar: Componente de navegación lateral.
  * Renderiza una lista de enlaces de navegación con iconos correspondientes.
@@ -17,6 +27,7 @@ const items = [
   { to: '/dashboard', label: 'Dashboard', icon: dashboardIcon },
   { to: '/reportes', label: 'Reportes', icon: reporteIcon },
   { to: '/alertas', label: 'Alertas', icon: alertaIcon },
+  { to: '/roles-permisos', label: 'Roles y Permisos', icon: 'shield' },
   { to: '/configuracion', label: 'Configuración', icon: configuracionIcon },
 ]
 
@@ -36,7 +47,7 @@ function Sidebar() {
               isActive ? 'sidebar-item active' : 'sidebar-item'
             }
           >
-            <img src={item.icon} alt="" />
+            {item.icon === 'shield' ? <ShieldIcon /> : <img src={item.icon} alt="" />}
             <span>{item.label}</span>
           </NavLink>
         ))}

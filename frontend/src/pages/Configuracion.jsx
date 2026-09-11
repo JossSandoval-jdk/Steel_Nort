@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
 import ModalUsuario from '../components/ModalUsuario.jsx'
@@ -67,10 +68,75 @@ function InfoRow({ label, value }) {
   )
 }
 
+function ImportResultado({ reporte }) {
+  if (!reporte) return null
+  const nodos = reporte.por_nodo || {}
+  return (
+    <div className="import-result">
+      <div className="import-stats">
+        <div className="import-stat">
+          <span className="import-stat-num">{reporte.total_recibidas ?? 0}</span>
+          <span className="import-stat-label">recibidas</span>
+        </div>
+        <div className="import-stat">
+          <span className="import-stat-num">{reporte.evaluadas ?? 0}</span>
+          <span className="import-stat-label">evaluadas</span>
+        </div>
+        <div className="import-stat good">
+          <span className="import-stat-num">{reporte.normales ?? 0}</span>
+          <span className="import-stat-label">normales</span>
+        </div>
+        <div className="import-stat bad">
+          <span className="import-stat-num">{reporte.anomalias ?? 0}</span>
+          <span className="import-stat-label">anomalías</span>
+        </div>
+      </div>
+      {reporte.mensaje && <p className="import-msg">{reporte.mensaje}</p>}
+      {Object.keys(nodos).length > 0 && (
+        <ul className="import-nodes">
+          {Object.entries(nodos).map(([nombre, info]) => (
+            <li key={nombre} className="import-node">
+              <span className="import-node-name">{nombre}</span>
+              <span className="import-node-detail">
+                {info.normales} normales · {info.anomalias} anomalías ·{' '}
+                {info.descartadas_primera_ventana} descartadas (1ª ventana)
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 function Configuracion() {
   const [usuarios, setUsuarios] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [importFile, setImportFile] = useState(null)
+  const [importNodo, setImportNodo] = useState('')
+  const [importando, setImportando] = useState(false)
+  const [importResult, setImportResult] = useState(null)
+  const [importError, setImportError] = useState(null)
   const { accessToken } = useAuth()
+  const navigate = useNavigate()
+
+  const handleImportar = async () => {
+    if (!importFile) return
+    setImportando(true)
+    setImportError(null)
+    setImportResult(null)
+    try {
+      const formData = new FormData()
+      formData.append('archivo', importFile)
+      if (importNodo) formData.append('nodo', importNodo)
+      const data = await api.upload('/telemetria/import/csv', formData, { token: accessToken })
+      setImportResult(data)
+    } catch (err) {
+      setImportError(err.message || 'Error al importar la carga.')
+    } finally {
+      setImportando(false)
+    }
+  }
 
   const handleSaveUsuario = async (nuevoUsuario) => {
     try {
@@ -161,7 +227,11 @@ function Configuracion() {
                     <IconPlus />
                     Crear usuario
                   </button>
-                  <button type="button" className="btn btn-outline">
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => navigate('/roles-permisos')}
+                  >
                     <IconShield />
                     Administrar roles
                   </button>
@@ -237,6 +307,57 @@ function Configuracion() {
                   </li>
                 </ul>
               </article>
+
+              <article className="card">
+                <div className="card-head">
+                  <div className="head-text">
+                    <h3 className="card-title">Importar carga de trabajo</h3>
+                    <span className="card-subtitle">
+                      El detector separa normal vs anomalía; las normales alimentan el reentrenamiento
+                    </span>
+                  </div>
+                </div>
+
+                <div className="import-form">
+                  <label className="import-file pick">
+                    <input
+                      type="file"
+                      accept=".csv,text/csv"
+                      onChange={(e) => setImportFile(e.target.files[0] || null)}
+                    />
+                    <span className="import-file-name">
+                      {importFile ? importFile.name : 'Elegir archivo CSV…'}
+                    </span>
+                  </label>
+
+                  <div className="input-group">
+                    <input
+                      className="text-input grow"
+                      placeholder="Nodo (opcional si el CSV tiene columna nodo)"
+                      aria-label="Nodo destino de la carga"
+                      value={importNodo}
+                      onChange={(e) => setImportNodo(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      disabled={!importFile || importando}
+                      onClick={handleImportar}
+                    >
+                      <IconPlus />
+                      {importando ? 'Importando…' : 'Importar y separar'}
+                    </button>
+                  </div>
+
+                  <p className="import-hint">
+                    CSV con columnas de las variables del modelo. Columnas opcionales:{' '}
+                    <code>nodo</code>, <code>fec</code> (timestamp original).
+                  </p>
+
+                  {importError && <p className="import-error">{importError}</p>}
+                  <ImportResultado reporte={importResult} />
+                </div>
+              </article>
             </section>
           </div>
         </main>
@@ -245,6 +366,7 @@ function Configuracion() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveUsuario}
+        accessToken={accessToken}
       />
     </div>
   )

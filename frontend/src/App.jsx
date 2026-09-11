@@ -9,6 +9,7 @@ import Login from './pages/Login.jsx'
 import Inicio from './pages/Inicio.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Configuracion from './pages/Configuracion.jsx'
+import RolesPermisos from './pages/RolesPermisos.jsx'
 import Alertas from './pages/Alertas.jsx'
 import { useAuth } from './context/AuthContext.jsx'
 
@@ -50,6 +51,14 @@ function App() {
           element={
             <RequireAuth>
               <Configuracion />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/roles-permisos"
+          element={
+            <RequireAuth>
+              <RolesPermisos />
             </RequireAuth>
           }
         />

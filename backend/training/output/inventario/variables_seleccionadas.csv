@@ -1,0 +1,72 @@
+﻿columna,fuente,dominio,tipo,descripcion,clasificacion
+cpu_usr,metrics,sistema,numerica,Porcentaje de CPU utilizado por procesos de usuario,principal
+cpu_sys,metrics,sistema,numerica,Porcentaje de CPU utilizado por procesos del sistema,principal
+cpu_idl,metrics,sistema,numerica,Porcentaje de CPU inactiva,redundante
+cpu_wai,metrics,sistema,numerica,Porcentaje de CPU esperando operaciones de E/S,principal
+cpu_stl,metrics,sistema,numerica,Porcentaje de CPU en espera por virtualización,disponible
+memory_percent,metrics,sistema,numerica,Porcentaje de memoria utilizada,principal
+memory_used_mb,metrics,sistema,numerica,Memoria utilizada en MB,redundante
+memory_available_mb,metrics,sistema,numerica,Memoria disponible en MB,redundante
+disk_read_per_sec,metrics,sistema,numerica,Lecturas de disco por segundo,principal
+disk_write_per_sec,metrics,sistema,numerica,Escrituras de disco por segundo,principal
+net_send_per_sec,metrics,sistema,numerica,Bytes enviados por segundo,disponible
+net_recv_per_sec,metrics,sistema,numerica,Bytes recibidos por segundo,disponible
+load1,metrics,sistema,numerica,Carga promedio del sistema durante 1 minuto,principal
+load5,metrics,sistema,numerica,Carga promedio del sistema durante 5 minutos,redundante
+load15,metrics,sistema,numerica,Carga promedio del sistema durante 15 minutos,redundante
+active_sessions,metrics,sesiones,numerica,Número de sesiones activas,principal
+active_requests,metrics,sesiones,numerica,Número de solicitudes activas,principal
+long_queries,metrics,sesiones,numerica,Cantidad de consultas de larga duración,principal
+long_transactions,metrics,sesiones,numerica,Cantidad de transacciones de larga duración,principal
+idle_sessions,metrics,sesiones,numerica,Sesiones inactivas,redundante
+lock_waits,metrics,bloqueos,numerica,Cantidad de esperas por bloqueos,principal
+total_locks,metrics,bloqueos,numerica,Cantidad total de bloqueos,disponible
+deadlocks_per_sec,metrics,bloqueos,numerica,Deadlocks por segundo,principal
+venta_locks,metrics,bloqueos,numerica,Bloqueos asociados a venta,diagnostico
+detalle_venta_locks,metrics,bloqueos,numerica,Bloqueos asociados a detalle de venta,diagnostico
+inventario_locks,metrics,bloqueos,numerica,Bloqueos asociados a inventario,diagnostico
+kardex_locks,metrics,bloqueos,numerica,Bloqueos asociados a kardex,diagnostico
+caja_locks,metrics,bloqueos,numerica,Bloqueos asociados a caja,diagnostico
+movimiento_caja_locks,metrics,bloqueos,numerica,Bloqueos asociados a movimientos de caja,diagnostico
+auditoria_locks,metrics,bloqueos,numerica,Bloqueos asociados a auditoría,diagnostico
+transactions_per_sec,metrics,sqlserver,numerica,Transacciones por segundo,principal
+total_reads,metrics,sqlserver,numerica,Lecturas totales,principal
+total_writes,metrics,sqlserver,numerica,Escrituras totales,principal
+page_life_expectancy,metrics,sqlserver,numerica,Page Life Expectancy,principal
+page_reads_per_sec,metrics,sqlserver,numerica,Lecturas de páginas por segundo,requiere_correccion
+page_writes_per_sec,metrics,sqlserver,numerica,Escrituras de páginas por segundo,requiere_correccion
+rollbacks_per_sec,metrics,sqlserver,numerica,Rollbacks por segundo,requiere_correccion
+batch_requests_per_sec,metrics,sqlserver,numerica,Solicitudes batch por segundo,requiere_correccion
+sql_compilations_per_sec,metrics,sqlserver,numerica,Compilaciones SQL por segundo,requiere_correccion
+api_status,metrics,api,categorica,Estado de la API,diagnostico
+api_latency_ms,metrics,api,numerica,Latencia de la API en milisegundos,principal
+products_count,metrics,api,numerica,Cantidad de productos procesados,diagnostico
+sales_count,metrics,api,numerica,Cantidad de ventas procesadas,diagnostico
+events_login_count,events,eventos,numerica,Cantidad de eventos de login,diagnostico
+events_logout_count,events,eventos,numerica,Cantidad de eventos de logout,diagnostico
+events_batch_count,events,eventos,numerica,Cantidad de eventos batch,diagnostico
+events_lock_count,events,eventos,numerica,Cantidad de eventos de bloqueo,diagnostico
+events_wait_count,events,eventos,numerica,Cantidad de eventos de espera,diagnostico
+duration_max_ms,events,eventos,numerica,Duración máxima de consultas,principal
+duration_avg_ms,events,eventos,numerica,Duración promedio de consultas,principal
+query_duration_max_ms,events,eventos,numerica,Duración máxima registrada para consultas,redundante
+query_duration_avg_ms,events,eventos,numerica,Duración promedio registrada para consultas,redundante
+cpu_time_sum_ms,events,eventos,numerica,Tiempo total de CPU utilizado,principal
+logical_reads_sum,events,eventos,numerica,Lecturas lógicas acumuladas,diagnostico
+writes_sum,events,eventos,numerica,Escrituras acumuladas,diagnostico
+wait_lck_count,events,eventos,numerica,Esperas asociadas a locks,principal
+wait_io_count,events,eventos,numerica,Esperas asociadas a operaciones de E/S,principal
+wait_log_count,events,eventos,numerica,Esperas asociadas al log,principal
+distinct_sessions_count,events,eventos,numerica,Cantidad de sesiones distintas,diagnostico
+cpu_total,events,eventos,numerica,CPU total utilizada,redundante
+query_count,events,eventos,numerica,Cantidad de consultas,principal
+wait_count,events,eventos,numerica,Cantidad de esperas,diagnostico
+lock_event_count,events,eventos,numerica,Cantidad de eventos de bloqueo,diagnostico
+error_count,events,eventos,numerica,Cantidad de errores registrados,principal
+requests_per_session,events,eventos,numerica,Solicitudes promedio por sesión,redundante
+max_server_memory,metrics,configuracion,numerica,Memoria máxima configurada para SQL Server,diagnostico
+user_connections_setting,metrics,configuracion,numerica,Máximo de conexiones de usuario configuradas,diagnostico
+cost_threshold,metrics,configuracion,numerica,Cost Threshold for Parallelism,diagnostico
+log_error_count,sqlserver_logs,logs,numerica,Cantidad de errores registrados en SQL Server,diagnostico
+log_warning_count,sqlserver_logs,logs,numerica,Cantidad de advertencias registradas,diagnostico
+log_fatal_count,sqlserver_logs,logs,numerica,Cantidad de errores críticos registrados,diagnostico

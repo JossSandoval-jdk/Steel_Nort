@@ -68,5 +68,56 @@ async function post(path, data, { token, csrf } = {}) {
   return handleResponse(resp)
 }
 
-const api = { get, post, getCsrfToken }
+// Peticion PATCH (edicion parcial de un recurso).
+async function patch(path, data, { token, csrf } = {}) {
+  const headers = {
+    'content-type': 'application/json',
+    accept: 'application/json',
+  }
+  if (token) headers.Authorization = `Bearer ${token}`
+  if (csrf) headers['X-CSRF-Token'] = csrf
+
+  const resp = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'PATCH',
+    headers,
+    credentials: 'include',
+    body: JSON.stringify(data),
+  })
+  return handleResponse(resp)
+}
+
+// Peticion DELETE (eliminacion de un recurso).
+async function del(path, { token, csrf } = {}) {
+  const headers = {
+    accept: 'application/json',
+  }
+  if (token) headers.Authorization = `Bearer ${token}`
+  if (csrf) headers['X-CSRF-Token'] = csrf
+
+  const resp = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'DELETE',
+    headers,
+    credentials: 'include',
+  })
+  return handleResponse(resp)
+}
+
+// Peticion POST multipart/form-data (subida de archivos).
+async function upload(path, formData, { token, csrf } = {}) {
+  const headers = {
+    accept: 'application/json',
+  }
+  if (token) headers.Authorization = `Bearer ${token}`
+  if (csrf) headers['X-CSRF-Token'] = csrf
+
+  const resp = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+    body: formData,
+  })
+  return handleResponse(resp)
+}
+
+const api = { get, post, patch, del, upload, getCsrfToken }
 export default api

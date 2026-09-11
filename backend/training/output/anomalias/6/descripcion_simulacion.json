@@ -1,0 +1,87 @@
+{
+  "corrida": "6",
+  "inicio": "2026-09-11 03:52:30",
+  "duracion_total_s": 180,
+  "faults": [
+    "lockwait",
+    "fault1",
+    "fault2",
+    "fault5",
+    "fault3"
+  ],
+  "secuencia": [
+    {
+      "fase": "normal",
+      "segundos": 16
+    },
+    {
+      "fase": "lockwait",
+      "segundos": 16
+    },
+    {
+      "fase": "normal",
+      "segundos": 16
+    },
+    {
+      "fase": "fault1",
+      "segundos": 16
+    },
+    {
+      "fase": "normal",
+      "segundos": 16
+    },
+    {
+      "fase": "fault2",
+      "segundos": 16
+    },
+    {
+      "fase": "normal",
+      "segundos": 16
+    },
+    {
+      "fase": "fault5",
+      "segundos": 16
+    },
+    {
+      "fase": "normal",
+      "segundos": 16
+    },
+    {
+      "fase": "fault3",
+      "segundos": 16
+    },
+    {
+      "fase": "normal",
+      "segundos": 16
+    }
+  ],
+  "timeline": [
+    {
+      "tipo": "lockwait",
+      "inicio": "2026-09-11 03:52:47",
+      "fin": "2026-09-11 03:53:04"
+    },
+    {
+      "tipo": "fault1",
+      "inicio": "2026-09-11 03:53:20",
+      "fin": "2026-09-11 03:53:37"
+    },
+    {
+      "tipo": "fault2",
+      "inicio": "2026-09-11 03:53:53",
+      "fin": "2026-09-11 03:54:11"
+    },
+    {
+      "tipo": "fault5",
+      "inicio": "2026-09-11 03:54:27",
+      "fin": "2026-09-11 03:54:44"
+    },
+    {
+      "tipo": "fault3",
+      "inicio": "2026-09-11 03:55:00",
+      "fin": "2026-09-11 03:55:12"
+    }
+  ],
+  "motor": "SQL Server Podman (localhost:1434/SteelNort)",
+  "nota": "fases intercaladas normal/fault; el ground truth se expresa en el reloj local del collector"
+}

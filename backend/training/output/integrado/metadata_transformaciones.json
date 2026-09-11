@@ -1,0 +1,175 @@
+{
+  "descripcion": "Dataset integrado de cargas de trabajo SteelNort durante la fase de preparación de datos CRISP-DM.",
+  "fase_crispdm": "Data Preparation",
+  "fuentes": [
+    "metrics.log",
+    "events.log",
+    "sqlserver_logs.log"
+  ],
+  "n_features": 71,
+  "features": [
+    "cpu_usr",
+    "cpu_sys",
+    "cpu_idl",
+    "cpu_wai",
+    "cpu_stl",
+    "memory_percent",
+    "memory_used_mb",
+    "memory_available_mb",
+    "disk_read_per_sec",
+    "disk_write_per_sec",
+    "net_send_per_sec",
+    "net_recv_per_sec",
+    "load1",
+    "load5",
+    "load15",
+    "active_sessions",
+    "active_requests",
+    "long_queries",
+    "long_transactions",
+    "idle_sessions",
+    "lock_waits",
+    "total_locks",
+    "deadlocks_per_sec",
+    "venta_locks",
+    "detalle_venta_locks",
+    "inventario_locks",
+    "kardex_locks",
+    "caja_locks",
+    "movimiento_caja_locks",
+    "auditoria_locks",
+    "transactions_per_sec",
+    "total_reads",
+    "total_writes",
+    "page_life_expectancy",
+    "page_reads_per_sec",
+    "page_writes_per_sec",
+    "rollbacks_per_sec",
+    "batch_requests_per_sec",
+    "sql_compilations_per_sec",
+    "api_status",
+    "api_latency_ms",
+    "products_count",
+    "sales_count",
+    "events_login_count",
+    "events_logout_count",
+    "events_batch_count",
+    "events_lock_count",
+    "events_wait_count",
+    "duration_max_ms",
+    "duration_avg_ms",
+    "query_duration_max_ms",
+    "query_duration_avg_ms",
+    "cpu_time_sum_ms",
+    "logical_reads_sum",
+    "writes_sum",
+    "wait_lck_count",
+    "wait_io_count",
+    "wait_log_count",
+    "distinct_sessions_count",
+    "cpu_total",
+    "query_count",
+    "wait_count",
+    "lock_event_count",
+    "error_count",
+    "requests_per_session",
+    "max_server_memory",
+    "user_connections_setting",
+    "cost_threshold",
+    "log_error_count",
+    "log_warning_count",
+    "log_fatal_count"
+  ],
+  "contexto": [
+    "run_name",
+    "experiment_id",
+    "es_carga_normal"
+  ],
+  "corridas": [
+    {
+      "run_name": "10",
+      "filas": 19,
+      "rango": [
+        "2026-09-11 08:48:26",
+        "2026-09-11 08:50:01"
+      ]
+    },
+    {
+      "run_name": "11",
+      "filas": 36,
+      "rango": [
+        "2026-09-11 08:50:13",
+        "2026-09-11 08:53:16"
+      ]
+    },
+    {
+      "run_name": "6",
+      "filas": 36,
+      "rango": [
+        "2026-09-11 03:52:27",
+        "2026-09-11 03:55:31"
+      ]
+    },
+    {
+      "run_name": "8",
+      "filas": 19,
+      "rango": [
+        "2026-09-11 03:50:14",
+        "2026-09-11 03:51:50"
+      ]
+    },
+    {
+      "run_name": "carga1",
+      "filas": 62,
+      "rango": [
+        "2026-09-04 05:01:46",
+        "2026-09-04 05:17:04"
+      ]
+    },
+    {
+      "run_name": "carga2",
+      "filas": 18,
+      "rango": [
+        "2026-09-07 04:26:22",
+        "2026-09-07 04:30:46"
+      ]
+    },
+    {
+      "run_name": "carga3",
+      "filas": 41,
+      "rango": [
+        "2026-09-07 04:33:00",
+        "2026-09-07 04:43:04"
+      ]
+    },
+    {
+      "run_name": "carga4",
+      "filas": 407,
+      "rango": [
+        "2026-09-07 05:07:11",
+        "2026-09-07 07:06:05"
+      ]
+    },
+    {
+      "run_name": "carga5",
+      "filas": 36,
+      "rango": [
+        "2026-09-11 03:05:45",
+        "2026-09-11 03:08:48"
+      ]
+    },
+    {
+      "run_name": "carga7",
+      "filas": 19,
+      "rango": [
+        "2026-09-11 03:03:22",
+        "2026-09-11 03:04:57"
+      ]
+    }
+  ],
+  "total_corridas": 10,
+  "total_filas": 693,
+  "nota_independencia": "Cada corrida representa una carga/captura independiente. Las corridas se integran únicamente mediante concatenación, conservando run_name y experiment_id para identificar su procedencia.",
+  "nota_etiquetado": "Durante la preparación de datos no se asigna la columna is_anomaly ni se clasifican las corridas como normales o anómalas. La detección de anomalías corresponde a la fase de Modelado.",
+  "nota_tasas": "total_reads y total_writes se transforman a tasas mediante delta/dt. Las variables page_reads_per_sec, page_writes_per_sec, rollbacks_per_sec, batch_requests_per_sec y sql_compilations_per_sec no se vuelven a diferenciar en esta etapa porque corresponden a valores entregados por el collector."
+}

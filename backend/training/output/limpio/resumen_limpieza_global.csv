@@ -1,0 +1,11 @@
+﻿corrida,metrics_validas,metrics_descartadas,metrics_no_numericas,events_validos,events_malformados,events_duplicados,sqlserver_validas,sqlserver_descartadas
+10,849,0,0,389,0,0,151,0
+11,1614,0,0,408,0,3,153,0
+6,1614,0,0,431,0,4,154,0
+8,849,0,0,452,0,1,154,0
+carga1,2787,0,0,602,0,0,152,0
+carga2,804,0,0,344,0,0,155,0
+carga3,1842,0,0,663,0,0,155,0
+carga4,18333,0,0,708,0,0,162,0
+carga5,1614,0,0,391,0,3,152,0
+carga7,849,0,0,454,0,0,152,0

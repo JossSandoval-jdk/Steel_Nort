@@ -1,0 +1,4 @@
+﻿var_a,var_b,pearson,spearman,involucrada
+cpu_sys,transactions_per_sec,0.8971,0.2369,
+disk_read_per_sec,transactions_per_sec,-0.8508,-0.0789,
+total_writes,transactions_per_sec,0.9312,0.8895,
