@@ -17,6 +17,7 @@ from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Table, Co
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.utils import utc_now
 
 if TYPE_CHECKING:
     from app.models.model_usuario import Usuarios
@@ -32,7 +33,7 @@ class Roles(Base):
     rol_desc: Mapped[str | None] = mapped_column(String(200), nullable=True)
     rol_act: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     reg_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
@@ -61,7 +62,7 @@ class Permisos(Base):
     prm_mod: Mapped[str] = mapped_column(String(50), nullable=False)
     prm_act: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     reg_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
@@ -84,4 +85,4 @@ class RolPermiso(Base):
         Integer, ForeignKey("Permisos.prm_cod"), primary_key=True
     )
     reg_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)

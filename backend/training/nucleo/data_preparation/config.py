@@ -34,6 +34,8 @@ NO se define una carga normal fija.
 NO se define una carga específica a procesar.
 """
 
+import os
+
 from pathlib import Path
 
 
@@ -43,10 +45,19 @@ from pathlib import Path
 
 BASE_PROYECTO = Path(__file__).resolve().parent
 
+# Raiz de salida del pipeline: vive DENTRO del proyecto web
+# (backend/training/output). Se puede redefinir con STEELNORT_OUTPUT_DIR.
+# NOTA: config.py vive en backend/training/nucleo/data_preparation,
+# así que la raiz de datos es backend/training/output.
+_OUTPUT_PROYECTO = (
+    Path(__file__).resolve().parents[3]
+    / "training" / "output"
+)
+
 OUTPUT_BASE_DIR = Path(
-    __import__("os").getenv(
+    os.getenv(
         "STEELNORT_OUTPUT_DIR",
-        BASE_PROYECTO / "output"
+        _OUTPUT_PROYECTO
     )
 )
 
@@ -54,6 +65,82 @@ DIR_DATASETS = OUTPUT_BASE_DIR / "datasets"
 DIR_INVENTARIO = OUTPUT_BASE_DIR / "inventario"
 DIR_LIMPIO = OUTPUT_BASE_DIR / "limpio"
 DIR_INTEGRADO = OUTPUT_BASE_DIR / "integrado"
+
+# ============================================================
+# 1b. ORGANIZACIÓN DE CORRIDAS
+# ============================================================
+# Las capturas se dividen en DOS grupos:
+#   - baseline/cargaN   : corridas de CARGA NORMAL (se usan para entrenar)
+#   - anomalias/cargaN  : corridas con TODO → anomalia_timeline.csv (solo
+#                         detección, NUNCA entrenan)
+# Además se soportan contenedores legacy en la raíz (p. ej. run1-7/)
+# que agrupan corridas antiguas; NUNCA se tratan como corridas.
+DIR_BASELINE = OUTPUT_BASE_DIR / "baseline"
+DIR_ANOMALIAS = OUTPUT_BASE_DIR / "anomalias"
+
+# Carpetas de artefactos del propio pipeline: jamás son corridas.
+DIRS_ARTEFACTO = (
+    {d.name for d in (DIR_DATASETS, DIR_INVENTARIO, DIR_LIMPIO, DIR_INTEGRADO)}
+    | {"modelado"}
+)
+
+
+def ruta_corrida(raiz, corrida):
+    """Ruta de la carpeta de una corrida (busca en anomalias/,
+    baseline/ y por compatibilidad en la raiz)."""
+    raiz = Path(raiz) if raiz else OUTPUT_BASE_DIR
+    for grupo in ("anomalias", "baseline"):
+        p = raiz / grupo / corrida
+        if p.is_dir():
+            return str(p)
+    return str(raiz / corrida)
+
+
+def _subcarpetas_con_logs(carpeta):
+    """Subcarpetas de 'carpeta' que contienen al menos un log de entrada."""
+    if not os.path.isdir(carpeta):
+        return []
+    return [
+        d for d in sorted(os.listdir(carpeta))
+        if os.path.isdir(os.path.join(carpeta, d))
+        and any(
+            os.path.isfile(os.path.join(carpeta, d, f))
+            for f in ARCHIVOS_ENTRADA
+        )
+    ]
+
+
+def descubrir_corridas(raiz=None):
+
+    raiz = Path(raiz) if raiz else OUTPUT_BASE_DIR
+    corridas = {}
+
+    def _marcar(carpeta, grupo, prioridad):
+        for d in _subcarpetas_con_logs(carpeta):
+            corridas.setdefault(
+                d,
+                {"grupo": grupo, "prioridad": prioridad,
+                 "ruta": str(Path(carpeta) / d)},
+            )
+
+    _marcar(DIR_ANOMALIAS, "anomalias", 1)
+    _marcar(DIR_BASELINE, "baseline", 2)
+
+    for d in sorted(os.listdir(raiz)):
+        p = raiz / d
+        if not p.is_dir():
+            continue
+        if d in DIRS_ARTEFACTO or d in ("anomalias", "baseline"):
+            continue
+        if _subcarpetas_con_logs(p):
+            _marcar(p, "legacy", 3)
+        elif any(os.path.isfile(p / f) for f in ARCHIVOS_ENTRADA):
+            corridas.setdefault(
+                d, {"grupo": "raiz", "prioridad": 4, "ruta": str(p)})
+
+    for info in corridas.values():
+        info.pop("prioridad", None)
+    return corridas
 
 
 # ============================================================
@@ -66,17 +153,9 @@ ARCHIVO_VARIABLES = "variables_seleccionadas.csv"
 
 ARCHIVO_DATASET_INTEGRADO = "dataset_steelnort_preparado.csv"
 
-ARCHIVO_DATASET_MODELO = "dataset_steelnort_preparado_modelo.csv"
-
 ARCHIVO_METADATA = "metadata_transformaciones.json"
 
 ARCHIVO_REPORTE_CALIDAD = "reporte_calidad_datos.csv"
-
-ARCHIVO_VARIABLES_CLAVE = "variables_clave.csv"
-
-ARCHIVO_DATASET_CLAVE = "dataset_carga_clave.csv"
-
-ARCHIVO_VARIABLES_PRINCIPALES = "variables_principales.csv"
 
 ARCHIVO_DATASET_PRINCIPALES = "dataset_carga_principales.csv"
 
@@ -795,56 +874,67 @@ EXCLUIR_MEDICION_CORRUPTA = [
 
 
 # ============================================================
-# 19. VARIABLES PRINCIPALES PARA EL MODELO
+# 19. VARIABLES PRINCIPALES PARA EL MODELO (22 CANÓNICAS)
 # ============================================================
 
 """
-Conjunto reducido de variables con mayor relación con
-el rendimiento OLTP.
-
-Estas son las variables candidatas para el modelo de
-detección de anomalías.
+Conjunto canónico de 22 variables para el modelo de detección
+de anomalías, definido por experta de dominio OLTP (ver
+docs/PREPARACION_DATOS_CRISPDM.md). El modelo usa EXACTAMENTE
+este set y NADA más.
 """
 
 VARIABLES_PRINCIPALES = [
+    # cpu
     "cpu_usr",
     "cpu_sys",
     "cpu_wai",
-    "load1",
-
-    "memory_percent",
-
+    "cpu_idl",
+    # memoria
+    "memory_used_mb",
+    "memory_available_mb",
+    # buffer
     "page_life_expectancy",
-
+    # io
     "disk_read_per_sec",
     "disk_write_per_sec",
-
+    # io motor sql
     "total_reads",
     "total_writes",
-
+    # sesiones
     "active_sessions",
     "active_requests",
+    # transacciones
+    "transactions_per_sec",
+    # sesiones / consultas largas
     "long_queries",
     "long_transactions",
-
-    "lock_waits",
-    "deadlocks_per_sec",
-
-    "transactions_per_sec",
-
-    "query_count",
+    # rendimiento
     "duration_avg_ms",
     "duration_max_ms",
-
     "cpu_time_sum_ms",
-
-    "wait_lck_count",
-    "wait_io_count",
-    "wait_log_count",
-
+    # api
     "api_latency_ms",
+    "api_status",
+    # carga
+    "load1",
+]
 
-    "error_count",
+
+# ============================================================
+# 19b. VARIABLES QUE SIEMPRE SE CONSERVAN (CONTRATO 22)
+# ============================================================
+
+"""
+Variables del conjunto canónico que aún no tienen datos
+capturados (100% vacías) pero SÍ deben conservarse como
+columnas para no romper el contrato de las 22 variables.
+Quedan en 0 hasta que el colector empiece a poblarlas.
+"""
+
+VARIABLES_CONSERVAR_VACIAS = [
+    "long_queries",
+    "long_transactions",
 ]
 
 
@@ -934,6 +1024,7 @@ mantener trazabilidad sin formar parte del modelo.
 COLUMNAS_CONTEXTO = [
     "run_name",
     "experiment_id",
+    "es_carga_normal",
 ]
 
 

@@ -9,6 +9,7 @@ from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String, T
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.utils import utc_now
 
 if TYPE_CHECKING:
     from app.models.model_usuario import Usuarios
@@ -24,9 +25,9 @@ class Reportes(Base):
     rpt_params: Mapped[str | None] = mapped_column(Text)
     rpt_ruta_arch: Mapped[str | None] = mapped_column(String(500))
     rpt_est: Mapped[str] = mapped_column(String(20), nullable=False, default="generando")
-    rpt_fec_gen: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    rpt_fec_gen: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
 

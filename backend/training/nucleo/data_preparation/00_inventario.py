@@ -66,26 +66,11 @@ def main():
     # 2. IDENTIFICAR CORRIDAS / CARGAS
     # ========================================================
 
-    # Excluir carpetas de salida del propio pipeline
-    # (inventario, limpio, integrado, datasets).
-    dirs_salida = {
-        os.path.basename(d)
-        for d in (
-            config.DIR_DATASETS,
-            config.DIR_INVENTARIO,
-            config.DIR_LIMPIO,
-            config.DIR_INTEGRADO,
-        )
-    }
-
-    corridas = sorted([
-        d
-        for d in os.listdir(config.OUTPUT_BASE_DIR)
-        if os.path.isdir(
-            os.path.join(config.OUTPUT_BASE_DIR, d)
-        )
-        and d not in dirs_salida
-    ])
+    # Descubrimiento canónico: recorre baseline/, anomalias/ y los
+    # contenedores legacy (run1-7). Los artefactos (inventario, limpio,
+    # integrado, datasets, modelado) jamás se listan como corridas.
+    corridas_info = config.descubrir_corridas()
+    corridas = sorted(corridas_info)
 
     log(
         f"Corridas encontradas ({len(corridas)}): "
@@ -114,10 +99,7 @@ def main():
 
     for corrida in corridas:
 
-        dir_corrida = os.path.join(
-            config.OUTPUT_BASE_DIR,
-            corrida
-        )
+        dir_corrida = corridas_info[corrida]["ruta"]
 
         for fuente in fuentes:
 
@@ -131,6 +113,7 @@ def main():
 
             registros.append({
                 "corrida": corrida,
+                "grupo": corridas_info[corrida]["grupo"],
                 "fuente": fuente,
                 "existe": existe,
                 "tamano_mb": tamano_mb,

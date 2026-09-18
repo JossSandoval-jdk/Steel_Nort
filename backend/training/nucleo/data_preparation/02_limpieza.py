@@ -506,14 +506,14 @@ def limpiar_sqlserver_logs(ruta):
 # LIMPIEZA DE UNA CORRIDA
 # ============================================================
 
-def limpiar_corrida(corrida):
+def limpiar_corrida(corrida, ruta_corrida=None):
     """
     Ejecuta la limpieza completa de una carga/corrida.
 
     Cada corrida se procesa independientemente.
     """
 
-    dir_corrida = os.path.join(
+    dir_corrida = ruta_corrida or os.path.join(
         config.OUTPUT_BASE_DIR,
         corrida
     )
@@ -728,30 +728,11 @@ def main():
     # 2. OBTENER CARGAS / CORRIDAS
     # ========================================================
 
-    # Excluir carpetas de salida del propio pipeline.
-    dirs_salida = {
-        os.path.basename(d)
-        for d in (
-            config.DIR_DATASETS,
-            config.DIR_INVENTARIO,
-            config.DIR_LIMPIO,
-            config.DIR_INTEGRADO,
-        )
-    }
-
-    corridas = sorted([
-        d
-        for d in os.listdir(
-            config.OUTPUT_BASE_DIR
-        )
-        if os.path.isdir(
-            os.path.join(
-                config.OUTPUT_BASE_DIR,
-                d
-            )
-        )
-        and d not in dirs_salida
-    ])
+    # Descubrimiento canónico: recorre baseline/, anomalias/ y los
+    # contenedores legacy (run1-7). Los artefactos del pipeline jamás
+    # se listan como corridas.
+    corridas_info = config.descubrir_corridas()
+    corridas = sorted(corridas_info)
 
     log(
         f"Corridas a limpiar "
@@ -779,7 +760,8 @@ def main():
         )
 
         resumen = limpiar_corrida(
-            corrida
+            corrida,
+            ruta_corrida=corridas_info[corrida]["ruta"],
         )
 
         resumenes.append(

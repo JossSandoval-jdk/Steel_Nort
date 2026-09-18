@@ -1,3 +1,0 @@
-﻿columna,motivo,media_abs_corr
-active_requests,correlación >= 0.85 con ['active_sessions'],
-duration_avg_ms,correlación >= 0.85 con ['duration_max_ms'],

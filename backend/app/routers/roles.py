@@ -17,7 +17,6 @@ Solo el rol Administrador puede gestionar roles y permisos.
 
 from __future__ import annotations
 
-import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -36,6 +35,7 @@ from app.schemas import (
     RolUpdate,
 )
 from app.services.permisos import require_permission
+from app.utils import utc_now
 
 router = APIRouter(prefix="/roles", tags=["roles"])
 Db = Annotated[Session, Depends(get_db)]
@@ -196,7 +196,7 @@ def eliminar_rol(
         )
 
     rol.eli_usu = current.usu_ema
-    rol.fec_eli = datetime.datetime.utcnow()
+    rol.fec_eli = utc_now()
     rol.rol_act = False
     db.commit()
 

@@ -27,11 +27,12 @@ import logging
 import os
 import threading
 import time
-from datetime import datetime
 
 from app.database import SessionLocal
 from app.models.model_alerta import Alertas, CausasRaiz
+from app.services.nodos import obtener_o_crear_nodo
 from app.services.telemetria import buffer_telemetria
+from app.utils import utc_now
 
 log = logging.getLogger("steelnort.sincronizacion")
 
@@ -76,29 +77,6 @@ def _test_vps_sql() -> bool:
         return False
 
 
-def _obtener_nodo_cod(db, nombre: str) -> int | None:
-    """Busca o crea el nodo SCADA para asociar la alerta de daemon."""
-    from app.models.model_scada import NodosSCADA
-
-    nodo = (
-        db.query(NodosSCADA)
-        .filter(NodosSCADA.ndo_nom == nombre, NodosSCADA.fec_eli.is_(None))
-        .first()
-    )
-    if nodo is not None:
-        return nodo.ndo_cod
-    nodo = NodosSCADA(
-        ndo_nom=nombre[:100],
-        ndo_ip="127.0.0.1",
-        ndo_tipo="servidor",
-        ndo_est="operativo",
-        reg_usu="monitor",
-    )
-    db.add(nodo)
-    db.flush()
-    return nodo.ndo_cod
-
-
 def _alerta_abierta(db, tipo: str, ndo_cod: int | None = None) -> int | None:
     alerta = (
         db.query(Alertas)
@@ -115,7 +93,9 @@ def _alerta_abierta(db, tipo: str, ndo_cod: int | None = None) -> int | None:
 
 def _abrir_alerta(db, tipo: str, sev: str, titulo: str, diag: str,
                   ndo_nombre: str | None = None) -> None:
-    ndo_cod = _obtener_nodo_cod(db, ndo_nombre) if ndo_nombre else None
+    ndo_cod = obtener_o_crear_nodo(
+        db, ndo_nombre, ip="127.0.0.1", origen="monitor"
+    ) if ndo_nombre else None
     if _alerta_abierta(db, tipo, ndo_cod) is not None:
         return
 
@@ -143,7 +123,9 @@ def _abrir_alerta(db, tipo: str, sev: str, titulo: str, diag: str,
 
 
 def _resolver_alertas(db, tipo: str, ndo_nombre: str | None = None) -> None:
-    ndo_cod = _obtener_nodo_cod(db, ndo_nombre) if ndo_nombre else None
+    ndo_cod = obtener_o_crear_nodo(
+        db, ndo_nombre, ip="127.0.0.1", origen="monitor"
+    ) if ndo_nombre else None
     filtro_ndo = Alertas.alt_ndo == ndo_cod if ndo_cod is not None else Alertas.alt_ndo.is_(None)
     abiertas = (
         db.query(Alertas)
@@ -157,7 +139,7 @@ def _resolver_alertas(db, tipo: str, ndo_nombre: str | None = None) -> None:
     )
     for alerta in abiertas:
         alerta.alt_resu = True
-        alerta.alt_fec_resu = datetime.utcnow()
+        alerta.alt_fec_resu = utc_now()
     if abiertas:
         db.commit()
         log.info("Alertas resueltas [%s]: %d", tipo, len(abiertas))

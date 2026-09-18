@@ -45,6 +45,20 @@ class Settings(BaseSettings):
     # Origenes permitidos por CORS (separados por coma).
     cors_origins: str = "http://localhost:5173"
 
+    # Prefijos de rutas del modelo ML protegidas por JWT (middleware).
+    model_protect_prefixes: tuple[str, ...] = (
+        "/reentrenamiento",
+        "/anomalias/diagnostico",
+    )
+
+    # Proxy: confiar en X-Forwarded-For/Proto cuando haya nginx/gateway.
+    trusted_proxy: bool = False
+
+    # Rate limit por IP (ventana fija en segundos).
+    rate_limit_max: int = 120
+    rate_limit_window_seconds: int = 60
+    rate_limit_skip: str = "/, /docs, /openapi.json, /redoc"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -55,6 +69,11 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> list[str]:
         """Devuelve los origenes CORS como lista de cadenas."""
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def rate_limit_skip_list(self) -> list[str]:
+        """Rutas excluidas del rate-limit (health probes y docs)."""
+        return [o.strip() for o in self.rate_limit_skip.split(",") if o.strip()]
 
 
 settings = Settings()

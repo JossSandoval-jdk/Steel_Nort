@@ -4,29 +4,27 @@
 
 Etapa RESULTADO del flujo entrada → preparación → modelo → resultado.
 
-Cruza las cuatro piezas para emitir el diagnóstico final de cada
-anomalía inyectada en carga5:
+Genera el informe de detección de anomalías para CUALQUIER corrida:
+recorre TODAS las corridas presentes en el dataset/modelo (baseline/ y
+anomalias/) y reporta en informe_deteccion.json cuáles presentan
+anomalías detectadas, con la evidencia de cada una:
 
-  1. GROUND TRUTH  : output/carga5/anomalias_timeline.csv (qué fault
-                     y en qué ventana se inyectó).
-  2. DETECCIÓN     : scores_muestras.csv + dataset_muestras_test.pkl
-                     (qué ventanas de test marcó el modelo como fuera
-                     de lo normal).
-  3. VARIABLES     : atribución estilo DBPA (create_models): para cada
-                     fault se comparan las variables de la ventana
-                     anormal contra el baseline NORMAL de la misma
-                     corrida; las de mayor desviación robusta son las
-                     variables que provocaron la anomalía.
-  4. REGLAS R1-R7  : detecciones_reglas.csv + diagnostico_reglas.json
-                     (qué regla se disparó, su diagnóstico textual y la
-                     causa probable según conocimiento de dominio).
+1. MODELO      : ventanas que el IsolationForest califica por debajo del
+                 umbral q10 (score < percentil 10 de los scores de
+                 entrenamiento). Se evalúa sobre TODAS las corridas.
+2. REGLAS R1-R7: detecciones_reglas.csv + diagnostico_reglas.json
+                 (qué regla se disparó y su diagnóstico textual).
+3. GROUND TRUTH: anomalias_timeline.csv de las corridas de anomalias/
+                 (TPR/FPR y desglose por fault donde el timeline cruza
+                 con las ventanas reales).
+4. VARIABLES   : atribución estilo DBPA sobre las ventanas alertadas.
 
-Empalma faul→ventana temporal→window de prueba→reglas y produce:
-
+Salidas:
     output/modelado/diagnostico/informe_deteccion.json
     output/modelado/diagnostico/resumen_consola.txt
 """
 
+import datetime
 import json
 import os
 
@@ -40,18 +38,38 @@ import config
 # ---------------------------------------------------------------------
 DIR_DIAG = os.path.join(config.DIR_MODELADO, "diagnostico")
 
-RUTA_TIMELINE = os.path.join(
-    config.DIR_CORRIDAS, "carga5", "anomalias_timeline.csv")
 RUTA_DATASET = config.DATASET_PRINCIPALES
-RUTA_SCORES = os.path.join(
-    config.DIR_DETECCION, "scores_muestras.csv")
-RUTA_ALERTAS = os.path.join(
-    config.DIR_DETECCION, "alertas_test.csv")
+RUTA_TRAIN_PKL = os.path.join(config.DIR_MODELADO, "dataset_muestras_train.pkl")
 RUTA_TEST_PKL = os.path.join(config.DIR_MODELADO, "dataset_muestras_test.pkl")
-RUTA_REGLAS = os.path.join(
-    config.DIR_REGLAS, "detecciones_reglas.csv")
-RUTA_DIAG_REGLAS = os.path.join(
-    config.DIR_REGLAS, "diagnostico_reglas.json")
+RUTA_SCORES = os.path.join(config.DIR_DETECCION, "scores_muestras.csv")
+RUTA_ALERTAS = os.path.join(config.DIR_DETECCION, "alertas_test.csv")
+RUTA_REGLAS = os.path.join(config.DIR_REGLAS, "detecciones_reglas.csv")
+RUTA_DIAG_REGLAS = os.path.join(config.DIR_REGLAS, "diagnostico_reglas.json")
+
+# Máxima cantidad de ventanas/reglas que se listan en el informe por corrida.
+MAX_VENTANAS_ALERTADAS = 40
+MAX_TIMESTAMPS_REGLAS = 30
+
+
+def corridas_anomalia_diagnosticables():
+    """Todas las corridas de anomalías con su ruta de timeline.
+
+    Usa la definición canónica de config.corridas_anomalia() (todas las
+    subcarpetas de anomalies/ con metrics.log) y localiza el
+    anomalias_timeline.csv de cada una. Devuelve {corrida: ruta_timeline}.
+    """
+    raiz = config.DIR_CORRIDAS
+    rutas = {}
+    for corrida in config.corridas_anomalia(raiz):
+        for candidata in (
+            os.path.join(raiz, "anomalias", corrida, "anomalias_timeline.csv"),
+            os.path.join(raiz, corrida, "anomalias_timeline.csv"),
+        ):
+            if os.path.isfile(candidata):
+                rutas[corrida] = candidata
+                break
+    return rutas
+
 
 # Huella esperada por fault según DBPA (domain knowledge, para el cruce).
 FOOTPRINT_ESPERADO = {
@@ -81,65 +99,166 @@ EPS = 1e-9
 
 
 def log(msg):
-    print(msg, flush=True)
+    try:
+        print(msg, flush=True)
+    except UnicodeEncodeError:
+        # Consolas Windows (cp1252): degrada los caracteres no imprimibles.
+        print(msg.encode("cp1252", errors="replace").decode("cp1252"),
+              flush=True)
 
 
 # ---------------------------------------------------------------------
-# 1. GROUND TRUTH: etiquetar cada muestra de carga5
+# CARGA UNIFICADA DE VENTANAS (train + test) CON ALERTA MODELO
 # ---------------------------------------------------------------------
 
-def etiquetar_muestras(df, timeline):
-    """Devuelve df_c5 (solo carga5) con columna 'fase' (normal/faultX)."""
-    c5 = df[df["run_name"] == "carga5"].copy()
-    c5["timestamp"] = pd.to_datetime(c5["timestamp"])
+def cargar_ventanas():
+    """Todas las ventanas (train + test) con su score del modelo.
 
-    c5["fase"] = "normal"
-    for _, row in timeline.iterrows():
-        mask = (
-            (c5["timestamp"] >= pd.to_datetime(row["inicio"]))
-            & (c5["timestamp"] <= pd.to_datetime(row["fin"]))
-        )
-        c5.loc[mask, "fase"] = row["tipo"]
-    return c5
+    La alerta del modelo es uniforme para todas las corridas:
+        alerta = score < q10  (q10 = percentil 10 de los scores de
+        entrenamiento, igual que el umbral que usa 03_deteccion.py).
+    """
+    train = pd.read_pickle(RUTA_TRAIN_PKL)
+    scores_train = pd.read_csv(RUTA_SCORES, encoding="utf-8-sig")
+    test = pd.read_pickle(RUTA_TEST_PKL)
+    alertas_test = pd.read_csv(RUTA_ALERTAS, encoding="utf-8-sig")
+
+    umbral_q10 = float(np.quantile(scores_train["score"], 0.10))
+
+    filas = []
+    for pkl, scores in ((train, scores_train), (test, alertas_test)):
+        for i, (run, vent) in enumerate(zip(pkl["runs"], pkl["ventanas"])):
+            try:
+                score = float(scores.iloc[i]["score"])
+            except (KeyError, IndexError, TypeError):
+                score = float("nan")
+            filas.append({
+                "run": run,
+                "inicio": pd.to_datetime(vent["inicio"]),
+                "fin": pd.to_datetime(vent["fin"]),
+                "score": score,
+                "alerta": int(0 if np.isnan(score) else score < umbral_q10),
+            })
+    w = pd.DataFrame(filas)
+    return w, umbral_q10
 
 
-# ---------------------------------------------------------------------
-# 2. VENTANAS DE TEST ETIQUETADAS
-# ---------------------------------------------------------------------
-
-def etiquetar_windows(test_pkl, scores, timeline):
-    """Une ventanas de test con su fase real y su predicción."""
-    feats = test_pkl["features"]
-    n_var = len(feats)
-    rows = []
-    for i, (run, vent) in enumerate(zip(test_pkl["runs"],
-                                        test_pkl["ventanas"])):
-        inicio = pd.to_datetime(vent["inicio"])
-        fin = pd.to_datetime(vent["fin"])
-        r = {"idx": i, "run": run, "inicio": inicio, "fin": fin,
-             "n": vent["n"]}
+def etiquetar_fases_windows(w, corrida, timeline):
+    """Marca la fase real de cada ventana de 'corrida' con su timeline."""
+    for i in w[w["run"] == corrida].index.tolist():
+        inicio = w.at[i, "inicio"]
+        fin = w.at[i, "fin"]
         fase = "normal"
         for _, tl in timeline.iterrows():
             if (inicio <= pd.to_datetime(tl["fin"])
                     and fin >= pd.to_datetime(tl["inicio"])):
                 fase = tl["tipo"]
                 break
-        r["fase"] = fase
-        if run == "carga5":
-            r["es_carga5"] = True
-        rows.append(r)
-
-    w = pd.DataFrame(rows)
-    sc = scores[["idx", "score", "prediccion"]].copy()
-    sc.columns = ["idx", "score", "prediccion"]
-    w = w.merge(sc, on="idx", how="left")
-    # 'prediccion': 1 = normal, -1 = anómalo (IsolationForest)
-    w["alerta"] = (w["prediccion"].fillna(1) == -1).astype(int)
-    return w, feats
+        w.at[i, "fase"] = fase
+    return w
 
 
 # ---------------------------------------------------------------------
-# 3. ATRIBUCIÓN DE VARIABLES (estilo DBPA create_models)
+# 1. GROUND TRUTH: etiquetar muestras de una corrida de anomalías
+# ---------------------------------------------------------------------
+
+def etiquetar_muestras(df, corrida, timeline):
+    """Devuelve df_run (solo la corrida de anomalías) con columna 'fase'."""
+    c_run = df[df["run_name"] == corrida].copy()
+    c_run["timestamp"] = pd.to_datetime(c_run["timestamp"])
+
+    c_run["fase"] = "normal"
+    for _, row in timeline.iterrows():
+        mask = (
+            (c_run["timestamp"] >= pd.to_datetime(row["inicio"]))
+            & (c_run["timestamp"] <= pd.to_datetime(row["fin"]))
+        )
+        c_run.loc[mask, "fase"] = row["tipo"]
+    return c_run
+
+
+# ---------------------------------------------------------------------
+# 2. MÉTRICAS DE DETECCIÓN CON GROUND TRUTH (por corrida con timeline)
+# ---------------------------------------------------------------------
+
+def metricas_deteccion(sub):
+    """Confusión ventana a ventana sobre una corrida con timeline."""
+    total_fault = int((sub["fase"] != "normal").sum())
+    total_normal = int((sub["fase"] == "normal").sum())
+    alertas_fault = int(((sub["fase"] != "normal") & (sub["alerta"] == 1)).sum())
+    alertas_normal = int(((sub["fase"] == "normal") & (sub["alerta"] == 1)).sum())
+    reporte = {
+        "ventanas_test": int(len(sub)),
+        "ventanas_fault": total_fault,
+        "ventanas_normal": total_normal,
+        "alertas_en_fault": alertas_fault,
+        "alertas_en_normal_fp": alertas_normal,
+        "recall": round(alertas_fault / total_fault, 3) if total_fault else None,
+        "fpr": round(alertas_normal / total_normal, 3) if total_normal else None,
+    }
+    por_fault = {}
+    for fase in sub[sub["fase"] != "normal"]["fase"].unique():
+        s = sub[sub["fase"] == fase]
+        a = int(s["alerta"].sum())
+        por_fault[fase] = {
+            "ventanas_total": int(len(s)),
+            "ventanas_alertadas": a,
+            "tpr": round(a / len(s), 3) if len(s) else None,
+        }
+    return reporte, por_fault
+
+
+# ---------------------------------------------------------------------
+# 3. RECONSTRUCCIÓN POR FAULT DE REGLAS R1-R7 (con timeline)
+# ---------------------------------------------------------------------
+
+def reglas_por_fault(reglas, corrida, timeline):
+    reglas_run = reglas[reglas["run_name"] == corrida].copy()
+    if reglas_run.empty:
+        reglas_run["timestamp"] = pd.to_datetime([])
+    else:
+        reglas_run["timestamp"] = pd.to_datetime(reglas_run["timestamp"])
+    out = {}
+    for _, tl in timeline.iterrows():
+        fault = tl["tipo"]
+        ini = pd.to_datetime(tl["inicio"])
+        fin = pd.to_datetime(tl["fin"])
+        lineas = reglas_run[
+            (reglas_run["timestamp"] >= ini)
+            & (reglas_run["timestamp"] <= fin)
+        ]
+        det = "normal"
+        if not lineas.empty:
+            det = "-".join(sorted(set(lineas["regla"])))
+        out[fault] = {
+            "detecciones_reglas": int(len(lineas)),
+            "reglas_disparadas": det,
+            "conteo_por_regla": lineas["regla"].value_counts().to_dict(),
+        }
+    return out
+
+
+# ---------------------------------------------------------------------
+# 4. REGLAS POR CORRIDA (todas las corridas, con o sin timeline)
+# ---------------------------------------------------------------------
+
+def reglas_por_corrida(reglas):
+    out = {}
+    if reglas.empty:
+        return out
+    for run, g in reglas.groupby("run_name"):
+        t = [str(x) for x in g["timestamp"].tolist()]
+        out[str(run)] = {
+            "detecciones": int(len(g)),
+            "por_regla": g["regla"].value_counts().to_dict(),
+            "reglas": sorted(set(g["regla"])),
+            "timestamps": t[:MAX_TIMESTAMPS_REGLAS],
+        }
+    return out
+
+
+# ---------------------------------------------------------------------
+# 5. ATRIBUCIÓN DE VARIABLES (DBPA) Y TOP VARIABLES DE VENTANAS ALERTADAS
 # ---------------------------------------------------------------------
 
 def desviacion_robusta(anormal, normal):
@@ -152,19 +271,19 @@ def desviacion_robusta(anormal, normal):
     return abs(float(anormal.median()) - med_n) / escala
 
 
-def atribuir_variables(c5, features, timeline):
-    """Por fault: top variables desviadas vs baseline normal de carga5."""
-    normal = c5[c5["fase"] == "normal"]
+def atribuir_variables(c_run, features, timeline):
+    """Por fault: top variables desviadas vs baseline normal de la corrida."""
+    normal = c_run[c_run["fase"] == "normal"]
     resultado = {}
     for _, tl in timeline.iterrows():
         fault = tl["tipo"]
-        anomalo = c5[c5["fase"] == fault]
+        anomalo = c_run[c_run["fase"] == fault]
         if anomalo.empty:
             resultado[fault] = []
             continue
         punt = []
         for var in features:
-            if var not in c5.columns:
+            if var not in c_run.columns:
                 continue
             z = desviacion_robusta(anomalo[var], normal[var])
             if z > 0:
@@ -174,70 +293,29 @@ def atribuir_variables(c5, features, timeline):
     return resultado
 
 
-# ---------------------------------------------------------------------
-# 4. REGLAS DISPARADAS POR VENTANA DE FAULT
-# ---------------------------------------------------------------------
+def atribuir_variables_ventanas(c_run, w_al, features):
+    """Top variables de las ventanas ALERTADAS vs el resto de la corrida."""
+    if c_run.empty or w_al.empty:
+        return []
+    ts = pd.to_datetime(c_run["timestamp"])
 
-def reglas_por_fault(reglas, diagnostico, timeline):
-    reglas_c5 = reglas[reglas["run_name"] == "carga5"].copy()
-    reglas_c5["timestamp"] = pd.to_datetime(reglas_c5["timestamp"])
-    catalogo = diagnostico.get("reglas", {})
-    out = {}
-    for _, tl in timeline.iterrows():
-        fault = tl["tipo"]
-        ini = pd.to_datetime(tl["inicio"])
-        fin = pd.to_datetime(tl["fin"])
-        lineas = reglas_c5[
-            (reglas_c5["timestamp"] >= ini)
-            & (reglas_c5["timestamp"] <= fin)
-        ]
-        det = "normal"
-        if not lineas.empty:
-            det = "-".join(sorted(set(lineas["regla"])))
-        texto = []
-        for r_, v in sorted(catalogo.items()):
-            if r_ in (det.split("-") if det != "normal" else []):
-                texto.append(f"{r_}: {v.get('diagnostico', '')}")
-        out[fault] = {
-            "detecciones_reglas": int(len(lineas)),
-            "reglas_disparadas": det,
-            "conteo_por_regla": (
-                lineas["regla"].value_counts().to_dict()),
-            "diagnostico": " ".join(texto) or None,
-        }
-    return out
+    def en_alerta(t):
+        return bool(((t >= w_al["inicio"]) & (t <= w_al["fin"])).any())
 
-
-# ---------------------------------------------------------------------
-# 5. MÉTRICAS DE DETECCIÓN (ground truth vs modelo) POR FAULT
-# ---------------------------------------------------------------------
-
-def metricas_deteccion(w):
-    """Confusión ventana a ventana sobre carga5 (test)."""
-    c5 = w[w["es_carga5"] == True].copy()  # noqa: E712
-    total_fault = (c5["fase"] != "normal").sum()
-    total_normal = (c5["fase"] == "normal").sum()
-    alertas_fault = int(((c5["fase"] != "normal") & (c5["alerta"] == 1)).sum())
-    alertas_normal = int(((c5["fase"] == "normal") & (c5["alerta"] == 1)).sum())
-    reporte = {
-        "ventanas_carga5_test": int(len(c5)),
-        "ventanas_fault": int(total_fault),
-        "ventanas_normal": int(total_normal),
-        "alertas_en_fault": alertas_fault,
-        "alertas_en_normal_fp": alertas_normal,
-        "recall": round(alertas_fault / total_fault, 3) if total_fault else None,
-        "fpr": round(alertas_normal / total_normal, 3) if total_normal else None,
-    }
-    por_fault = {}
-    for fase in c5[c5["fase"] != "normal"]["fase"].unique():
-        sub = c5[c5["fase"] == fase]
-        a = int(sub["alerta"].sum())
-        por_fault[fase] = {
-            "ventanas_total": int(len(sub)),
-            "ventanas_alertadas": a,
-            "tpr": round(a / len(sub), 3) if len(sub) else None,
-        }
-    return reporte, por_fault
+    mask = ts.map(en_alerta)
+    anom = c_run[mask]
+    normal = c_run[~mask]
+    if anom.empty or normal.empty:
+        return []
+    punt = []
+    for var in features:
+        if var not in c_run.columns:
+            continue
+        z = desviacion_robusta(anom[var], normal[var])
+        if z > 0:
+            punt.append({"variable": var, "desviacion": round(z, 3)})
+    punt.sort(key=lambda x: x["desviacion"], reverse=True)
+    return punt[:5]
 
 
 # ---------------------------------------------------------------------
@@ -247,83 +325,231 @@ def metricas_deteccion(w):
 def main():
     os.makedirs(DIR_DIAG, exist_ok=True)
 
-    # Ground truth
-    timeline = pd.read_csv(RUTA_TIMELINE, encoding="utf-8-sig")
+    for r in (RUTA_DATASET, RUTA_TRAIN_PKL, RUTA_TEST_PKL, RUTA_SCORES):
+        if not os.path.isfile(r):
+            log(f"Falta {r}. Ejecuta antes los pasos 3 y 4 (00-03).")
+            return
 
-    # Dataset integrado
+    anom = corridas_anomalia_diagnosticables()
+    log(f"Corridas de anomalies/ ({len(anom)}): {', '.join(sorted(anom))}")
+
+    # ---- Carga ----
     df = pd.read_csv(RUTA_DATASET, encoding="utf-8-sig")
-    c5 = etiquetar_muestras(df, timeline)
+    w, umbral_q10 = cargar_ventanas()
 
-    # Detección
-    scores = pd.read_csv(RUTA_SCORES, encoding="utf-8-sig")
-    test = pd.read_pickle(RUTA_TEST_PKL)
-    w, features = etiquetar_windows(test, scores, timeline)
+    if os.path.isfile(RUTA_REGLAS):
+        reglas = pd.read_csv(RUTA_REGLAS, encoding="utf-8-sig")
+    else:
+        log(f"Aviso: no existe {RUTA_REGLAS}; se continúa sin reglas R1-R7.")
+        reglas = pd.DataFrame(
+            columns=["run_name", "timestamp", "regla", "diagnostico"])
+    if os.path.isfile(RUTA_DIAG_REGLAS):
+        diag_r = json.load(open(RUTA_DIAG_REGLAS, encoding="utf-8"))
+    else:
+        diag_r = {}
+    catalogo = diag_r.get("reglas", {})
+    reglas_x_corrida = reglas_por_corrida(reglas)
 
-    # Reglas
-    reglas = pd.read_csv(RUTA_REGLAS, encoding="utf-8-sig")
-    diag_r = json.load(open(RUTA_DIAG_REGLAS, encoding="utf-8"))
+    features = [
+        c for c in df.columns
+        if c not in config.COLUMNAS_CONTEXTO
+    ]
 
-    # ---- Análisis ------------------------------------------------
-    atribucion = atribuir_variables(c5, features, timeline)
-    reglas_fault = reglas_por_fault(reglas, diag_r, timeline)
-    deteccion, deteccion_fault = metricas_deteccion(w)
+    # Corridas a evaluar = unión de corridas con ventanas + con reglas.
+    corridas_evaluadas = sorted(
+        set(w["run"].tolist()) | set(reglas_x_corrida) | set(anom))
 
-    # Detalle por fault
-    por_fault = {}
-    for _, tl in timeline.iterrows():
-        fault = tl["tipo"]
-        fp = FOOTPRINT_ESPERADO.get(fault, {})
-        vars_causantes = atribucion.get(fault, [])
-        coinciden = [
-            v["variable"] for v in vars_causantes[:6]
-            if v["variable"] in fp.get("vars", [])
-        ]
-        por_fault[fault] = {
-            "ventana": f"{tl['inicio']} → {tl['fin']}",
-            "sospecha_esperada": fp.get("sospecha", ""),
-            "variables_causantes_top": vars_causantes[:6],
-            "coincidencia_con_huella": coinciden,
-            "reglas": reglas_fault.get(fault, {}),
-            "deteccion": deteccion_fault.get(fault, {}),
+    por_corrida = {}
+    total_ventanas = len(w)
+    total_alertas = int(w["alerta"].sum())
+    total_reglas = int(len(reglas))
+
+    for corrida in corridas_evaluadas:
+        grupo = "anomalias" if corrida in anom else "baseline"
+        w_run = w[w["run"] == corrida].copy()
+        ventanas_alertadas = w_run[w_run["alerta"] == 1].sort_values("score")
+
+        sec = {
+            "grupo": grupo,
+            "ventanas": int(len(w_run)),
+            "alertas_modelo": int(len(ventanas_alertadas)),
+        }
+        sec["fraccion_alertas_modelo"] = round(
+            sec["alertas_modelo"] / sec["ventanas"], 4) if sec["ventanas"] else 0.0
+
+        rg = reglas_x_corrida.get(corrida, {})
+        sec["reglas"] = {
+            "detecciones": rg.get("detecciones", 0),
+            "por_regla": rg.get("por_regla", {}),
+            "reglas": rg.get("reglas", []),
         }
 
+        # Detección consolidada: modelo y/o reglas
+        sec["detectado"] = bool(
+            (sec["alertas_modelo"] > 0) or (sec["reglas"]["detecciones"] > 0))
+
+        # Ventanas alertadas (la evidencia temporal del modelo)
+        sec["ventanas_alertadas"] = [
+            {"inicio": str(r["inicio"]), "fin": str(r["fin"]),
+             "score": round(float(r["score"]), 4)}
+            for _, r in ventanas_alertadas.head(MAX_VENTANAS_ALERTADAS).iterrows()
+        ]
+        sec["total_ventanas_alertadas"] = sec["alertas_modelo"]
+
+        # Timeline (solo corridas de anomalies/ con anomalias_timeline.csv)
+        tiene_timeline = corrida in anom
+        sec["tiene_timeline"] = tiene_timeline
+        aviso = None
+        if tiene_timeline:
+            timeline = pd.read_csv(anom[corrida], encoding="utf-8-sig")
+            w = etiquetar_fases_windows(w, corrida, timeline)
+            w_run = w[w["run"] == corrida].copy()
+            metricas, deteccion_fault = metricas_deteccion(w_run)
+            sec["resumen_deteccion"] = metricas
+            sec["por_fault"] = {}
+
+            c_run = etiquetar_muestras(df, corrida, timeline)
+            atribucion = atribuir_variables(c_run, features, timeline)
+            reglas_fault = reglas_por_fault(reglas, corrida, timeline)
+
+            if metricas["ventanas_fault"] == 0:
+                aviso = ("El timeline de esta corrida no cruza con sus "
+                         "ventanas reales: no se puede calcular TPR con "
+                         "ground truth. La detección se informa por modelo "
+                         "y reglas.")
+
+            for _, tl in timeline.iterrows():
+                fault = tl["tipo"]
+                fp = FOOTPRINT_ESPERADO.get(fault, {})
+                vars_causantes = atribucion.get(fault, [])
+                coinciden = [
+                    v["variable"] for v in vars_causantes[:6]
+                    if v["variable"] in fp.get("vars", [])
+                ]
+                det = reglas_fault.get(fault, {})
+                sec["por_fault"][fault] = {
+                    "ventana": f"{tl['inicio']} -> {tl['fin']}",
+                    "sospecha_esperada": fp.get("sospecha", ""),
+                    "variables_causantes_top": vars_causantes[:6],
+                    "coincidencia_con_huella": coinciden,
+                    "reglas": det,
+                    "deteccion": deteccion_fault.get(fault, {}),
+                }
+            if aviso:
+                sec["aviso"] = aviso
+                log(f"Aviso [{corrida}]: {aviso}")
+
+        # Top variables causantes de las ventanas alertadas (con o sin timeline)
+        if sec["alertas_modelo"] > 0 and not w_run.empty:
+            c_run = df[df["run_name"] == corrida].copy()
+            sec["top_variables_alertas"] = atribuir_variables_ventanas(
+                c_run, w_run[w_run["alerta"] == 1], features)
+        else:
+            sec["top_variables_alertas"] = []
+
+        por_corrida[corrida] = sec
+
+    # ---- Acumulados globales ----
+    corridas_detectadas = sorted(
+        c for c, s in por_corrida.items() if s["detectado"])
+    corridas_limpias = sorted(
+        c for c, s in por_corrida.items() if not s["detectado"])
+
+    # Métricas con ground truth (solo timeline)
+    ttl_fault = sum(
+        s["resumen_deteccion"]["ventanas_fault"]
+        for s in por_corrida.values() if s.get("resumen_deteccion"))
+    ttl_normal = sum(
+        s["resumen_deteccion"]["ventanas_normal"]
+        for s in por_corrida.values() if s.get("resumen_deteccion"))
+    ttl_a_fault = sum(
+        s["resumen_deteccion"]["alertas_en_fault"]
+        for s in por_corrida.values() if s.get("resumen_deteccion"))
+    ttl_a_normal = sum(
+        s["resumen_deteccion"]["alertas_en_normal_fp"]
+        for s in por_corrida.values() if s.get("resumen_deteccion"))
+
+    resumen_global = {
+        "corridas_evaluadas": int(len(por_corrida)),
+        "corridas_con_anomalia": corridas_detectadas,
+        "corridas_sin_anomalia": corridas_limpias,
+        "umbral_modelo_q10": umbral_q10,
+        "ventanas_evaluadas": total_ventanas,
+        "ventanas_alertadas": total_alertas,
+        "detecciones_reglas_total": int(reglas.shape[0]),
+        "ventanas_test_anomalias": sum(
+            s["resumen_deteccion"]["ventanas_test"]
+            for s in por_corrida.values() if s.get("resumen_deteccion")),
+        "ventanas_fault": ttl_fault,
+        "ventanas_normal": ttl_normal,
+        "alertas_en_fault": ttl_a_fault,
+        "alertas_en_normal_fp": ttl_a_normal,
+        "recall": round(ttl_a_fault / ttl_fault, 3) if ttl_fault else None,
+        "fpr": round(ttl_a_normal / ttl_normal, 3) if ttl_normal else None,
+    }
+
     informe = {
-        "corrida": "carga5",
-        "fecha": "2026-09-08",
-        "resumen_deteccion": deteccion,
-        "por_fault": por_fault,
+        "fecha": datetime.date.today().isoformat(),
+        "corridas_anomalias": sorted(anom),
+        "resumen_deteccion": resumen_global,
+        "por_corrida": por_corrida,
         "conclusion": {
-            "es_anomalo": deteccion["alertas_en_fault"] > 0,
-            "faults_inyectados": len(timeline),
+            "es_anomalo": bool(corridas_detectadas),
+            "corridas_con_alertas": corridas_detectadas,
+            "faults_inyectados": ttl_fault,
             "faults_con_reglas": int(sum(
-                1 for f in por_fault.values() if f["reglas"].get("detecciones_reglas", 0) > 0)),
+                1 for s in por_corrida.values()
+                if s["reglas"]["detecciones"] > 0)),
         },
     }
 
-    # ---- Guardar ------------------------------------------------
-    os.makedirs(DIR_DIAG, exist_ok=True)
+    # ---- Guardar ----
     ruta_json = os.path.join(DIR_DIAG, "informe_deteccion.json")
     with open(ruta_json, "w", encoding="utf-8") as f:
         json.dump(informe, f, ensure_ascii=False, indent=2)
 
-    # ---- Reporte de consola --------------------------------------
+    # ---- Reporte de consola ----
     log("==========================================================")
-    log("EL DIAGNÓSTICO FINAL DEL DIAGNÓSTICO (RESULTADO)")
+    log("DIAGNÓSTICO FINAL DEL DIAGNÓSTICO (RESULTADO)")
     log("==========================================================")
-    log(f"Detección (ventanas de test de carga5): {deteccion}")
-    log("")
-    for fault, info in por_fault.items():
-        log(f"● {fault.upper()}  [{info['ventana']}]")
-        log(f"   Detección: {info['deteccion']}")
-        log(f"   Reglas:    {info['reglas']['reglas_disparadas'] or '-'} "
-            f"({info['reglas']['detecciones_reglas']} casos)")
-        top = ", ".join(f"{v['variable']}(Δ{ v['desviacion']})"
-                        for v in info['variables_causantes_top'][:5])
-        log(f"   Variables causantes (top): {top}")
-        log(f"   Coinciden con la huella esperada: {info['coincidencia_con_huella']}")
-        if info['variables_causantes_top']:
-            bloqueadas = info['reglas']['diagnostico']
-            log(f"   Diagnóstico: {bloqueadas or 'sin reglas'}")
+    log(f"Umbral del modelo (q10 scores train): {umbral_q10:.4f}")
+    log(f"Corridas evaluadas: {corridas_evaluadas}")
+    log(f"Detectadas como anómalas: {corridas_detectadas or '-'}")
+    log(f"Sin anomalías: {corridas_limpias or '-'}")
+    log(f"Ventanas evaluadas: {total_ventanas} | alertadas: {total_alertas}")
+    log(f"Reglas disparadas (total): {total_reglas}")
+    for corrida in sorted(por_corrida):
+        s = por_corrida[corrida]
+        marca = "<<< ANOMALIA DETECTADA" if s["detectado"] else "(sin anomalias)"
+        linea = (f"[{s['grupo']}] {corrida}: ventanas={s['ventanas']} "
+                 f"alertas_modelo={s['alertas_modelo']} "
+                 f"reglas={s['reglas']['detecciones']} {marca}")
+        log(linea)
+        if s["detectado"]:
+            if s["ventanas_alertadas"]:
+                log(f"   ventanas alertadas: "
+                    f"{s['alertas_modelo']} "
+                    f"(ej. {s['ventanas_alertadas'][0]['inicio']} -> "
+                    f"{s['ventanas_alertadas'][0]['fin']}, "
+                    f"score {s['ventanas_alertadas'][0]['score']})")
+            if s["top_variables_alertas"]:
+                top = ", ".join(
+                    f"{v['variable']}(desv={v['desviacion']})"
+                    for v in s["top_variables_alertas"][:5])
+                log(f"   variables top: {top}")
+            if s["reglas"]["reglas"]:
+                log(f"   reglas R1-R7: {s['reglas']['reglas']} "
+                    f"({s['reglas']['detecciones']} casos)")
+        if s.get("tiene_timeline") and s.get("resumen_deteccion"):
+            log(f"   ground truth: {s['resumen_deteccion']}")
+            for fault, info in s["por_fault"].items():
+                log(f"   - {fault.upper()} [{info['ventana']}]")
+                log(f"      reglas: "
+                    f"{info['reglas']['reglas_disparadas'] or '-'} "
+                    f"({info['reglas']['detecciones_reglas']}) | "
+                    f"detección: {info['deteccion']}")
+        if s.get("aviso"):
+            log(f"   AVISO: {s['aviso']}")
         log("")
     log("==========================================================")
     log(f"Informe completo: {ruta_json}")

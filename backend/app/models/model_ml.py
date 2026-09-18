@@ -10,6 +10,7 @@ from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.utils import utc_now
 
 if TYPE_CHECKING:
     from app.models.model_alerta import Alertas
@@ -29,7 +30,7 @@ class ModelosML(Base):
     mdl_act: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     mdl_fec_entr: Mapped[datetime | None] = mapped_column(DateTime)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
 
@@ -56,7 +57,7 @@ class PrediccionesML(Base):
     prd_feats: Mapped[str | None] = mapped_column(Text)
     prd_expl: Mapped[str | None] = mapped_column(Text)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
 

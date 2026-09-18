@@ -24,7 +24,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 
 import joblib
@@ -36,6 +36,7 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models.model_ml import ModelosML
 from app.models.model_muestra_normal import MuestrasNormales
+from app.utils import utc_now
 
 log = logging.getLogger("steelnort.reentrenamiento")
 
@@ -51,7 +52,7 @@ VENTANA = 10
 
 def _leer_muestras_normales(db: Session, dias: int = DIAS_DEFAULT) -> pd.DataFrame:
     """Lee muestras normales de los últimos N días y retorna un DataFrame."""
-    desde = datetime.utcnow() - timedelta(days=dias)
+    desde = utc_now() - timedelta(days=dias)
 
     filas = (
         db.query(MuestrasNormales)
@@ -333,7 +334,7 @@ def reentrenar(dias: int = DIAS_DEFAULT, force: bool = False) -> dict:
 
         # 11. Reemplazar artefactos
         os.makedirs(ML_BACKUP_DIR, exist_ok=True)
-        ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        ts = utc_now().strftime("%Y%m%d_%H%M%S")
 
         for nombre in ["modelo_isolation_forest.joblib", "scaler.joblib"]:
             src = ML_ARTIFACTS_DIR / nombre
@@ -374,7 +375,7 @@ def reentrenar(dias: int = DIAS_DEFAULT, force: bool = False) -> dict:
                 }),
                 mdl_ruta_art=str(ML_ARTIFACTS_DIR / "modelo_isolation_forest.joblib"),
                 mdl_act=True,
-                mdl_fec_entr=datetime.utcnow(),
+                mdl_fec_entr=utc_now(),
                 reg_usu="reentrenamiento_automatico",
             )
             db.add(nuevo_mdl)

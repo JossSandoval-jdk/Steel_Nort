@@ -10,6 +10,7 @@ from sqlalchemy import BigInteger, CheckConstraint, DateTime, ForeignKey, Intege
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.utils import utc_now
 
 if TYPE_CHECKING:
     from app.models.model_alerta import Alertas
@@ -27,7 +28,7 @@ class NodosSCADA(Base):
     ndo_est: Mapped[str] = mapped_column(String(20), nullable=False, default="operativo")
     ndo_uptime: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
 
@@ -51,7 +52,7 @@ class Servicios(Base):
     svc_est: Mapped[str] = mapped_column(String(20), nullable=False, default="operativo")
     svc_uptime_pct: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False, default=100.00)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
 

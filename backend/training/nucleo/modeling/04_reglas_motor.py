@@ -230,7 +230,7 @@ def corroboracion_cpu(met, umbrales):
     fuertes = [s for s in estados if s in ("pico", "alto")]
     cpu_usr = v_met(met, "cpu_usr")
     
-    if fuertes or (cpu_usr is not None and cpu_usr >= config.UMBRAL_CPU_ALTO_PORCENTAJE):
+    if fuertes or (cpu_usr is not None and cpu_usr >= config.UMBRAL_CPU_ALTO_MS):
         return "confirmado", "; ".join(evidencias)
     if evidencias:
         return "sin_pico", "; ".join(evidencias)
@@ -462,16 +462,57 @@ def leer_eventos(ruta):
 
 
 def encontrar_events_log():
+    """Localiza un events.log por corrida en toda la estructura de salida.
+
+    Orden de búsqueda (la primera aparición de cada nombre gana):
+      1. baseline/  (corridas normales de entrenamiento)
+      2. anomalias/ (corridas con fallo inyectado, p. ej. carga5)
+      3. contenedores legacy en la raíz (p. ej. run1-7/run1...run7)
+      4. corridas directas en la raíz (backward compatibility)
+    """
+    raiz = config.DIR_CORRIDAS
+
+    def _marcar(ruta_carpeta, nombre):
+        ev_file = os.path.join(ruta_carpeta, "events.log")
+        if os.path.isfile(ev_file):
+            rutas.setdefault(nombre, ev_file)
+
+    def _escaneo(raiz_dir):
+        if not os.path.isdir(raiz_dir):
+            return
+        for carpeta in sorted(os.listdir(raiz_dir)):
+            ruta_carpeta = os.path.join(raiz_dir, carpeta)
+            if not os.path.isdir(ruta_carpeta):
+                continue
+            if carpeta.lower() in config.CARPETAS_NO_CORRIDA:
+                continue
+            _marcar(ruta_carpeta, carpeta)
+
     rutas = {}
-    for carpeta in os.listdir(config.DIR_CORRIDAS):
-        ruta_carpeta = os.path.join(config.DIR_CORRIDAS, carpeta)
-        if not os.path.isdir(ruta_carpeta):
+
+    _escaneo(os.path.join(raiz, "baseline"))
+    _escaneo(os.path.join(raiz, "anomalias"))
+
+    for carpeta in sorted(os.listdir(raiz)):
+        contenedor = os.path.join(raiz, carpeta)
+        if not os.path.isdir(contenedor):
             continue
         if carpeta.lower() in config.CARPETAS_NO_CORRIDA:
             continue
-        ev_file = os.path.join(ruta_carpeta, "events.log")
-        if os.path.exists(ev_file):
-            rutas[carpeta] = ev_file
+        if carpeta in ("baseline", "anomalias"):
+            continue
+        subcarpetas = [
+            s for s in os.listdir(contenedor)
+            if os.path.isdir(os.path.join(contenedor, s))
+        ]
+        es_contenedor = any(
+            os.path.isfile(os.path.join(contenedor, s, "events.log"))
+            for s in subcarpetas
+        )
+        if es_contenedor:
+            _escaneo(contenedor)
+
+    _escaneo(raiz)
     return rutas
 
 
@@ -545,7 +586,8 @@ def aplicar_reglas_a_eventos(eventos, df_m, umbrales):
 def main():
     rutas = encontrar_events_log()
     if not rutas:
-        log(f"No se encontraron events.log en {config.DIR_CORRIDAS}.")
+        log(f"No se encontraron events.log en {config.DIR_CORRIDAS} "
+            f"(baseline/, anomalias/ ni contenedores legacy).")
         return
 
     todas_detecciones = []
@@ -578,6 +620,21 @@ def main():
         df = pd.DataFrame(todas_detecciones)
         df.to_csv(ruta_csv, index=False, encoding="utf-8-sig")
         log(f"Detecciones guardadas en: {ruta_csv} ({len(df)} filas)")
+
+        # Catálogo de diagnóstico por regla (lo consume 05_diagnostico_resultados.py).
+        catalogo = {}
+        for _, fila in df.iterrows():
+            regla = fila.get("regla")
+            if regla and regla not in catalogo and fila.get("diagnostico"):
+                catalogo[regla] = {
+                    "detonante": fila.get("detonante"),
+                    "diagnostico": fila.get("diagnostico"),
+                    "fuente": fila.get("fuente"),
+                }
+        ruta_cat = os.path.join(config.DIR_REGLAS, "diagnostico_reglas.json")
+        with open(ruta_cat, "w", encoding="utf-8") as f:
+            json.dump({"reglas": catalogo}, f, ensure_ascii=False, indent=2)
+        log(f"Catálogo de diagnóstico en: {ruta_cat} ({len(catalogo)} reglas)")
 
         ruta_resumen = os.path.join(config.DIR_REGLAS, "resumen_reglas.csv")
         resumen_reglas = df.groupby(["regla", "run_name"]).size().reset_index(name="conteo")

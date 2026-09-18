@@ -127,7 +127,7 @@ def main():
 
         log(
             f"Falta el dataset: {config.DATASET_PRINCIPALES}. "
-            "Ejecuta data_preparation 00-06."
+            "Ejecuta data_preparation 00-04."
         )
 
         return
@@ -160,61 +160,49 @@ def main():
         )
 
     # --------------------------------------------------------
-    # 2. VENTANAS DE TODAS LAS CORRIDAS
+    # 2. VENTANAS: TRAIN SOLO NORMALES, TEST SOLO ANOMALIAS
     # --------------------------------------------------------
+    # El modelo se entrena EXCLUSIVAMENTE con corridas normales de carga
+    # (config.CORRIDAS_ENTRENAMIENTO). La corrida de anomalías (la que
+    # tiene anomalias_timeline.csv, p.ej. carga5) NO se usa para
+    # entrenar: sus ventanas solo alimentan el test de detección.
 
-    todas_corridas = sorted(
-        datos["run_name"].unique()
-    )
+    todas_corridas = set(datos["run_name"].unique())
 
-    log(
-        f"Corridas disponibles: {todas_corridas}"
-    )
+    # Entrenamiento con todas las corridas normales (excluyendo anomalías)
+    corridas_anom = set(config.corridas_anomalia())
+    corridas_train = [c for c in todas_corridas if c not in corridas_anom]
 
-    X_all, runs_all, ventanas_all = construir_muestras(
-        datos, todas_corridas, features
-    )
+    corridas_test = [
+        c for c in config.corridas_anomalia() if c in todas_corridas
+    ]
 
-    log(
-        f"Total de muestras generadas: {len(X_all)}"
-    )
+    log(f"Corridas disponibles: {sorted(todas_corridas)}")
+    log(f"Train (solo normal): {corridas_train}")
+    log(f"Test  (solo anomalias): {corridas_test}")
 
-    if len(X_all) == 0:
-
-        log("No se generaron muestras.")
+    if not corridas_train:
+        log("Sin corridas normales de entrenamiento. Verifica "
+            "CORRIDAS_ENTRENAMIENTO en config.py.")
         return
 
-    # --------------------------------------------------------
-    # 3. SPLIT 70/30 ALEATORIO
-    # --------------------------------------------------------
+    if not corridas_test:
+        log("Aviso: no hay corrida de anomalías (con timeline) para test.")
 
-    rng = np.random.RandomState(config.SEED)
-
-    indices = rng.permutation(len(X_all))
-
-    n_train = int(len(X_all) * config.FRACCION_TRAIN)
-
-    idx_train = indices[:n_train]
-    idx_test = indices[n_train:]
-
-    X_train = X_all[idx_train]
-    X_test = X_all[idx_test]
-
-    runs_train = [runs_all[i] for i in idx_train]
-    runs_test = [runs_all[i] for i in idx_test]
-
-    ventanas_train = [ventanas_all[i] for i in idx_train]
-    ventanas_test = [ventanas_all[i] for i in idx_test]
-
-    log(
-        f"Train: {len(X_train)} muestras "
-        f"({len(X_train)/len(X_all)*100:.1f}%)"
+    X_train, runs_train, ventanas_train = construir_muestras(
+        datos, corridas_train, features
     )
 
-    log(
-        f"Test:  {len(X_test)} muestras "
-        f"({len(X_test)/len(X_all)*100:.1f}%)"
+    X_test, runs_test, ventanas_test = construir_muestras(
+        datos, corridas_test, features
     )
+
+    log(f"Train: {len(X_train)} muestras (corridas normales)")
+    log(f"Test:  {len(X_test)} muestras (corrida de anomalias)")
+
+    if len(X_train) == 0:
+        log("No se generaron muestras de entrenamiento.")
+        return
 
     # --------------------------------------------------------
     # 4. NORMALIZACIÓN (solo sobre train)

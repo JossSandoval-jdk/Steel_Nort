@@ -264,17 +264,19 @@ def main():
     log(f"Reporte en: {ruta_pares}")
 
     # --------------------------------------------------------
-    # 2. PODA ITERATIVA
+    # 2. SE USAN TODAS LAS VARIABLES (SIN PODA)
     # --------------------------------------------------------
 
-    mantenidas, descartadas = podar_redundantes(
-        corr_pearson,
-        config.UMBRAL_CORRELACION,
-        df_pares
-    )
+    # A petición del usuario se eliminó la selección/poda por
+    # correlación (22 de 72): el modelo usa TODAS las variables
+    # del dataset. El reporte de pares altamente correlacionados
+    # (df_pares) se conserva solo como información.
+    mantenidas = sorted(features)
+    descartadas = []
 
     log(
-        f"Variables mantenidas: {len(mantenidas)} / {len(features)}"
+        f"Variables del modelo: {len(mantenidas)} / {len(features)} "
+        "(todas, sin poda por correlación)"
     )
 
     ruta_mant = os.path.join(

@@ -15,13 +15,13 @@ Metodología:
     4. Evalúa sobre la corrida de prueba: al ser también una
        captura normal, la proporción de alertas equivale a la
        TASA DE FALSAS ALARMAS (FPR).
-    5. Calcula la importancia de variables mediante
-       Permutation Importance adaptada al score de decisión.
+    5. Si se proveen etiquetas reales de anomalía, calcula
+       además P / R / F1 por tipo (como DBPA).
 
 Salidas (en <OUTPUT>/modelado/deteccion/):
     modelo_isolation_forest.joblib
     scaler.joblib
-    alertas_test.csv
+    alertas_<test_run>.csv
     scores_muestras.csv
     importancia_variables.csv
 """
@@ -33,7 +33,6 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
-from sklearn.inspection import permutation_importance
 
 import config
 
@@ -50,27 +49,15 @@ def cargar_muestras(ruta):
 
 def seleccionar_features(datos, ruta_features_modelo):
     """
-    Devuelve el índice de las variables mantenidas por 02 dentro
-    del conjunto original de features.
+    Se usan TODAS las variables del dataset (se eliminó la selección
+    a un subconjunto). ``ruta_features_modelo`` se ignora por
+    compatibilidad con el resto del pipeline.
     """
-    if not os.path.exists(ruta_features_modelo):
-        log(
-            f"No existe {ruta_features_modelo}. "
-            "Se usan todas las variables principales."
-        )
-        return list(range(len(datos["features"])))
-
-    mantenidas = pd.read_csv(
-        ruta_features_modelo,
-        encoding="utf-8-sig"
-    )["columna"].tolist()
-
-    indice = []
-    for m in mantenidas:
-        if m in datos["features"]:
-            indice.append(datos["features"].index(m))
-
-    return indice
+    log(
+        "Modelo con TODAS las variables "
+        f"({len(datos['features'])}) — sin selección."
+    )
+    return list(range(len(datos["features"])))
 
 
 def flat(x, indice):
@@ -78,7 +65,38 @@ def flat(x, indice):
     Aplana las ventanas a vectores [n, VENTANA * F] usando solo
     las features seleccionadas.
     """
-    return x[:, :, indice].reshape(x.shape[0], -1)
+
+    # Cada muestra es [VENTANA, F]; el IsolationForest espera un vector
+    # por fila, así que concatenamos la ventana: [VENTANA*F]. El árbol
+    # "ve" cada variable en cada instante de la ventana por separado.
+    n = x.shape[0]
+
+    # reshape(n, -1) falla cuando n == 0 (los scripts de reentrenamiento
+    # usan un test vacío si no hay corrida de anomalías).
+    return x[:, :, indice].reshape(n, x.shape[1] * len(indice))
+
+
+def metricas(prediccion, etiquetas):
+    """
+    Calcula TP/FP/TN/FN y P, R, F1 (positivo = anomalía).
+    """
+
+    # Convención de sklearn: -1 = ANÓMALO, +1 = NORMAL. Contamos cuántas
+    # celdas caen en cada combinación (predicción vs etiqueta real).
+    tp = int(np.sum((prediccion == -1) & (etiquetas == -1)))  # acierto en anomalía
+    fp = int(np.sum((prediccion == -1) & (etiquetas == 1)))   # falsa alarma
+    tn = int(np.sum((prediccion == 1) & (etiquetas == 1)))    # acierto en normal
+    fn = int(np.sum((prediccion == 1) & (etiquetas == -1)))   # anomalía no vista
+
+    # Precision = de lo que marcamos, cuánto era real; Recall = de las
+    # anomalías reales, cuántas vimos; F1 = media armónica de ambas.
+    p = tp / (tp + fp) if (tp + fp) else 0.0
+
+    r = tp / (tp + fn) if (tp + fn) else 0.0
+
+    f1 = (2 * p * r / (p + r)) if (p + r) else 0.0
+
+    return tp, fp, tn, fn, p, r, f1
 
 
 def main():
@@ -98,10 +116,20 @@ def main():
     )
 
     if not (os.path.exists(ruta_train) and os.path.exists(ruta_test)):
+
         log("Faltan las muestras. Ejecuta 01_muestras.py.")
+
         return
 
+    # -----------------------------------------------------------------
+    # PREPARACIÓN
+    # -----------------------------------------------------------------
+    # Cargamos los pkl que generó 01 (train: 3 corridas normales; test:
+    # la corrida retenida) y reducimos X a las variables que sobrevivieron
+    # la poda por correlación (02). flat() aplana cada ventana de 10
+    # instantes en un único vector.
     train = cargar_muestras(ruta_train)
+
     test = cargar_muestras(ruta_test)
 
     indice = seleccionar_features(
@@ -113,8 +141,10 @@ def main():
     )
 
     X_train = flat(train["X"], indice)
+
     X_test = flat(test["X"], indice)
 
+    # Ejemplo real: 16 variables × 10 instantes = 160 características.
     n_feat_ventana = X_train.shape[1]
 
     log(
@@ -126,10 +156,19 @@ def main():
         f"Test:  {X_test.shape[0]} muestras"
     )
 
-    # --------------------------------------------------------
-    # 2. ENTRENAMIENTO
-    # --------------------------------------------------------
+    # El test depende de que exista una corrida de anomalias con timeline.
+    # En reentrenamiento automatico (sin corrida de anomalias) el test
+    # queda vacio y el flujo se reduce a entrenar el modelo nuevo.
+    hay_test = X_test.shape[0] > 0
+    if not hay_test:
+        log("Sin test de anomalias (modo reentrenamiento): solo entrenamiento.")
 
+    # -----------------------------------------------------------------
+    # ENTRENAMIENTO: SOLO datos normales de referencia
+    # -----------------------------------------------------------------
+    # contamination="auto" → el modelo usa ~10 % del train (los más raros
+    # de la referencia normal) como punto de comparación interno al fijar
+    # su límite. random_state=SEED ⇒ resultados reproducibles.
     modelo = IsolationForest(
         random_state=config.SEED,
         contamination="auto"
@@ -137,6 +176,9 @@ def main():
 
     modelo.fit(X_train)
 
+    # GUARDAR con joblib: es el formato recomendado para objetos de
+    # scikit-learn/numpy (rápido y confiable). En producción se cargan
+    # estos dos archivos y se puntúan ventanas nuevas sin reentrenar.
     os.makedirs(config.DIR_DETECCION, exist_ok=True)
 
     joblib.dump(
@@ -157,13 +199,21 @@ def main():
 
     log("Modelo entrenado y guardado.")
 
-    # --------------------------------------------------------
-    # 3. SCORES Y UMBRALES
-    # --------------------------------------------------------
-
+    # -----------------------------------------------------------------
+    # SCORES Y UMBRALES
+    # -----------------------------------------------------------------
+    # decision_function(): score ALTO = más "normal", score BAJO = más
+    # anómalo (un punto suelto se aísla con pocas divisiones del árbol).
     scores_train = modelo.decision_function(X_train)
-    scores_test = modelo.decision_function(X_test)
 
+    scores_test = (
+        modelo.decision_function(X_test)
+        if hay_test else np.empty(0)
+    )
+
+    # Umbrales dinámicos = percentiles de la distribución de scores NORMALES
+    # de entrenamiento. Con q01 solo se alerta con los puntos del 1 % más
+    # raro respecto al baseline ⇒ muy pocas falsas alarmas.
     umbrales = {
         "q10": np.quantile(scores_train, 0.10),
         "q05": np.quantile(scores_train, 0.05),
@@ -177,37 +227,44 @@ def main():
         f"q01={umbrales['q01']:.4f}"
     )
 
+    # -----------------------------------------------------------------
+    # EVALUACIÓN EN TEST: corrida de ANOMALIAS
+    # -----------------------------------------------------------------
+    # El test son las ventanas de la corrida de anomalías (carga5), con su
+    # ground truth en carga5/anomalias_timeline.csv. El % de ventanas
+    # marcadas aquí NO es un FPR: el TPR/FPR reales los calcula el paso 5
+    # (05_diagnostico_resultados.py) cruzando con el timeline.
+    if hay_test:
+        df_alertas = pd.DataFrame({
+            "idx": range(len(test["ventanas"])),
+            "run": test["runs"],
+            "inicio": [w["inicio"] for w in test["ventanas"]],
+            "fin": [w["fin"] for w in test["ventanas"]],
+            "score": scores_test,
+            "prediccion": modelo.predict(X_test),
+        })
+
+        for nombre, umbral in umbrales.items():
+
+            df_alertas[nombre] = (
+                df_alertas["score"] < umbral
+            ).astype(int)
+
+        ruta_alertas = os.path.join(
+            config.DIR_DETECCION,
+            "alertas_test.csv"
+        )
+
+        df_alertas.to_csv(
+            ruta_alertas,
+            index=False,
+            encoding="utf-8-sig"
+        )
+    else:
+        df_alertas = None
+
     # --------------------------------------------------------
-    # 4. EVALUACIÓN EN PRUEBA (FPR)
-    # --------------------------------------------------------
-
-    df_alertas = pd.DataFrame({
-        "idx": range(len(test["ventanas"])),
-        "run": test["runs"],
-        "inicio": [w["inicio"] for w in test["ventanas"]],
-        "fin": [w["fin"] for w in test["ventanas"]],
-        "score": scores_test,
-        "prediccion": modelo.predict(X_test),
-    })
-
-    for nombre, umbral in umbrales.items():
-        df_alertas[nombre] = (
-            df_alertas["score"] < umbral
-        ).astype(int)
-
-    ruta_alertas = os.path.join(
-        config.DIR_DETECCION,
-        "alertas_test.csv"
-    )
-
-    df_alertas.to_csv(
-        ruta_alertas,
-        index=False,
-        encoding="utf-8-sig"
-    )
-
-    # --------------------------------------------------------
-    # 5. SCORES DE ENTRENAMIENTO
+    # 5. SCORES DE ENTRENAMIENTO (referencia)
     # --------------------------------------------------------
 
     df_scores = pd.DataFrame({
@@ -229,34 +286,41 @@ def main():
     )
 
     # --------------------------------------------------------
-    # 6. IMPORTANCIA POR VARIABLE (Permutation Importance)
+    # 6. IMPORTANCIA POR VARIABLE
     # --------------------------------------------------------
 
-    def custom_scoring(estimator, X, y=None):
-        return np.mean(estimator.decision_function(X))
-
-    X_imp = X_test if len(X_test) > 0 else X_train
-    perm_result = permutation_importance(
-        modelo,
-        X_imp,
-        y=np.zeros(len(X_imp)),
-        scoring=custom_scoring,
-        n_repeats=5,
-        random_state=config.SEED,
-        n_jobs=-1
+    # -----------------------------------------------------------------
+    # IMPORTANCIA DE VARIABLES
+    # -----------------------------------------------------------------
+    # sklearn ≥ 1.9 ya NO expone feature_importances_ en IsolationForest.
+    # Solución: promediar la importancia de cada árbol interno
+    # (modelo.estimators_ es la lista de árboles construidos).
+    importancias = np.mean(
+        [
+            tree.feature_importances_
+            for tree in modelo.estimators_
+        ],
+        axis=0
     )
 
+    # Traducimos índices → nombres de variables mantenidas.
     mant = [train["features"][i] for i in indice]
-    v = config.VENTANA
-    raw_importances = perm_result.importances_mean
-    agg = {}
 
-    for i, c in enumerate(mant):
-        slice_importances = raw_importances[i * v : (i + 1) * v]
-        agg[c] = float(np.mean(np.abs(slice_importances)))
+    v = config.VENTANA
+
+    # Cada variable ocupa 10 posiciones CONSECUTIVAS en el vector aplanado
+    # (una por instante de la ventana). Agregamos su importancia como
+    # promedio de esas 10 posiciones → un número por variable de modelo.
+    agg = {
+        c: float(
+            np.abs(importancias[i * v: (i + 1) * v]).mean()
+        )
+        for i, c in enumerate(mant)
+    }
 
     df_imp = pd.DataFrame(
-        [{"columna": c, "importancia": agg[c]} for c in mant]
+        [{"columna": c, "importancia": agg[c]}
+         for c in mant]
     ).sort_values("importancia", ascending=False)
 
     ruta_imp = os.path.join(
@@ -274,23 +338,33 @@ def main():
     # 7. RESUMEN
     # --------------------------------------------------------
 
-    print("\n=== IsoForest SOBRE REFERENCIA NORMAL ===")
-    print("FPR (tasa de falsas alarmas) en corrida de prueba:")
+    print("\n=== IsoForest SOBRE NORMAL (train) / ANOMALIAS (test) ===")
 
-    for nombre in ("q10", "q05", "q01"):
-        fpr = float(df_alertas[nombre].mean())
+    if df_alertas is not None:
+
+        print("Ventanas de TEST (corrida de anomalias) marcadas por umbral:")
+
+        for nombre in ("q10", "q05", "q01"):
+
+            fpr = float(df_alertas[nombre].mean())
+
+            print(
+                f"  umbral {nombre}: "
+                f"{int(df_alertas[nombre].sum())} / "
+                f"{len(df_alertas)} alertas "
+                f"({fpr * 100:.2f}% del test)"
+            )
+
+        print("\nNota: TPR/FPR reales se cruzan con anomalias_timeline.csv en "
+              "el paso 5 (05_diagnostico).")
+
         print(
-            f"  umbral {nombre}: "
-            f"{int(df_alertas[nombre].sum())} / "
-            f"{len(df_alertas)} alertas "
-            f"({fpr * 100:.2f}% del normal)"
+            f"\nPredicción IsoForest (contaminación automática): "
+            f"{(df_alertas['prediccion'] == -1).sum()} / "
+            f"{len(df_alertas)} en test"
         )
-
-    print(
-        f"\nPredicción IsoForest (contaminación automática): "
-        f"{(df_alertas['prediccion'] == -1).sum()} / "
-        f"{len(df_alertas)} en test"
-    )
+    else:
+        print("Sin test de anomalias: solo entrenamiento (modo reentrenamiento).")
 
     print(
         f"Train: {(df_scores['prediccion'] == -1).sum()} / "
@@ -298,10 +372,14 @@ def main():
     )
 
     print("\n=== IMPORTANCIA DE VARIABLES (top 10) ===")
+
     print(df_imp.head(10).to_string(index=False))
 
-    log(f"Alertas en: {ruta_alertas}")
+    if df_alertas is not None:
+        log(f"Alertas en: {ruta_alertas}")
+
     log(f"Scores en: {ruta_scores}")
+
     log(f"Importancia en: {ruta_imp}")
 
 

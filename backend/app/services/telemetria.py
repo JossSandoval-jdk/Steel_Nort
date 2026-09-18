@@ -6,15 +6,34 @@ no se guarda telemetria cruda). Tambien conserva un log corto de
 mutaciones para alimentar el endpoint SSE /telemetria/live por cursor,
 haciendo la difusion sencilla y segura entre hilos.
 
+Ademas centraliza la persistencia de muestras NORMALES (Muestras_Normales)
+y los logs de reconocimiento/clasificacion, para que el router de
+telemetria quede fino.
+
 Los eventos de anomalia los procesa ``app.services.anomalias``.
 """
 
 from __future__ import annotations
 
+import json
+import logging
 import threading
 import time
 from collections import deque
+from datetime import datetime
+from decimal import Decimal
 from typing import Any
+
+from sqlalchemy.orm import Session
+
+from app.models.model_muestra_normal import MuestrasNormales
+from app.services.nodos import obtener_o_crear_nodo
+
+log = logging.getLogger("steelnort.telemetria")
+
+# Nodos que ya fueron "vistos" en este arranque (para no repetir el
+# log de conexion en cada muestra).
+_nodos_vistos: set[str] = set()
 
 # Configuración por defecto del ring buffer (muestras por nodo).
 CAPACIDAD_POR_NODO = 220          # ~25 min a STREAM_INTERVAL=7s
@@ -119,3 +138,91 @@ def _ts_dato(muestra: dict) -> float | None:
 
 # Instancia unica a nivel de aplicacion.
 buffer_telemetria = TelemetriaBuffer()
+
+
+# ----------------------------------------------------------------------
+# Persistencia y logs (usados por el router de telemetria)
+# ----------------------------------------------------------------------
+
+
+def persistir_muestra_normal(
+    db: Session,
+    ndo_cod: int,
+    fec: datetime,
+    prediccion: dict,
+    ventana: int = 10,
+    reg_usu: str = "telemetria",
+) -> None:
+    """Registra una muestra NORMAL en Muestras_Normales (datos de retrain)."""
+    feats_json = json.dumps(prediccion.get("features", {}), default=str)
+    db.add(MuestrasNormales(
+        mno_ndo=ndo_cod,
+        mno_fec=fec,
+        mno_score=Decimal(str(prediccion.get("score", 0))),
+        mno_umbral=Decimal(str(prediccion.get("umbral", 0))),
+        mno_feats=feats_json,
+        mno_ventana=ventana,
+        reg_usu=reg_usu,
+    ))
+
+
+def guardar_muestra_normal(
+    db: Session,
+    nodo_nombre: str,
+    nodo_ip: str,
+    prediccion: dict,
+    ventana: dict,
+) -> None:
+    """Persiste la muestra NORMAL de telemetria en vivo.
+
+    Solo se llama cuando ``prediccion['es_anomalia']`` es False.
+    Guarda las features como JSON para poder reconstruir el
+    dataset de entrenamiento posteriormente.
+    """
+    ndo_cod = obtener_o_crear_nodo(db, nodo_nombre, nodo_ip, origen="telemetria")
+    if ndo_cod is None:
+        return
+    persistir_muestra_normal(
+        db, ndo_cod, _utc_now(), prediccion,
+        ventana=ventana.get("ventana", 10), reg_usu="telemetria",
+    )
+
+
+def log_reconocimiento(nodo: str, ip: str, recien_alta: bool) -> None:
+    """Deja en el terminal/log la validacion de conexion del servidor.
+
+    - Primera vez en TODA la vida (nodo recien registrado): "RECONOCIDO".
+    - Primera vez en este arranque (nodo ya registrado, acaba de
+      conectarse): "conectado".
+    El resto de muestras ya no generan este log (evita ruido).
+    """
+    if recien_alta:
+        _nodos_vistos.add(nodo)
+        log.info(
+            "[TELEMETRIA] Servidor/Nodo RECONOCIDO por el sistema: %s (%s) ->"
+            " registrado en Nodos_SCADA",
+            nodo, ip,
+        )
+        return
+    if nodo not in _nodos_vistos:
+        _nodos_vistos.add(nodo)
+        log.info(
+            "[TELEMETRIA] Servidor/Nodo %s (%s) conectado - enviando telemetria",
+            nodo, ip,
+        )
+
+
+def log_prediccion(nodo: str, prediccion: dict, ventana: int) -> None:
+    """Clasificacion visible en el terminal para validar el modelo."""
+    marca = "ANOMALIA" if prediccion["es_anomalia"] else "NORMAL"
+    log.info(
+        "[TELEMETRIA] NODO=%s | %s | es_anomalia=%s | score=%.4f | umbral=%.4f | ventana=%d",
+        nodo, marca, prediccion["es_anomalia"],
+        prediccion["score"], prediccion["umbral"], ventana,
+    )
+
+
+def _utc_now() -> datetime:
+    """Equivale a ``datetime.utcnow()`` sin caer en la API deprecada."""
+    from app.utils import utc_now
+    return utc_now()

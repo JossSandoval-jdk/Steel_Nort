@@ -9,6 +9,7 @@ from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, ForeignKey, Int
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.utils import utc_now
 
 if TYPE_CHECKING:
     from app.models.model_ml import PrediccionesML
@@ -28,11 +29,11 @@ class Alertas(Base):
     alt_sev: Mapped[str] = mapped_column(String(15), nullable=False)
     alt_titulo: Mapped[str] = mapped_column(String(200), nullable=False)
     alt_diag: Mapped[str | None] = mapped_column(String(500))
-    alt_fec: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    alt_fec: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     alt_resu: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     alt_fec_resu: Mapped[datetime | None] = mapped_column(DateTime)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
 
@@ -57,7 +58,7 @@ class CausasRaiz(Base):
     cra_etiq: Mapped[str] = mapped_column(String(200), nullable=False)
     cra_tono: Mapped[str] = mapped_column(String(10), nullable=False)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
 
@@ -79,7 +80,7 @@ class HeatmapAnomalias(Base):
     hma_sev: Mapped[str] = mapped_column(String(15), nullable=False)
     hma_cant: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
 

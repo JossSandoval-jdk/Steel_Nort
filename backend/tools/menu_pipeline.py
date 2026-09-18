@@ -4,7 +4,7 @@ Un solo script para ejecutar TODO el flujo con mensajes de avance paso a paso:
 
     1. Generar captura NORMAL (colectores + carga T-SQL real)
     2. Generar captura CON ANOMALIAS (colectores + inyeccion de fallos)
-    3. Preparacion de datos        (00 -> 06) -> CSVs del dataset
+    3. Preparacion de datos        (00 -> 04) -> CSVs del dataset
     4. Modelado / Reentrenamiento  (01 -> 03)   -> modelo + FPR
     5. Reglas de motor + Diagnostico (04 -> 05) -> informe_deteccion.json
     6. Despliegue a produccion     (ml/artifacts + training/datasets)
@@ -43,7 +43,7 @@ with suppress(Exception):
 BACKEND_ROOT = Path(__file__).resolve().parent.parent
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
-NUCLEO = BACKEND_ROOT / "app" / "training" / "nucleo"
+NUCLEO = BACKEND_ROOT / "training" / "nucleo"
 PREP_DIR = NUCLEO / "data_preparation"
 MODELING_DIR = NUCLEO / "modeling"
 CAPTURES_DIR = BACKEND_ROOT / "training" / "captures"
@@ -58,8 +58,6 @@ PREP_SCRIPTS = [
     "02_limpieza.py",
     "03_transformacion.py",
     "04_integracion.py",
-    "05_seleccion_variables_clave.py",
-    "06_seleccion_variables_principales.py",
 ]
 MODELADO_SCRIPTS = [
     "01_muestras.py",
@@ -68,7 +66,10 @@ MODELADO_SCRIPTS = [
 ]
 POST_SCORE = ["04_reglas_motor.py", "05_diagnostico_resultados.py"]
 
-COLECTORS = ["metrics_collector", "log_event_collector", "xe_collector"]
+# Los 3 colectores originales eran metrics, log_event y xe. El xe (Extended
+# Events) no lo consume ninguna etapa del pipeline (04_reglas_motor solo lee
+# events.log), asi que se dejo de lanzar en las capturas.
+COLECTORS = ["metrics_collector", "log_event_collector"]
 
 
 # ----------------------------------------------------------------------
@@ -195,23 +196,11 @@ def preflight(cfg: dict) -> bool:
 
 
 def listar_corridas(root: Path) -> list[str]:
-    """Nombres de corridas: subcarpetas de baseline/ y anomalias/ +
-    corridas legacy directas en la raiz (excluye artefactos)."""
-    carpetas_reservadas = {"inventario", "limpio", "integrado",
-                           "modelado", "datasets", "baseline", "anomalias"}
-    nombres = []
-    for grupo in ("baseline", "anomalias"):
-        gp = root / grupo
-        if gp.is_dir():
-            for d in gp.iterdir():
-                if d.is_dir():
-                    nombres.append(d.name)
-    if root.is_dir():
-        for d in root.iterdir():
-            if d.is_dir() and d.name not in carpetas_reservadas \
-                    and d.name not in nombres:
-                nombres.append(d.name)
-    return sorted(nombres)
+    """Corridas únicas con el descubrimiento canónico: recurre
+    baseline/, anomalias/ y los contenedores legacy (p. ej. run1-7/),
+    sin listar artefactos del pipeline."""
+    from training.nucleo.data_preparation import config as prep_config
+    return sorted(prep_config.descubrir_corridas(raiz=root))
 
 
 def _timeline_anomalias(root: Path) -> Path | None:
@@ -230,7 +219,7 @@ def _timeline_anomalias(root: Path) -> Path | None:
 # ----------------------------------------------------------------------
 
 def _start_collectors(dataset: str, log_base: Path) -> list[tuple[str, subprocess.Popen, object]]:
-    """Arranca los 3 colectores; devuelve handles para detenerlos."""
+    """Arranca los colectores (metrics + log_event); devuelve handles para detenerlos."""
     env = os.environ.copy()
     env["DATASET_NAME"] = dataset
     env["OUTPUT_BASE"] = str(CAPTURES_DIR)
@@ -368,7 +357,7 @@ def paso_captura_anomalias(cfg: dict, duracion=180,
 
 def paso_preparacion(cfg: dict):
     root = Path(cfg["output_root"])
-    paso(3, 7, "PREPARACION DE DATOS (00->06)")
+    paso(3, 7, "PREPARACION DE DATOS (00->04)")
     corridas = listar_corridas(root)
     info(f"Corridas detectadas: {corridas}")
     if not corridas:
@@ -494,21 +483,31 @@ def paso_resultados(cfg: dict):
     if informe.is_file():
         d = json.loads(informe.read_text(encoding="utf-8"))
         res = d.get("resumen_deteccion", {})
-        ok("Informe de deteccion (carga5 vs ground truth):")
-        print(f"      ventanas test: {res.get('ventanas_carga5_test')} | "
-              f"fault: {res.get('ventanas_fault')} | normal: {res.get('ventanas_normal')}")
+        ok("Informe de deteccion (todas las corridas de anomalias):")
+        print(f"      corridas: {', '.join(d.get('corridas_anomalias', []))} "
+              f"| ventanas test: {res.get('ventanas_test_anomalias')} | "
+              f"fault: {res.get('ventanas_fault')} | "
+              f"normal: {res.get('ventanas_normal')}")
         print(f"      alertas en fault: {res.get('alertas_en_fault')} | "
               f"falsas en normal: {res.get('alertas_en_normal_fp')} | "
               f"recall: {res.get('recall')} | fpr: {res.get('fpr')}")
-        for fault, det in d.get("por_fault", {}).items():
-            r = det.get("reglas", {})
-            m = det.get("deteccion", {})
-            vc = det.get("variables_causantes_top", [])[:4]
-            print(f"      • {fault}: TPR {m.get('tpr')} | "
-                  f"reglas {r.get('reglas_disparadas') or '-'} | "
-                  f"top vars: {', '.join(v['variable'] for v in vc)}")
+        for corrida, sec in d.get("por_corrida", {}).items():
+            rres = sec.get("resumen_deteccion", {})
+            print(f"      • {corrida}: "
+                  f"recall {rres.get('recall')} "
+                  f"({rres.get('alertas_en_fault')}/{rres.get('ventanas_fault')}"
+                  f") ventanas {rres.get('ventanas_test')}")
+            for fault, det in sec.get("por_fault", {}).items():
+                r = det.get("reglas", {})
+                m = det.get("deteccion", {})
+                vc = det.get("variables_causantes_top", [])[:4]
+                print(f"          - {fault}: TPR {m.get('tpr')} | "
+                      f"reglas {r.get('reglas_disparadas') or '-'} | "
+                      f"top vars: "
+                      f"{', '.join(v['variable'] for v in vc)}")
         concl = d.get("conclusion", {})
         info(f"Conclusion: es_anomalo={concl.get('es_anomalo')}, "
+             f"corridas_con_alertas={concl.get('corridas_con_alertas')}, "
              f"faults={concl.get('faults_inyectados')}")
     else:
         warn("Informe de diagnostico no generado todavia (paso 5).")
@@ -591,7 +590,7 @@ MENU_TEXTO = """
 ╠══════════════════════════════════════════════════════════════╣
 ║   1  Captura NORMAL        (colectores + carga T-SQL real)   ║
 ║   2  Captura ANOMALIAS     (inyeccion de fallos + timeline)  ║
-║   3  Preparacion de datos  (00→06 → datasets CSV)            ║
+║   3  Preparacion de datos  (00→04 → datasets CSV)            ║
 ║   4  Modelado/Reentrenar   (01→03 → modelo + FPR)            ║
 ║   5  Reglas + Diagnostico  (04→05 → informe_deteccion.json)  ║
 ║   6  Desplegar artefactos  (ml/artifacts + training/datasets)║

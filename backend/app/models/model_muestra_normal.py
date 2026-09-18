@@ -18,6 +18,7 @@ from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils import utc_now
 
 
 class MuestrasNormales(Base):
@@ -31,6 +32,6 @@ class MuestrasNormales(Base):
     mno_feats: Mapped[str | None] = mapped_column(Text)
     mno_ventana: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)

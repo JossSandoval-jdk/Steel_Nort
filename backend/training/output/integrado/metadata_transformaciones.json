@@ -173,10 +173,58 @@
         "2026-09-11 03:03:22",
         "2026-09-11 03:04:57"
       ]
+    },
+    {
+      "run_name": "run1",
+      "filas": 62,
+      "rango": [
+        "2026-09-04 05:01:46",
+        "2026-09-04 05:17:04"
+      ]
+    },
+    {
+      "run_name": "run2",
+      "filas": 18,
+      "rango": [
+        "2026-09-07 04:26:22",
+        "2026-09-07 04:30:46"
+      ]
+    },
+    {
+      "run_name": "run3",
+      "filas": 41,
+      "rango": [
+        "2026-09-07 04:33:00",
+        "2026-09-07 04:43:04"
+      ]
+    },
+    {
+      "run_name": "run4",
+      "filas": 407,
+      "rango": [
+        "2026-09-07 05:07:11",
+        "2026-09-07 07:06:05"
+      ]
+    },
+    {
+      "run_name": "run5",
+      "filas": 36,
+      "rango": [
+        "2026-09-11 03:05:45",
+        "2026-09-11 03:08:48"
+      ]
+    },
+    {
+      "run_name": "run7",
+      "filas": 19,
+      "rango": [
+        "2026-09-11 03:03:22",
+        "2026-09-11 03:04:57"
+      ]
     }
   ],
-  "total_corridas": 11,
-  "total_filas": 710,
+  "total_corridas": 17,
+  "total_filas": 1293,
   "nota_independencia": "Cada corrida representa una carga/captura independiente. Las corridas se integran únicamente mediante concatenación, conservando run_name y experiment_id para identificar su procedencia.",
   "nota_etiquetado": "Durante la preparación de datos no se asigna la columna is_anomaly ni se clasifican las corridas como normales o anómalas. La detección de anomalías corresponde a la fase de Modelado.",
   "nota_tasas": "total_reads y total_writes se transforman a tasas mediante delta/dt. Las variables page_reads_per_sec, page_writes_per_sec, rollbacks_per_sec, batch_requests_per_sec y sql_compilations_per_sec no se vuelven a diferenciar en esta etapa porque corresponden a valores entregados por el collector."

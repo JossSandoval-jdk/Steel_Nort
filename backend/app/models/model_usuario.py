@@ -22,6 +22,7 @@ from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.utils import utc_now
 
 if TYPE_CHECKING:
     from app.models.model_alerta import Alertas
@@ -42,7 +43,7 @@ class Usuarios(Base):
     usu_ini: Mapped[str] = mapped_column(String(4), nullable=False)
     usu_act: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     reg_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
@@ -70,13 +71,13 @@ class Sesiones(Base):
 
     ses_cod: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     ses_usu: Mapped[int] = mapped_column(ForeignKey("Usuarios.usu_cod"), nullable=False)
-    ses_fec_ini: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    ses_fec_ini: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     ses_fec_fin: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     ses_ip: Mapped[str | None] = mapped_column(String(45), nullable=True)
     ses_usr_agt: Mapped[str | None] = mapped_column(String(500), nullable=True)
     ses_est: Mapped[str] = mapped_column(String(15), nullable=False, default="activa")
     reg_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60), nullable=True)
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
@@ -100,7 +101,7 @@ class EventosSesion(Base):
     evt_desc: Mapped[str] = mapped_column(String(200), nullable=False)
     evt_color: Mapped[str] = mapped_column(String(7), nullable=False)
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
 

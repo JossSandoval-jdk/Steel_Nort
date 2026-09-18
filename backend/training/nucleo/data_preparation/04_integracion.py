@@ -29,6 +29,7 @@ Fuentes utilizadas:
 Salidas:
 
     datasets/integrado/dataset_steelnort_preparado.csv
+    datasets/integrado/dataset_carga_principales.csv
     datasets/integrado/dataset_eventos.csv
     datasets/integrado/dataset_logs.csv
     datasets/integrado/metadata_transformaciones.json
@@ -245,6 +246,107 @@ def construir_integrado(corridas):
     )
 
     return df
+
+
+# ============================================================
+# DATASET DE VARIABLES PRINCIPALES
+# ============================================================
+
+def construir_dataset_principales(df):
+    """
+    Genera el dataset final de variables principales para Modelado.
+
+    Antes esto lo hacía 06_seleccion_variables_principales.py;
+    ahora la integración lo produce directamente usando el conjunto
+    canónico config.VARIABLES_PRINCIPALES.
+
+    Limpieza:
+        1. Se descartan variables principales 100% vacías.
+        2. Los NaN residuales se rellenan con 0.
+    """
+
+    columnas = [
+        "timestamp"
+    ] + config.columnas_principales()
+
+    columnas_contexto = [
+        c
+        for c in config.columnas_contexto()
+        if c in df.columns
+    ]
+
+    columnas_final = list(
+        dict.fromkeys(
+            columnas + columnas_contexto
+        )
+    )
+
+    df_final = df.copy()
+
+    for col in columnas_final:
+
+        if col not in df_final.columns:
+            df_final[col] = pd.NA
+
+    # --------------------------------------------------------
+    # Descartar variables principales sin datos
+    # --------------------------------------------------------
+
+    conservar = set(config.VARIABLES_CONSERVAR_VACIAS)
+
+    vacias = [
+        col
+        for col in config.columnas_principales()
+        if col not in conservar and df_final[col].isna().all()
+    ]
+
+    if vacias:
+        log(
+            f"Variables principales descartadas (100% vacías): "
+            f"{len(vacias)} -> {vacias}"
+        )
+
+    columnas_final = [
+        col
+        for col in columnas_final
+        if col not in vacias
+    ]
+
+    df_final = df_final[columnas_final]
+
+    # --------------------------------------------------------
+    # Reconstruir series por corrida (ffill) y rellenar el resto
+    # --------------------------------------------------------
+
+    # Variables de tasa y settings que el colector captura de forma
+    # dispersa (p. ej. una sola vez por corrida) se propagan hacia
+    # adelante dentro de cada corrida para completar la serie.
+
+    principales_ok = [
+        col
+        for col in config.columnas_principales()
+        if col in df_final.columns
+    ]
+
+    for col in principales_ok:
+        df_final[col] = (
+            df_final.groupby("run_name", group_keys=False)[col]
+            .apply(lambda s: s.ffill())
+        )
+
+    # --------------------------------------------------------
+    # Rellenar NaN residuales con 0
+    # --------------------------------------------------------
+
+    numericas = df_final.select_dtypes(
+        include="number"
+    ).columns
+
+    df_final[numericas] = (
+        df_final[numericas].fillna(0)
+    )
+
+    return df_final
 
 
 # ============================================================
@@ -769,6 +871,32 @@ def main():
         f"{ruta_csv} "
         f"({df.shape[0]} filas x "
         f"{df.shape[1]} columnas)"
+    )
+
+    # --------------------------------------------------------
+    # Guardar dataset de variables principales
+    # --------------------------------------------------------
+
+    df_principales = construir_dataset_principales(
+        df
+    )
+
+    ruta_ds_principales = os.path.join(
+        config.DIR_INTEGRADO,
+        config.ARCHIVO_DATASET_PRINCIPALES
+    )
+
+    df_principales.to_csv(
+        ruta_ds_principales,
+        index=False,
+        encoding="utf-8-sig"
+    )
+
+    log(
+        f"Dataset de variables principales: "
+        f"{ruta_ds_principales} "
+        f"({df_principales.shape[0]} filas x "
+        f"{df_principales.shape[1]} cols)"
     )
 
     # --------------------------------------------------------

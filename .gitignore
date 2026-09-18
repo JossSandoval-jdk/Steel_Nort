@@ -28,6 +28,13 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Backend: runtime y backups (no son fuente)
+*.pid
+*.bak_old
+*.sqlite
+*.sqlite3
+*.db
+
 # Local env files
 *.local
 .env

@@ -339,12 +339,17 @@ function Dashboard() {
                 <div className="dash-disp-top">
                   <div className="dash-disp-text">
                     <h3 className="card-title">
-                      Rendimiento por consultas{' '}
-                      <span className="dash-disp-sub">(Promedio)</span>
+                      Rendimiento por consultas <span className="dash-disp-sub">(Promedio)</span>
                     </h3>
-                    <span className="dash-rend-value">{duracionPromedio}<small>ms</small></span>
+                    {durationData.length > 0 ? (
+                      <>
+                        <span className="dash-rend-value">{duracionPromedio}<small>ms</small></span>
+                        <BarraChart data={durationData.slice(-7)} />
+                      </>
+                    ) : (
+                      <p>0 ms – sin consultas</p>
+                    )}
                   </div>
-                  <BarraChart data={durationData.length > 0 ? durationData.slice(-7) : []} />
                 </div>
               </article>
 

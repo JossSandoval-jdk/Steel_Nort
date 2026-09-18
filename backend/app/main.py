@@ -1,19 +1,16 @@
 """Punto de entrada de la aplicacion FastAPI SteelNort.
 
 Inicializa los componentes centrales al arrancar:
-  - recursos de base de datos (tablas si faltan),
-  - CORS para el frontend,
-  - registro de rutas (de momento solo autenticacion).
-
-Para escalar: conforme se agreguen modulos (alertas, reportes, ML,
-CRUD de nodos, etc.), se crean nuevos routers en ``app/routers`` y se
-registran aqui con ``app.include_router(...)``.
+  - tablas de la base de datos (si faltan),
+  - roles y permisos por defecto,
+  - detector ML (fail-fast si faltan artefactos),
+  - monitor de sincronizacion VPS/daemon,
+  - CORS, middlewares transversales y routers.
 """
 
 from __future__ import annotations
 
 import logging
-import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -27,111 +24,56 @@ if BACKEND_ROOT not in sys.path:
 
 log = logging.getLogger("steelnort.main")
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
-from app.config import settings
-from app.database import SessionLocal, init_db
-from app.routers import auth, dashboard, dominio, metricas, reentrenamiento, roles, telemetria, usuarios
-from app.services.seed_roles import seed_roles_y_permisos
-from app.services.sincronizacion import start_monitor, stop_monitor
-
-# ==============================================================================
-# LIFESPAN: Gestiona el ciclo de vida de la aplicación.
-# Se encarga de inicializar la base de datos al arrancar el servidor.
-# ==============================================================================
-def _resumen_vps_sql() -> list[str]:
-    """Estado de la conexion al SQL Server de negocio (Podman/VPS 1434).
-
-    Prueba la conexion con las credenciales del collector y lee las
-    ultimas lineas del error log para demostrar que la fuente de logs
-    esta conectada.
-    """
-    from app.services.sincronizacion import _test_vps_sql
-
-    ok = _test_vps_sql()
-    lineas = ["  SQL Podman (VPS) : 127.0.0.1:1434  [CONECTADO]" if ok
-              else "  SQL Podman (VPS) : 127.0.0.1:1434  [OFFLINE]"]
-
-    if ok:
-        lineas.append("  Logs del VPS       : errorlog de SQL Server (ultimas lineas):")
-        try:
-            from app.collector.config import SQL_SERVER_CONN_STR
-            import pyodbc  # noqa: PLC0415
-
-            conn = pyodbc.connect(SQL_SERVER_CONN_STR, timeout=5, autocommit=True)
-            try:
-                cur = conn.cursor()
-                cur.execute("EXEC sp_readerrorlog 0")
-                for row in cur.fetchmany(3):
-                    texto = " ".join(str(row[2]).split())
-                    lineas.append(f"      - {texto[:100]}")
-            finally:
-                try:
-                    conn.close()
-                except Exception:
-                    pass
-        except Exception as exc:
-            lineas.append(f"      (no se pudo leer el errorlog: {exc})")
-    return lineas
-
-
-def _reporte_arranque(detect, mdl, nodos_lista, db_nombre) -> str:
-    """Compone el resumen visible cuando el backend queda listo."""
-    nodos = nodos_lista or []
-    linea_nodos = (
-        ", ".join(f"{n.ndo_nom} ({n.ndo_ip})" for n in nodos)
-        if nodos else "(sin nodos registrados; se auto-registran al recibir telemetria)"
-    )
-    umbral = detect.umbral_actual
-    return "\n".join([
-        "=" * 76,
-        "  STEELNORT  |  SISTEMA PRENDIDO  |  SCADA + ML",
-        "=" * 76,
-        f"  Base de datos     : {db_nombre}  [CONECTADO]",
-        *_resumen_vps_sql(),
-        f"  Modelo registrado : {getattr(mdl, 'mdl_nom', 'n/a')}  (mdl_cod={getattr(mdl, 'mdl_cod', '?')})",
-        "  Detector ML       : Isolation Forest",
-        f"  Ventana           : {detect._ventana} muestras",
-        f"  Features          : {len(detect._features21)}  ->  {', '.join(detect._features21)}",
-        f"  Umbral activo     : {detect._umbral_nombre} = {umbral}",
-        f"  Umbrales q10/q05/q01: {detect._umbrales.get('q10')} / {detect._umbrales.get('q05')} / {detect._umbrales.get('q01')}",
-        f"  Artefacto modelo  : {detect._ruta_modelo}",
-        f"  Nodos reconocidos : {linea_nodos}",
-        "=" * 76,
-        "  Endpoints: /  |  telemetria en /telemetria  |  SSE en /telemetria/live",
-        "  Validar modelo:  python tools/simular_carga.py",
-        "=" * 76,
-    ])
+from app.config import settings  # noqa: E402
+from app.database import SessionLocal, init_db  # noqa: E402
+from app.middleware import (  # noqa: E402
+    ModelProtectionMiddleware,
+    ProxyHeadersMiddleware,
+    RateLimitMiddleware,
+    RequestLoggingMiddleware,
+    SecurityHeadersMiddleware,
+)
+from app.routers import (  # noqa: E402
+    anomalias,
+    auth,
+    dashboard,
+    dominio,
+    metricas,
+    reentrenamiento,
+    roles,
+    telemetria,
+    usuarios,
+)
+from app.services.seed_roles import seed_roles_y_permisos  # noqa: E402
+from app.services.sincronizacion import start_monitor, stop_monitor  # noqa: E402
+from app.startup import _reporte_arranque, nombre_bd_visible  # noqa: E402
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     """Ejecuta tareas de inicializacion al arrancar la API.
 
-    Al prender el backend se prepara TODO el sistema:
-      1. Crea/se verifica las tablas de la BD (init_db) y comprueba la conexion.
-      2. Siembra roles y permisos por defecto.
-      3. Carga el detector ML (modelo + scaler + umbrales).
-         Si falta un artefacto, el backend FALLA al arrancar (fail-fast).
-      4. Registra el modelo desplegado en Modelos_ML y muestra el resumen:
-         nodos SCADA reconocidos, umbrales y conexion -> verificables en logs.
+    1. Crea/verifica las tablas (init_db) y comprueba la conexion.
+    2. Siembra roles y permisos por defecto.
+    3. Carga el detector ML (modelo + scaler + umbrales) con fail-fast.
+    4. Registra el modelo desplegado en Modelos_ML.
+    5. Lee los nodos SCADA reconocidos y muestra el resumen de arranque.
+    6. Arranca el monitor de sincronizacion (VPS SQL + daemon).
     """
     init_db()
     db = SessionLocal()
     try:
-        # 2. Roles y permisos por defecto.
         seed_roles_y_permisos(db)
 
-        # 3. Carga eager del detector: si no existe -> arranque aborted.
         from app.ml.detector import get_detector
         detect = get_detector()
 
-        # 4. Mirror del detector en Modelos_ML (auto-registro si falta).
         from app.services.anomalias import obtener_modelo_activo
         mdl = obtener_modelo_activo(db)
 
-        # 5. Nodos SCADA reconocidos actualmente en la BD.
         from app.models.model_scada import NodosSCADA
         nodos = (
             db.query(NodosSCADA)
@@ -141,57 +83,73 @@ async def lifespan(_app: FastAPI):
         )
         db.commit()
 
-        db_nombre = (settings.database_url.split("?", 1)[0]
-                     .replace("mssql+pyodbc://", ""))
-        reporte = _reporte_arranque(detect, mdl, nodos, db_nombre)
+        reporte = _reporte_arranque(detect, mdl, nodos, nombre_bd_visible())
         log.info("\n%s", reporte)
         print("\n" + reporte)  # garantiza visibilidad en la consola de uvicorn
     finally:
         db.close()
-    # 6. Monitor de sincronizacion: vigila VPS SQL + daemon/web y alerta.
+
     start_monitor()
     yield
     stop_monitor()
 
-# ==============================================================================
-# FASTAPI APP: Instancia principal de la API.
-# Configura el título, versión y middleware CORS para comunicación con el frontend.
-# ==============================================================================
-app = FastAPI(
-    title="SteelNort API",
-    description="API del sistema SCADA de monitoreo y deteccion de anomalias.",
-    version="0.1.0",
-    lifespan=lifespan,
-)
 
-# Configuracion CORS: permite al frontend React consumir la API.
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def crear_app() -> FastAPI:
+    """Construye la instancia FastAPI con middlewares y routers."""
+    app = FastAPI(
+        title="SteelNort API",
+        description="API del sistema SCADA de monitoreo y deteccion de anomalias.",
+        version="0.1.0",
+        lifespan=lifespan,
+    )
 
-# ==============================================================================
-# ROUTERS: Registro de los módulos funcionales de la aplicación.
-# - auth: Autenticación y seguridad.
-# - metricas: Datos de sensores y sistemas.
-# - usuarios: Gestión de cuentas.
-# - dominio: Lógica de negocio específica de la planta.
-# ==============================================================================
-app.include_router(auth.router)
-app.include_router(metricas.router)
-app.include_router(usuarios.router)
-app.include_router(roles.router)
-app.include_router(dominio.router)
-app.include_router(telemetria.router)
-app.include_router(dashboard.router)
-from app.routers import anomalias
-app.include_router(anomalias.router)
+    # ------------------------------------------------------------------
+    # Middlewares (orden: la ultima add_middleware queda MS externo).
+    #
+    # Flujo del request:
+    #   ProxyHeaders -> CORS -> RequestLogging -> RateLimit
+    #     -> ModelProtection -> SecurityHeaders -> app
+    # ------------------------------------------------------------------
+    app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(ModelProtectionMiddleware)
+    app.add_middleware(RateLimitMiddleware)
+    app.add_middleware(RequestLoggingMiddleware)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins_list,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    app.add_middleware(ProxyHeadersMiddleware)
+
+    # ------------------------------------------------------------------
+    # Routers: modulos funcionales de la aplicacion.
+    # ------------------------------------------------------------------
+    app.include_router(auth.router)
+    app.include_router(metricas.router)
+    app.include_router(usuarios.router)
+    app.include_router(roles.router)
+    app.include_router(dominio.router)
+    app.include_router(telemetria.router)
+    app.include_router(dashboard.router)
+    app.include_router(anomalias.router)
+    app.include_router(reentrenamiento.router)
+
+    @app.get("/")
+    def root() -> dict:
+        """Ruta base para verificar que la API esta viva."""
+        return {"app": "SteelNort API", "status": "ok", "version": "0.1.0"}
+
+    return app
 
 
-@app.get("/")
-def root() -> dict:
-    """Ruta base para verificar que la API esta viva."""
-    return {"app": "SteelNort API", "status": "ok", "version": "0.1.0"}
+# Instancia de la aplicacion (usada por uvicorn app.main:app).
+app = crear_app()
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8123, reload=False)

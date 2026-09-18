@@ -20,41 +20,19 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from datetime import datetime, timezone
-from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.ml.detector import get_detector
-from app.models.model_alerta import Alertas, HeatmapAnomalias
-from app.models.model_ml import ModelosML, PrediccionesML
-from app.models.model_muestra_normal import MuestrasNormales
-from app.models.model_scada import NodosSCADA
-from app.services.anomalias import obtener_modelo_activo
+from app.services.anomalias import obtener_modelo_activo, persistir_prediccion
+from app.services.nodos import obtener_o_crear_nodo
+from app.services.telemetria import persistir_muestra_normal
+from app.utils import utc_now
 
 log = logging.getLogger("steelnort.importacion")
 
 NOMBRES_COLUMNA_TIEMPO = ("fec", "fecha", "timestamp", "ts", "fecha_str")
-
-
-def _obtener_nodo(db: Session, nombre: str, ip: str) -> int | None:
-    nodo = (
-        db.query(NodosSCADA)
-        .filter(NodosSCADA.ndo_nom == nombre, NodosSCADA.fec_eli.is_(None))
-        .first()
-    )
-    if nodo is not None:
-        return nodo.ndo_cod
-    nodo = NodosSCADA(
-        ndo_nom=nombre[:100],
-        ndo_ip=ip[:45],
-        ndo_tipo="servidor",
-        ndo_est="operativo",
-        reg_usu="importacion",
-    )
-    db.add(nodo)
-    db.flush()
-    return nodo.ndo_cod
 
 
 def _parsear_fecha(valor) -> datetime | None:
@@ -87,77 +65,6 @@ def _extraer_fecha(muestra: dict) -> datetime | None:
         if clave in muestra and muestra.get(clave) is not None:
             return _parsear_fecha(muestra.get(clave))
     return None
-
-
-def _persistir_normal(db: Session, ndo_cod: int, fec: datetime, pred: dict, reg_usu: str) -> None:
-    db.add(MuestrasNormales(
-        mno_ndo=ndo_cod,
-        mno_fec=fec,
-        mno_score=Decimal(str(pred.get("score", 0))),
-        mno_umbral=Decimal(str(pred.get("umbral", 0))),
-        mno_feats=__import__("json").dumps(pred.get("features", {}), default=str),
-        mno_ventana=10,
-        reg_usu=reg_usu,
-    ))
-
-
-def _persistir_anomalia(db: Session, modelo: ModelosML, ndo_cod: int, fec: datetime, pred: dict, reg_usu: str) -> None:
-    import json
-
-    registro = PrediccionesML(
-        prd_mdl=modelo.mdl_cod,
-        prd_ndo=ndo_cod,
-        prd_fec=fec,
-        prd_es_anom=True,
-        prd_score=Decimal(str(pred.get("score", 0))),
-        prd_umbral=Decimal(str(pred.get("umbral", 0))),
-        prd_feats=json.dumps(pred.get("features", {}), default=str),
-        prd_expl="Ventana de 10 muestras bajo el umbral del baseline normal (importacion externa).",
-        reg_usu=reg_usu,
-    )
-    db.add(registro)
-    db.flush()
-
-    # Una alerta abierta por nodo mientras no se resuelva.
-    alerta_abierta = (
-        db.query(Alertas)
-        .filter(Alertas.alt_ndo == ndo_cod, Alertas.alt_resu == False, Alertas.fec_eli.is_(None))
-        .first()
-    )
-    if alerta_abierta is None:
-        db.add(Alertas(
-            alt_ndo=ndo_cod,
-            alt_prd=registro.prd_cod,
-            alt_tipo="anomalia_ml",
-            alt_sev="alta",
-            alt_titulo=f"Anomalia detectada en el nodo (importacion)",
-            alt_diag="Score por debajo del umbral de deteccion (ventana 10).",
-            reg_usu=reg_usu,
-        ))
-
-    # Heatmap dia/hora usando el timestamp de la muestra inyectada.
-    dia_hora = fec
-    if dia_hora.tzinfo is None:
-        dia_hora = dia_hora.replace(tzinfo=timezone.utc)
-    heat = (
-        db.query(HeatmapAnomalias)
-        .filter(
-            HeatmapAnomalias.hma_fec == dia_hora.date(),
-            HeatmapAnomalias.hma_hora == dia_hora.hour,
-            HeatmapAnomalias.hma_sev == "alerta_alta",
-        )
-        .first()
-    )
-    if heat is None:
-        db.add(HeatmapAnomalias(
-            hma_fec=dia_hora.date(),
-            hma_hora=dia_hora.hour,
-            hma_sev="alerta_alta",
-            hma_cant=1,
-            reg_usu=reg_usu,
-        ))
-    else:
-        heat.hma_cant += 1
 
 
 def importar_lote_detalle(detalle: list[dict], reg_usu: str = "importacion") -> dict:
@@ -206,20 +113,24 @@ def importar_lote_detalle(detalle: list[dict], reg_usu: str = "importacion") -> 
 
             predicciones = detector.evaluar_lote(nodo, variables_orden)
 
-            ndo_cod = _obtener_nodo(db, nodo, ip)
+            ndo_cod = obtener_o_crear_nodo(db, nodo, ip, origen=reg_usu)
             normales = anomalias = 0
             # Ventana incompletas: solo se evaluan a partir de la n-esima.
             descartadas = max(0, len(variables_orden) - len(predicciones))
 
             for pred in predicciones:
                 idx = pred["indice"]
-                fec = fechas_orden[idx] or datetime.utcnow()
+                fec = fechas_orden[idx] or utc_now()
                 try:
                     if pred["es_anomalia"]:
-                        _persistir_anomalia(db, modelo, ndo_cod, fec, pred, reg_usu)
+                        persistir_prediccion(
+                            db, nodo, ip, fec, pred, origen=reg_usu
+                        )
                         anomalias += 1
                     else:
-                        _persistir_normal(db, ndo_cod, fec, pred, reg_usu)
+                        persistir_muestra_normal(
+                            db, ndo_cod, fec, pred, ventana=10, reg_usu=reg_usu
+                        )
                         normales += 1
                 except Exception:
                     db.rollback()

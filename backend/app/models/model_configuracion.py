@@ -8,6 +8,7 @@ from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.utils import utc_now
 
 
 class ConfiguracionSistema(Base):
@@ -18,6 +19,6 @@ class ConfiguracionSistema(Base):
     cfg_valor: Mapped[str] = mapped_column(String(500), nullable=False)
     cfg_desc: Mapped[str | None] = mapped_column(String(200))
     reg_usu: Mapped[str | None] = mapped_column(String(60))
-    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[str | None] = mapped_column(String(60))
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
