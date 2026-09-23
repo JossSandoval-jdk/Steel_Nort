@@ -11,19 +11,36 @@ from datetime import datetime
 
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class LoginRequest(BaseModel):
     """Cuerpo del POST /auth/login.
 
     ``usu_ema`` (email) es el campo que identifica al usuario en la
-    tabla Usuarios. Se valida formato de email y longitud minima de la
-    clave.
+    tabla Usuarios. Se valida formato de email y longitud de la clave.
     """
 
     email: EmailStr = Field(..., description="Correo del usuario (usu_ema)")
-    password: str = Field(..., min_length=8, description="Contrasena (usu_pwd)")
+    password: str = Field(..., min_length=8, max_length=72, description="Contrasena (usu_pwd)")
+
+    @field_validator("email")
+    @classmethod
+    def _email_normalizado(cls, v: str) -> str:
+        """Normaliza el email antes de buscar al usuario.
+
+        Evita fallos por mayusculas/espacios y colisiones de collation
+        en el lookup de login.
+        """
+        return v.strip().lower()
+
+    @field_validator("password")
+    @classmethod
+    def _password_limite_bcrypt(cls, v: str) -> str:
+        """bcrypt solo procesa 72 bytes; se valida antes de hacer hash."""
+        if len(v.encode("utf-8")) > 72:
+            raise ValueError("La contrasena excede el limite de 72 bytes de bcrypt.")
+        return v
 
 
 class UsuarioOut(BaseModel):

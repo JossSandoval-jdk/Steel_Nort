@@ -1,0 +1,6 @@
+﻿columna,motivo,media_abs_corr
+cpu_usr,correlación >= 0.85 con ['api_latency_ms'],0.3881
+active_sessions,correlación >= 0.85 con ['active_requests'],0.3681
+total_writes,correlación >= 0.85 con ['transactions_per_sec'],0.3251
+api_status,correlación >= 0.85 con ['api_latency_ms'],0.3128
+duration_avg_ms,correlación >= 0.85 con ['duration_max_ms'],0.1289

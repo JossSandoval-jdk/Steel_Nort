@@ -34,23 +34,9 @@ import pandas as pd
 
 import config
 
-
-# ============================================================
-# LOG
-# ============================================================
-
 def log(msg):
     print(f"[TRANSFORMACION] {msg}", flush=True)
 
-
-# ============================================================
-# CONFIGURACIÓN DE CONTADORES
-# ============================================================
-
-# Estas variables representan contadores/tasas que el collector
-# ya debería entregar correctamente calculados por segundo.
-#
-# No se les aplica diff/dt nuevamente aquí.
 CONTADORES_SIN_DELTA = [
     "page_reads_per_sec",
     "page_writes_per_sec",
@@ -59,23 +45,10 @@ CONTADORES_SIN_DELTA = [
     "sql_compilations_per_sec",
 ]
 
-
-# Contadores acumulativos que sí necesitan convertirse a tasa.
-#
-# total_reads y total_writes proceden de métricas acumulativas,
-# por lo que se calcula:
-#
-#       tasa = delta_valor / delta_tiempo
-#
 CONTADORES_A_TASA = [
     "total_reads",
     "total_writes",
 ]
-
-
-# ============================================================
-# PIVOTE DE MÉTRICAS
-# ============================================================
 
 def pivot_metricas(corrida, dir_salida):
     """
@@ -158,11 +131,6 @@ def pivot_metricas(corrida, dir_salida):
 
     return wide
 
-
-# ============================================================
-# CÁLCULO DE TASAS
-# ============================================================
-
 def aplicar_tasas(wide):
     """
     Calcula tasas delta/dt para contadores acumulativos.
@@ -200,14 +168,10 @@ def aplicar_tasas(wide):
 
         delta = valores.diff()
 
-        # Evita división por cero y tiempos inválidos.
         tasa = delta.div(
             dt.replace(0, np.nan)
         )
 
-        # Las tasas negativas pueden aparecer si el contador
-        # acumulativo se reinicia. En ese caso se considera
-        # inválida la primera observación posterior al reinicio.
         tasa = tasa.where(
             tasa >= 0,
             np.nan
@@ -216,11 +180,6 @@ def aplicar_tasas(wide):
         wide[col] = tasa
 
     return wide
-
-
-# ============================================================
-# ASIGNACIÓN TEMPORAL DE EVENTOS
-# ============================================================
 
 def _asignar_a_muestras(df, timestamps):
     """
@@ -267,11 +226,6 @@ def _asignar_a_muestras(df, timestamps):
     return asignado.dropna(
         subset=["muestra_timestamp"]
     )
-
-
-# ============================================================
-# EVENTOS DE EVENTS.LOG
-# ============================================================
 
 def agregar_eventos_dmv(corrida, dir_salida, timestamps):
     """
@@ -331,10 +285,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         )
     })
 
-    # --------------------------------------------------------
-    # EVENTOS DE USUARIO
-    # --------------------------------------------------------
-
     if "process_type" in df_e.columns:
 
         user_events = df_e[
@@ -344,10 +294,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
     else:
 
         user_events = df_e.iloc[0:0].copy()
-
-    # --------------------------------------------------------
-    # LOGIN / LOGOUT / WAIT
-    # --------------------------------------------------------
 
     eventos_basicos = {
         "login": "events_login_count",
@@ -372,10 +318,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
             .astype(int)
         )
 
-    # --------------------------------------------------------
-    # LOCKS
-    # --------------------------------------------------------
-
     lock_mask = df_e["event_name"].isin([
         "lock_acquired",
         "lock_released",
@@ -394,10 +336,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .astype(int)
     )
 
-    # --------------------------------------------------------
-    # SQL BATCH COMPLETED
-    # --------------------------------------------------------
-
     batch = user_events[
         user_events["event_name"] == "sql_batch_completed"
     ].copy()
@@ -410,10 +348,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .fillna(0)
         .astype(int)
     )
-
-    # --------------------------------------------------------
-    # VARIABLES NUMÉRICAS DEL BATCH
-    # --------------------------------------------------------
 
     for column in (
         "duration",
@@ -436,10 +370,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
     grouped = batch.groupby(
         "muestra_timestamp"
     )
-
-    # --------------------------------------------------------
-    # CONSULTAS LARGAS
-    # --------------------------------------------------------
 
     long_queries = (
         batch[
@@ -470,10 +400,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .fillna(0)
         .astype(int)
     )
-
-    # --------------------------------------------------------
-    # ESTADÍSTICAS DE CONSULTAS
-    # --------------------------------------------------------
 
     agregaciones = [
         (
@@ -516,10 +442,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
             .fillna(0)
         )
 
-    # --------------------------------------------------------
-    # WAIT TYPES
-    # --------------------------------------------------------
-
     if "wait_type" in df_e.columns:
 
         wait_type = (
@@ -537,7 +459,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
             dtype="object"
         )
 
-    # Locks
     wait_lck = (
         wait_type.str.startswith("LCK_")
     )
@@ -553,7 +474,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .astype(int)
     )
 
-    # I/O
     wait_io = wait_type.str.startswith(
         (
             "PAGEIOLATCH_",
@@ -572,7 +492,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .astype(int)
     )
 
-    # Transaction log
     wait_log = wait_type == "WRITELOG"
 
     out["wait_log_count"] = (
@@ -585,10 +504,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .fillna(0)
         .astype(int)
     )
-
-    # --------------------------------------------------------
-    # SESIONES DISTINTAS
-    # --------------------------------------------------------
 
     if "session_id" in user_events.columns:
 
@@ -621,17 +536,9 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .astype(int)
     )
 
-    # --------------------------------------------------------
-    # QUERY COUNT
-    # --------------------------------------------------------
-
     out["query_count"] = (
         out["events_batch_count"]
     )
-
-    # --------------------------------------------------------
-    # WAIT COUNT
-    # --------------------------------------------------------
 
     wait_events = user_events[
         user_events["event_name"] == "wait_info"
@@ -648,10 +555,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .astype(int)
     )
 
-    # --------------------------------------------------------
-    # LOCK EVENT COUNT
-    # --------------------------------------------------------
-
     out["lock_event_count"] = (
         out["timestamp"]
         .map(
@@ -662,10 +565,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .fillna(0)
         .astype(int)
     )
-
-    # --------------------------------------------------------
-    # ERRORES DE EVENTS.LOG
-    # --------------------------------------------------------
 
     error_events = df_e[
         df_e["event_name"].isin([
@@ -685,13 +584,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
         .astype(int)
     )
 
-    # --------------------------------------------------------
-    # ALIAS HISTÓRICOS
-    # --------------------------------------------------------
-    #
-    # Se conservan porque otras etapas pueden estar esperando
-    # estas columnas.
-
     out["duration_max_ms"] = (
         out["query_duration_max_ms"]
     )
@@ -701,11 +593,6 @@ def agregar_eventos_dmv(corrida, dir_salida, timestamps):
     )
 
     return out
-
-
-# ============================================================
-# SQL SERVER ERROR LOG
-# ============================================================
 
 def agregar_logs_sqlserver(dir_salida, timestamps):
     """
@@ -827,11 +714,6 @@ def agregar_logs_sqlserver(dir_salida, timestamps):
 
     return out
 
-
-# ============================================================
-# TRANSFORMACIÓN DE UNA CORRIDA
-# ============================================================
-
 def transformar_corrida(corrida):
     """
     Transforma una corrida completa de manera independiente.
@@ -860,26 +742,14 @@ def transformar_corrida(corrida):
 
     log(f"   Transformando corrida: {corrida}")
 
-    # --------------------------------------------------------
-    # 1. MÉTRICAS
-    # --------------------------------------------------------
-
     wide = pivot_metricas(
         corrida,
         dir_salida
     )
 
-    # --------------------------------------------------------
-    # 2. TASAS
-    # --------------------------------------------------------
-
     wide = aplicar_tasas(
         wide
     )
-
-    # --------------------------------------------------------
-    # 3. VARIABLES DERIVADAS
-    # --------------------------------------------------------
 
     cpu_usr = pd.to_numeric(
         wide.get(
@@ -901,10 +771,6 @@ def transformar_corrida(corrida):
         cpu_usr + cpu_sys
     )
 
-    # --------------------------------------------------------
-    # 4. EVENTOS
-    # --------------------------------------------------------
-
     n_muestras = len(wide)
 
     log(
@@ -925,7 +791,6 @@ def transformar_corrida(corrida):
             how="left"
         )
 
-        # Evitar NaN después del merge.
         columnas_eventos = [
             c for c in ev_dmv.columns
             if c != "timestamp"
@@ -943,10 +808,6 @@ def transformar_corrida(corrida):
                         wide[column]
                         .fillna(0)
                     )
-
-    # --------------------------------------------------------
-    # 5. SQL SERVER LOG
-    # --------------------------------------------------------
 
     ev_logs = agregar_logs_sqlserver(
         dir_salida,
@@ -977,10 +838,6 @@ def transformar_corrida(corrida):
                     )
                     .fillna(0)
                 )
-
-    # --------------------------------------------------------
-    # 6. REQUESTS POR SESIÓN
-    # --------------------------------------------------------
 
     active_sessions = pd.to_numeric(
         wide.get(
@@ -1015,10 +872,6 @@ def transformar_corrida(corrida):
         .fillna(0)
     )
 
-    # --------------------------------------------------------
-    # 7. COLUMNAS DE EVENTOS
-    # --------------------------------------------------------
-
     prefijos_eventos = (
         "events_",
         "duration_",
@@ -1041,17 +894,9 @@ def transformar_corrida(corrida):
         f"   Columnas de eventos/logs={len(cols_eventos)}"
     )
 
-    # --------------------------------------------------------
-    # 8. ORDEN FINAL
-    # --------------------------------------------------------
-
     wide = wide.sort_values(
         "timestamp"
     ).reset_index(drop=True)
-
-    # --------------------------------------------------------
-    # 9. GUARDAR TRANSFORMADO
-    # --------------------------------------------------------
 
     ruta_transformado = os.path.join(
         dir_salida,
@@ -1063,10 +908,6 @@ def transformar_corrida(corrida):
         index=False,
         encoding="utf-8-sig"
     )
-
-    # --------------------------------------------------------
-    # 10. RESUMEN
-    # --------------------------------------------------------
 
     resumen = {
         "corrida": corrida,
@@ -1094,11 +935,6 @@ def transformar_corrida(corrida):
         )
 
     return resumen
-
-
-# ============================================================
-# MAIN
-# ============================================================
 
 def main():
 
@@ -1162,10 +998,6 @@ def main():
                 f"   ERROR en {corrida}: {e}"
             )
 
-    # --------------------------------------------------------
-    # RESUMEN FINAL
-    # --------------------------------------------------------
-
     print(
         "\n=== RESUMEN TRANSFORMACION ==="
     )
@@ -1178,11 +1010,6 @@ def main():
             f"cols={r['columnas']:<4} "
             f"cols_eventos={r['columnas_eventos']}"
         )
-
-
-# ============================================================
-# EJECUCIÓN
-# ============================================================
 
 if __name__ == "__main__":
     main()

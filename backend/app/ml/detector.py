@@ -2,16 +2,18 @@
 
 Carga los artefactos entrenados (modelo_isolation_forest.joblib,
 scaler.joblib y features_modelo.csv) y mantiene, por nodo, una ventana
-movil de ``VENTANA`` muestras de las 21 variables seleccionadas.
+movil de ``VENTANA`` muestras de las variables del modelo definidas en
+``features_modelo.csv`` (conjunto podado de 19 variables del motor SQL
+Server + apoyo).
 
 Replica EXACTAMENTE la transformacion del entrenamiento:
-  1. Se toman las 21 variables en el orden de ``features_modelo.csv``.
+  1. Se toman las variables del modelo en el orden de ``features_modelo.csv``.
   2. Se escala cada variable con el StandardScaler (que se ajusto sobre
-     las 22 variables del dataset) usando la posicion que cada nombre
-     ocupa en la lista completa de 22 features.
+     las variables del dataset) usando la posicion que cada nombre
+     ocupa en la lista completa de features del pkl de entrenamiento.
   3. Cuando la ventana tiene 10 muestras se aplana a un vector de
-     21 * 10 = 210 y se puntua con ``decision_function`` del
-     IsolationForest. Score ALTO = normal, score BAJO = anomalo.
+     F * 10 y se puntua con ``decision_function`` del IsolationForest.
+     Score ALTO = normal, score BAJO = anomalo.
 
 Los umbrales q10/q05/q01 se recalculan al arranque a partir del dataset
 de entrenamiento (scaled) copiado en ``training/datasets``, igual que
@@ -47,7 +49,11 @@ TRAIN_PKL = os.getenv(
     "ML_TRAIN_PKL", str(BACKEND_ROOT / "training" / "datasets" / "dataset_muestras_train.pkl")
 )
 VENTANA = int(os.getenv("TELEMETRIA_VENTANA", "10"))
-UMBRAL_DEFECTO = os.getenv("TELEMETRIA_UMBRAL", "q01")  # q10 | q05 | q01
+# q10 por defecto: con el modelo corregido (sin normalización relativa) el
+# umbral q10 captura el 100% de los fallos de referencia con un FPR anclado
+# ~10% sobre tráfico normal de entrenamiento. q05/q01 siguen disponibles
+# para operación más conservadora vía env TELEMETRIA_UMBRAL.
+UMBRAL_DEFECTO = os.getenv("TELEMETRIA_UMBRAL", "q10")  # q10 | q05 | q01
 
 
 class Detector:
@@ -71,7 +77,7 @@ class Detector:
         self._windows: dict[str, deque] = {}
         self._modelo = None
         self._scaler: StandardScaler | None = None
-        self._features21: list[str] = []
+        self._features_modelo: list[str] = []
         self._posiciones: dict[str, int] = {}
         self._umbrales: dict[str, float] = {}
 
@@ -92,16 +98,17 @@ class Detector:
 
         df_feats = pd.read_csv(self._ruta_features)
         # La columna "columna" tiene por fila el nombre de cada feature.
-        self._features21 = df_feats.iloc[:, 0].astype(str).str.strip().tolist()
+        self._features_modelo = df_feats.iloc[:, 0].astype(str).str.strip().tolist()
 
         # Mapeo nombre -> posicion en el escalador (lista completa de 22).
         # Se deriva de la columna de nombres que el archivo de correlacion
         # usaba; si no coincide con las 22 del scaler, se asume 1:1.
         mean_len = len(self._scaler.mean_) if hasattr(self._scaler, "mean_") else 0
-        if mean_len == len(self._features21):
-            self._posiciones = {f: i for i, f in enumerate(self._features21)}
-        # Si no coinciden (22 vs 21), las posiciones las resuelve
-        # _calcular_umbrales() a partir del pkl de entrenamiento.
+        if mean_len == len(self._features_modelo):
+            self._posiciones = {f: i for i, f in enumerate(self._features_modelo)}
+        # Si no coinciden (22 del dataset vs 19 del modelo, por la poda),
+        # las posiciones las resuelve _calcular_umbrales() a partir del
+        # pkl de entrenamiento.
 
     def _calcular_umbrales(self, ruta_train_pkl: str | None) -> None:
         """Reconstruye q10/q05/q01 desde el dataset scaled de entrenamiento."""
@@ -118,7 +125,7 @@ class Detector:
             X = np.asarray(train["X"], dtype="float64")  # [n, VENTANA, 22] ya escalado
             n, v, f = X.shape
             indice = []
-            for nombre in self._features21:
+            for nombre in self._features_modelo:
                 if nombre in self._posiciones:
                     indice.append(self._posiciones[nombre])
             if not indice or indice == [-1] * len(indice):
@@ -136,9 +143,9 @@ class Detector:
             log.exception("No se pudieron calcular umbrales de train: %s", exc)
 
     def _escalar(self, valores: dict) -> list[float]:
-        """Escala las 21 variables en el orden de features_modelo.csv."""
+        """Escala las variables del modelo en el orden de features_modelo.csv."""
         out: list[float] = []
-        for nombre in self._features21:
+        for nombre in self._features_modelo:
             pos = self._posiciones.get(nombre, -1)
             v = float(valores.get(nombre, 0.0) or 0.0)
             if pos is None or pos < 0 or self._scaler is None or \
@@ -166,7 +173,7 @@ class Detector:
         with self._lock:
             return {
                 "ventana": self._ventana,
-                "features": list(self._features21),
+                "features": list(self._features_modelo),
                 "umbral_nombre": self._umbral_nombre,
                 "umbrales": self._umbrales,
                 "umbral_actual": self.umbral_actual,
@@ -201,7 +208,7 @@ class Detector:
             "score": round(score, 4),
             "umbral": round(umbral, 4),
             "features": {name: float(muestra.get(name, 0.0) or 0.0)
-                         for name in self._features21},
+                         for name in self._features_modelo},
         }
 
     def evaluar_lote(self, nodo: str, muestras: list[dict]) -> list[dict]:
@@ -232,7 +239,7 @@ class Detector:
                 "score": round(score, 4),
                 "umbral": round(umbral, 4),
                 "features": {name: float(muestra.get(name, 0.0) or 0.0)
-                             for name in self._features21},
+                             for name in self._features_modelo},
             })
         return resultados
 

@@ -25,10 +25,20 @@ async function handleResponse(resp) {
 
   if (!resp.ok) {
     // Forma un error con status y detalle legible.
-    const detail =
-      (body && typeof body === 'object' && body.detail) ||
-      (typeof body === 'string' && body) ||
-      'Error en la peticion.'
+    let detail = 'Error en la peticion.'
+    if (body && typeof body === 'object' && body.detail) {
+      if (Array.isArray(body.detail)) {
+        // Errores de validacion de FastAPI (422): un array con la
+        // descripcion de cada campo invalido.
+        detail = body.detail
+          .map((d) => (typeof d === 'object' && d.msg ? d.msg : String(d)))
+          .join(' · ')
+      } else {
+        detail = body.detail
+      }
+    } else if (typeof body === 'string' && body) {
+      detail = body
+    }
     const err = new Error(detail)
     err.status = resp.status
     throw err

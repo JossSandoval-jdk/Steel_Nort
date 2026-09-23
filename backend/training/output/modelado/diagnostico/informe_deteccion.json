@@ -1,70 +1,52 @@
 {
-  "fecha": "2026-09-17",
+  "fecha": "2026-09-18",
   "corridas_anomalias": [
     "11",
     "6",
-    "carga3",
     "carga5",
-    "run3",
     "run5"
   ],
   "resumen_deteccion": {
     "corridas_evaluadas": 17,
     "corridas_con_anomalia": [
+      "10",
       "11",
-      "carga1",
+      "6",
+      "carga11",
+      "carga18",
       "carga2",
+      "carga20",
       "carga3",
       "carga4",
       "carga5",
-      "run1",
+      "carga7",
       "run2",
       "run3",
-      "run4"
+      "run4",
+      "run5"
     ],
     "corridas_sin_anomalia": [
-      "10",
-      "6",
       "8",
-      "carga11",
-      "carga7",
-      "run5",
-      "run7"
+      "carga19"
     ],
-    "umbral_modelo_q10": 0.0502855031560414,
-    "ventanas_evaluadas": 1140,
-    "ventanas_alertadas": 128,
+    "umbral_modelo_q10": 0.010033044812008545,
+    "ventanas_evaluadas": 338,
+    "ventanas_alertadas": 131,
     "detecciones_reglas_total": 36,
-    "ventanas_test_anomalias": 172,
+    "ventanas_test_anomalias": 108,
     "ventanas_fault": 108,
-    "ventanas_normal": 64,
-    "alertas_en_fault": 4,
-    "alertas_en_normal_fp": 28,
-    "recall": 0.037,
-    "fpr": 0.438
+    "ventanas_normal": 0,
+    "alertas_en_fault": 108,
+    "alertas_en_normal_fp": 0,
+    "recall": 1.0,
+    "fpr": null
   },
   "por_corrida": {
     "10": {
       "grupo": "baseline",
       "ventanas": 10,
-      "alertas_modelo": 0,
-      "fraccion_alertas_modelo": 0.0,
-      "reglas": {
-        "detecciones": 0,
-        "por_regla": {},
-        "reglas": []
-      },
-      "detectado": false,
-      "ventanas_alertadas": [],
-      "total_ventanas_alertadas": 0,
-      "tiene_timeline": false,
-      "top_variables_alertas": []
-    },
-    "11": {
-      "grupo": "anomalias",
-      "ventanas": 27,
-      "alertas_modelo": 2,
-      "fraccion_alertas_modelo": 0.0741,
+      "alertas_modelo": 10,
+      "fraccion_alertas_modelo": 1.0,
       "reglas": {
         "detecciones": 0,
         "por_regla": {},
@@ -73,25 +55,217 @@
       "detectado": true,
       "ventanas_alertadas": [
         {
-          "inicio": "2026-09-11 08:51:36",
-          "fin": "2026-09-11 08:52:22",
-          "score": 0.0445
+          "inicio": "2026-09-11 08:48:26",
+          "fin": "2026-09-11 08:49:14",
+          "score": -0.0867
+        },
+        {
+          "inicio": "2026-09-11 08:48:32",
+          "fin": "2026-09-11 08:49:19",
+          "score": -0.0519
+        },
+        {
+          "inicio": "2026-09-11 08:48:37",
+          "fin": "2026-09-11 08:49:24",
+          "score": -0.0477
+        },
+        {
+          "inicio": "2026-09-11 08:49:14",
+          "fin": "2026-09-11 08:50:01",
+          "score": -0.0446
+        },
+        {
+          "inicio": "2026-09-11 08:48:42",
+          "fin": "2026-09-11 08:49:30",
+          "score": -0.0437
+        },
+        {
+          "inicio": "2026-09-11 08:48:53",
+          "fin": "2026-09-11 08:49:40",
+          "score": -0.0424
+        },
+        {
+          "inicio": "2026-09-11 08:49:03",
+          "fin": "2026-09-11 08:49:50",
+          "score": -0.0385
+        },
+        {
+          "inicio": "2026-09-11 08:48:58",
+          "fin": "2026-09-11 08:49:45",
+          "score": -0.0321
+        },
+        {
+          "inicio": "2026-09-11 08:48:48",
+          "fin": "2026-09-11 08:49:35",
+          "score": -0.0298
+        },
+        {
+          "inicio": "2026-09-11 08:49:09",
+          "fin": "2026-09-11 08:49:56",
+          "score": -0.0176
+        }
+      ],
+      "total_ventanas_alertadas": 10,
+      "tiene_timeline": false,
+      "top_variables_alertas": []
+    },
+    "11": {
+      "grupo": "anomalias",
+      "ventanas": 27,
+      "alertas_modelo": 27,
+      "fraccion_alertas_modelo": 1.0,
+      "reglas": {
+        "detecciones": 0,
+        "por_regla": {},
+        "reglas": []
+      },
+      "detectado": true,
+      "ventanas_alertadas": [
+        {
+          "inicio": "2026-09-11 08:50:13",
+          "fin": "2026-09-11 08:51:00",
+          "score": -0.0649
+        },
+        {
+          "inicio": "2026-09-11 08:52:29",
+          "fin": "2026-09-11 08:53:16",
+          "score": -0.047
+        },
+        {
+          "inicio": "2026-09-11 08:50:39",
+          "fin": "2026-09-11 08:51:26",
+          "score": -0.0388
+        },
+        {
+          "inicio": "2026-09-11 08:50:44",
+          "fin": "2026-09-11 08:51:31",
+          "score": -0.0376
+        },
+        {
+          "inicio": "2026-09-11 08:50:24",
+          "fin": "2026-09-11 08:51:10",
+          "score": -0.0364
+        },
+        {
+          "inicio": "2026-09-11 08:50:34",
+          "fin": "2026-09-11 08:51:20",
+          "score": -0.0342
+        },
+        {
+          "inicio": "2026-09-11 08:51:15",
+          "fin": "2026-09-11 08:52:01",
+          "score": -0.0337
+        },
+        {
+          "inicio": "2026-09-11 08:50:29",
+          "fin": "2026-09-11 08:51:15",
+          "score": -0.0325
+        },
+        {
+          "inicio": "2026-09-11 08:52:01",
+          "fin": "2026-09-11 08:52:50",
+          "score": -0.0317
+        },
+        {
+          "inicio": "2026-09-11 08:51:10",
+          "fin": "2026-09-11 08:51:56",
+          "score": -0.0315
         },
         {
           "inicio": "2026-09-11 08:51:41",
           "fin": "2026-09-11 08:52:29",
-          "score": 0.0487
+          "score": -0.0314
+        },
+        {
+          "inicio": "2026-09-11 08:52:22",
+          "fin": "2026-09-11 08:53:11",
+          "score": -0.0284
+        },
+        {
+          "inicio": "2026-09-11 08:50:19",
+          "fin": "2026-09-11 08:51:05",
+          "score": -0.0251
+        },
+        {
+          "inicio": "2026-09-11 08:52:07",
+          "fin": "2026-09-11 08:52:56",
+          "score": -0.0243
+        },
+        {
+          "inicio": "2026-09-11 08:51:51",
+          "fin": "2026-09-11 08:52:40",
+          "score": -0.0243
+        },
+        {
+          "inicio": "2026-09-11 08:52:12",
+          "fin": "2026-09-11 08:53:01",
+          "score": -0.0237
+        },
+        {
+          "inicio": "2026-09-11 08:51:05",
+          "fin": "2026-09-11 08:51:51",
+          "score": -0.0207
+        },
+        {
+          "inicio": "2026-09-11 08:50:50",
+          "fin": "2026-09-11 08:51:36",
+          "score": -0.0189
+        },
+        {
+          "inicio": "2026-09-11 08:51:36",
+          "fin": "2026-09-11 08:52:22",
+          "score": -0.0178
+        },
+        {
+          "inicio": "2026-09-11 08:51:00",
+          "fin": "2026-09-11 08:51:46",
+          "score": -0.0143
+        },
+        {
+          "inicio": "2026-09-11 08:52:17",
+          "fin": "2026-09-11 08:53:06",
+          "score": -0.0141
+        },
+        {
+          "inicio": "2026-09-11 08:51:31",
+          "fin": "2026-09-11 08:52:17",
+          "score": -0.014
+        },
+        {
+          "inicio": "2026-09-11 08:51:46",
+          "fin": "2026-09-11 08:52:35",
+          "score": -0.0131
+        },
+        {
+          "inicio": "2026-09-11 08:50:55",
+          "fin": "2026-09-11 08:51:41",
+          "score": -0.0085
+        },
+        {
+          "inicio": "2026-09-11 08:51:26",
+          "fin": "2026-09-11 08:52:12",
+          "score": -0.0075
+        },
+        {
+          "inicio": "2026-09-11 08:51:20",
+          "fin": "2026-09-11 08:52:07",
+          "score": -0.0065
+        },
+        {
+          "inicio": "2026-09-11 08:51:56",
+          "fin": "2026-09-11 08:52:45",
+          "score": -0.0039
         }
       ],
-      "total_ventanas_alertadas": 2,
+      "total_ventanas_alertadas": 27,
       "tiene_timeline": true,
       "resumen_deteccion": {
         "ventanas_test": 27,
         "ventanas_fault": 27,
         "ventanas_normal": 0,
-        "alertas_en_fault": 2,
+        "alertas_en_fault": 27,
         "alertas_en_normal_fp": 0,
-        "recall": 0.074,
+        "recall": 1.0,
         "fpr": null
       },
       "por_fault": {
@@ -134,8 +308,8 @@
           },
           "deteccion": {
             "ventanas_total": 8,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 8,
+            "tpr": 1.0
           }
         },
         "fault1": {
@@ -178,8 +352,8 @@
           },
           "deteccion": {
             "ventanas_total": 6,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 6,
+            "tpr": 1.0
           }
         },
         "fault2": {
@@ -221,8 +395,8 @@
           },
           "deteccion": {
             "ventanas_total": 7,
-            "ventanas_alertadas": 2,
-            "tpr": 0.286
+            "ventanas_alertadas": 7,
+            "tpr": 1.0
           }
         },
         "fault5": {
@@ -265,8 +439,8 @@
           },
           "deteccion": {
             "ventanas_total": 6,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 6,
+            "tpr": 1.0
           }
         },
         "fault3": {
@@ -307,50 +481,165 @@
           "deteccion": {}
         }
       },
-      "top_variables_alertas": [
-        {
-          "variable": "cpu_sys",
-          "desviacion": 8.299
-        },
-        {
-          "variable": "cpu_idl",
-          "desviacion": 4.531
-        },
-        {
-          "variable": "memory_available_mb",
-          "desviacion": 2.663
-        },
-        {
-          "variable": "memory_used_mb",
-          "desviacion": 2.635
-        },
-        {
-          "variable": "load1",
-          "desviacion": 1.012
-        }
-      ]
+      "top_variables_alertas": []
     },
     "6": {
       "grupo": "anomalias",
       "ventanas": 27,
-      "alertas_modelo": 0,
-      "fraccion_alertas_modelo": 0.0,
+      "alertas_modelo": 27,
+      "fraccion_alertas_modelo": 1.0,
       "reglas": {
         "detecciones": 0,
         "por_regla": {},
         "reglas": []
       },
-      "detectado": false,
-      "ventanas_alertadas": [],
-      "total_ventanas_alertadas": 0,
+      "detectado": true,
+      "ventanas_alertadas": [
+        {
+          "inicio": "2026-09-11 03:52:43",
+          "fin": "2026-09-11 03:53:30",
+          "score": -0.0462
+        },
+        {
+          "inicio": "2026-09-11 03:54:43",
+          "fin": "2026-09-11 03:55:31",
+          "score": -0.0457
+        },
+        {
+          "inicio": "2026-09-11 03:52:48",
+          "fin": "2026-09-11 03:53:35",
+          "score": -0.0414
+        },
+        {
+          "inicio": "2026-09-11 03:52:58",
+          "fin": "2026-09-11 03:53:45",
+          "score": -0.0414
+        },
+        {
+          "inicio": "2026-09-11 03:53:30",
+          "fin": "2026-09-11 03:54:16",
+          "score": -0.038
+        },
+        {
+          "inicio": "2026-09-11 03:53:09",
+          "fin": "2026-09-11 03:53:55",
+          "score": -0.0367
+        },
+        {
+          "inicio": "2026-09-11 03:52:32",
+          "fin": "2026-09-11 03:53:19",
+          "score": -0.0356
+        },
+        {
+          "inicio": "2026-09-11 03:52:53",
+          "fin": "2026-09-11 03:53:40",
+          "score": -0.0354
+        },
+        {
+          "inicio": "2026-09-11 03:53:03",
+          "fin": "2026-09-11 03:53:50",
+          "score": -0.0353
+        },
+        {
+          "inicio": "2026-09-11 03:52:27",
+          "fin": "2026-09-11 03:53:14",
+          "score": -0.0348
+        },
+        {
+          "inicio": "2026-09-11 03:53:19",
+          "fin": "2026-09-11 03:54:06",
+          "score": -0.0335
+        },
+        {
+          "inicio": "2026-09-11 03:52:38",
+          "fin": "2026-09-11 03:53:24",
+          "score": -0.0326
+        },
+        {
+          "inicio": "2026-09-11 03:53:14",
+          "fin": "2026-09-11 03:54:00",
+          "score": -0.0325
+        },
+        {
+          "inicio": "2026-09-11 03:54:11",
+          "fin": "2026-09-11 03:54:59",
+          "score": -0.0321
+        },
+        {
+          "inicio": "2026-09-11 03:54:26",
+          "fin": "2026-09-11 03:55:15",
+          "score": -0.0311
+        },
+        {
+          "inicio": "2026-09-11 03:54:00",
+          "fin": "2026-09-11 03:54:49",
+          "score": -0.0299
+        },
+        {
+          "inicio": "2026-09-11 03:54:21",
+          "fin": "2026-09-11 03:55:10",
+          "score": -0.0279
+        },
+        {
+          "inicio": "2026-09-11 03:53:35",
+          "fin": "2026-09-11 03:54:21",
+          "score": -0.0266
+        },
+        {
+          "inicio": "2026-09-11 03:54:37",
+          "fin": "2026-09-11 03:55:25",
+          "score": -0.0264
+        },
+        {
+          "inicio": "2026-09-11 03:53:24",
+          "fin": "2026-09-11 03:54:11",
+          "score": -0.0258
+        },
+        {
+          "inicio": "2026-09-11 03:53:50",
+          "fin": "2026-09-11 03:54:37",
+          "score": -0.0257
+        },
+        {
+          "inicio": "2026-09-11 03:53:40",
+          "fin": "2026-09-11 03:54:26",
+          "score": -0.0254
+        },
+        {
+          "inicio": "2026-09-11 03:53:45",
+          "fin": "2026-09-11 03:54:31",
+          "score": -0.0249
+        },
+        {
+          "inicio": "2026-09-11 03:53:55",
+          "fin": "2026-09-11 03:54:43",
+          "score": -0.0235
+        },
+        {
+          "inicio": "2026-09-11 03:54:16",
+          "fin": "2026-09-11 03:55:05",
+          "score": -0.023
+        },
+        {
+          "inicio": "2026-09-11 03:54:06",
+          "fin": "2026-09-11 03:54:54",
+          "score": -0.0189
+        },
+        {
+          "inicio": "2026-09-11 03:54:31",
+          "fin": "2026-09-11 03:55:20",
+          "score": -0.0001
+        }
+      ],
+      "total_ventanas_alertadas": 27,
       "tiene_timeline": true,
       "resumen_deteccion": {
         "ventanas_test": 27,
         "ventanas_fault": 27,
         "ventanas_normal": 0,
-        "alertas_en_fault": 0,
+        "alertas_en_fault": 27,
         "alertas_en_normal_fp": 0,
-        "recall": 0.0,
+        "recall": 1.0,
         "fpr": null
       },
       "por_fault": {
@@ -393,8 +682,8 @@
           },
           "deteccion": {
             "ventanas_total": 8,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 8,
+            "tpr": 1.0
           }
         },
         "fault1": {
@@ -437,8 +726,8 @@
           },
           "deteccion": {
             "ventanas_total": 6,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 6,
+            "tpr": 1.0
           }
         },
         "fault2": {
@@ -478,8 +767,8 @@
           },
           "deteccion": {
             "ventanas_total": 7,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 7,
+            "tpr": 1.0
           }
         },
         "fault5": {
@@ -522,8 +811,8 @@
           },
           "deteccion": {
             "ventanas_total": 6,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 6,
+            "tpr": 1.0
           }
         },
         "fault3": {
@@ -584,11 +873,11 @@
       "tiene_timeline": false,
       "top_variables_alertas": []
     },
-    "carga1": {
+    "carga11": {
       "grupo": "baseline",
-      "ventanas": 53,
-      "alertas_modelo": 20,
-      "fraccion_alertas_modelo": 0.3774,
+      "ventanas": 8,
+      "alertas_modelo": 8,
+      "fraccion_alertas_modelo": 1.0,
       "reglas": {
         "detecciones": 0,
         "por_regla": {},
@@ -597,134 +886,96 @@
       "detectado": true,
       "ventanas_alertadas": [
         {
-          "inicio": "2026-09-04 05:01:46",
-          "fin": "2026-09-04 05:03:55",
-          "score": -0.1153
+          "inicio": "2026-09-11 10:38:09",
+          "fin": "2026-09-11 10:39:06",
+          "score": -0.1126
         },
         {
-          "inicio": "2026-09-04 05:01:57",
-          "fin": "2026-09-04 05:04:10",
-          "score": -0.0388
+          "inicio": "2026-09-11 10:38:14",
+          "fin": "2026-09-11 10:39:11",
+          "score": -0.1088
         },
         {
-          "inicio": "2026-09-04 05:02:09",
-          "fin": "2026-09-04 05:04:25",
-          "score": -0.0098
+          "inicio": "2026-09-11 10:38:04",
+          "fin": "2026-09-11 10:39:00",
+          "score": -0.1036
         },
         {
-          "inicio": "2026-09-04 05:02:24",
-          "fin": "2026-09-04 05:04:41",
-          "score": 0.0139
+          "inicio": "2026-09-11 10:37:59",
+          "fin": "2026-09-11 10:38:55",
+          "score": -0.1024
         },
         {
-          "inicio": "2026-09-04 05:06:27",
-          "fin": "2026-09-04 05:08:43",
-          "score": 0.0178
+          "inicio": "2026-09-11 10:37:36",
+          "fin": "2026-09-11 10:38:25",
+          "score": -0.1019
         },
         {
-          "inicio": "2026-09-04 05:02:39",
-          "fin": "2026-09-04 05:04:56",
-          "score": 0.0254
+          "inicio": "2026-09-11 10:37:42",
+          "fin": "2026-09-11 10:38:30",
+          "score": -0.0839
         },
         {
-          "inicio": "2026-09-04 05:05:57",
-          "fin": "2026-09-04 05:08:13",
-          "score": 0.0307
+          "inicio": "2026-09-11 10:37:53",
+          "fin": "2026-09-11 10:38:41",
+          "score": -0.0634
         },
         {
-          "inicio": "2026-09-04 05:13:32",
-          "fin": "2026-09-04 05:15:48",
-          "score": 0.0316
-        },
-        {
-          "inicio": "2026-09-04 05:06:12",
-          "fin": "2026-09-04 05:08:28",
-          "score": 0.0365
-        },
-        {
-          "inicio": "2026-09-04 05:02:54",
-          "fin": "2026-09-04 05:05:11",
-          "score": 0.0385
-        },
-        {
-          "inicio": "2026-09-04 05:06:42",
-          "fin": "2026-09-04 05:08:59",
-          "score": 0.0409
-        },
-        {
-          "inicio": "2026-09-04 05:14:02",
-          "fin": "2026-09-04 05:16:19",
-          "score": 0.0412
-        },
-        {
-          "inicio": "2026-09-04 05:04:56",
-          "fin": "2026-09-04 05:07:12",
-          "score": 0.0413
-        },
-        {
-          "inicio": "2026-09-04 05:12:01",
-          "fin": "2026-09-04 05:14:17",
-          "score": 0.0413
-        },
-        {
-          "inicio": "2026-09-04 05:13:17",
-          "fin": "2026-09-04 05:15:33",
-          "score": 0.0427
-        },
-        {
-          "inicio": "2026-09-04 05:07:28",
-          "fin": "2026-09-04 05:09:44",
-          "score": 0.0432
-        },
-        {
-          "inicio": "2026-09-04 05:14:48",
-          "fin": "2026-09-04 05:17:04",
-          "score": 0.0452
-        },
-        {
-          "inicio": "2026-09-04 05:05:26",
-          "fin": "2026-09-04 05:07:43",
-          "score": 0.048
-        },
-        {
-          "inicio": "2026-09-04 05:14:17",
-          "fin": "2026-09-04 05:16:34",
-          "score": 0.0484
-        },
-        {
-          "inicio": "2026-09-04 05:07:12",
-          "fin": "2026-09-04 05:09:29",
-          "score": 0.05
+          "inicio": "2026-09-11 10:37:48",
+          "fin": "2026-09-11 10:38:36",
+          "score": -0.0532
         }
       ],
-      "total_ventanas_alertadas": 20,
+      "total_ventanas_alertadas": 8,
+      "tiene_timeline": false,
+      "top_variables_alertas": []
+    },
+    "carga18": {
+      "grupo": "baseline",
+      "ventanas": 16,
+      "alertas_modelo": 1,
+      "fraccion_alertas_modelo": 0.0625,
+      "reglas": {
+        "detecciones": 0,
+        "por_regla": {},
+        "reglas": []
+      },
+      "detectado": true,
+      "ventanas_alertadas": [
+        {
+          "inicio": "2026-09-18 16:40:17",
+          "fin": "2026-09-18 16:41:06",
+          "score": 0.0013
+        }
+      ],
+      "total_ventanas_alertadas": 1,
       "tiene_timeline": false,
       "top_variables_alertas": [
         {
-          "variable": "memory_used_mb",
-          "desviacion": 8.961
-        },
-        {
-          "variable": "memory_available_mb",
-          "desviacion": 8.961
+          "variable": "load1",
+          "desviacion": 6.408
         },
         {
           "variable": "page_life_expectancy",
-          "desviacion": 3.417
+          "desviacion": 2.12
         },
         {
-          "variable": "transactions_per_sec",
-          "desviacion": 1.986
+          "variable": "api_latency_ms",
+          "desviacion": 1.799
         },
         {
-          "variable": "load1",
-          "desviacion": 1.536
+          "variable": "memory_available_mb",
+          "desviacion": 1.616
+        },
+        {
+          "variable": "memory_used_mb",
+          "desviacion": 1.612
         }
       ]
     },
-    "carga11": {
+    "carga19": {
       "grupo": "baseline",
-      "ventanas": 8,
+      "ventanas": 16,
       "alertas_modelo": 0,
       "fraccion_alertas_modelo": 0.0,
       "reglas": {
@@ -740,9 +991,9 @@
     },
     "carga2": {
       "grupo": "baseline",
-      "ventanas": 9,
-      "alertas_modelo": 9,
-      "fraccion_alertas_modelo": 1.0,
+      "ventanas": 0,
+      "alertas_modelo": 0,
+      "fraccion_alertas_modelo": 0.0,
       "reglas": {
         "detecciones": 9,
         "por_regla": {
@@ -755,62 +1006,69 @@
         ]
       },
       "detectado": true,
-      "ventanas_alertadas": [
-        {
-          "inicio": "2026-09-07 04:26:22",
-          "fin": "2026-09-07 04:28:35",
-          "score": -0.0824
-        },
-        {
-          "inicio": "2026-09-07 04:26:33",
-          "fin": "2026-09-07 04:28:53",
-          "score": -0.0368
-        },
-        {
-          "inicio": "2026-09-07 04:28:05",
-          "fin": "2026-09-07 04:30:31",
-          "score": -0.0261
-        },
-        {
-          "inicio": "2026-09-07 04:26:48",
-          "fin": "2026-09-07 04:29:08",
-          "score": -0.0248
-        },
-        {
-          "inicio": "2026-09-07 04:28:20",
-          "fin": "2026-09-07 04:30:46",
-          "score": -0.0139
-        },
-        {
-          "inicio": "2026-09-07 04:27:04",
-          "fin": "2026-09-07 04:29:27",
-          "score": 0.0028
-        },
-        {
-          "inicio": "2026-09-07 04:27:49",
-          "fin": "2026-09-07 04:30:14",
-          "score": 0.0035
-        },
-        {
-          "inicio": "2026-09-07 04:27:34",
-          "fin": "2026-09-07 04:29:59",
-          "score": 0.0079
-        },
-        {
-          "inicio": "2026-09-07 04:27:19",
-          "fin": "2026-09-07 04:29:43",
-          "score": 0.017
-        }
-      ],
-      "total_ventanas_alertadas": 9,
+      "ventanas_alertadas": [],
+      "total_ventanas_alertadas": 0,
       "tiene_timeline": false,
       "top_variables_alertas": []
     },
+    "carga20": {
+      "grupo": "baseline",
+      "ventanas": 160,
+      "alertas_modelo": 3,
+      "fraccion_alertas_modelo": 0.0187,
+      "reglas": {
+        "detecciones": 0,
+        "por_regla": {},
+        "reglas": []
+      },
+      "detectado": true,
+      "ventanas_alertadas": [
+        {
+          "inicio": "2026-09-18 16:58:24",
+          "fin": "2026-09-18 16:59:19",
+          "score": -0.0153
+        },
+        {
+          "inicio": "2026-09-18 16:58:19",
+          "fin": "2026-09-18 16:59:14",
+          "score": -0.0032
+        },
+        {
+          "inicio": "2026-09-18 16:58:14",
+          "fin": "2026-09-18 16:59:09",
+          "score": 0.0038
+        }
+      ],
+      "total_ventanas_alertadas": 3,
+      "tiene_timeline": false,
+      "top_variables_alertas": [
+        {
+          "variable": "load1",
+          "desviacion": 10.318
+        },
+        {
+          "variable": "disk_write_per_sec",
+          "desviacion": 7.115
+        },
+        {
+          "variable": "cpu_usr",
+          "desviacion": 2.266
+        },
+        {
+          "variable": "cpu_idl",
+          "desviacion": 2.189
+        },
+        {
+          "variable": "active_sessions",
+          "desviacion": 2.023
+        }
+      ]
+    },
     "carga3": {
-      "grupo": "anomalias",
-      "ventanas": 32,
-      "alertas_modelo": 14,
-      "fraccion_alertas_modelo": 0.4375,
+      "grupo": "baseline",
+      "ventanas": 0,
+      "alertas_modelo": 0,
+      "fraccion_alertas_modelo": 0.0,
       "reglas": {
         "detecciones": 1,
         "por_regla": {
@@ -821,111 +1079,16 @@
         ]
       },
       "detectado": true,
-      "ventanas_alertadas": [
-        {
-          "inicio": "2026-09-07 04:33:00",
-          "fin": "2026-09-07 04:35:13",
-          "score": -0.0586
-        },
-        {
-          "inicio": "2026-09-07 04:33:10",
-          "fin": "2026-09-07 04:35:28",
-          "score": 0.0098
-        },
-        {
-          "inicio": "2026-09-07 04:36:29",
-          "fin": "2026-09-07 04:38:46",
-          "score": 0.0316
-        },
-        {
-          "inicio": "2026-09-07 04:33:26",
-          "fin": "2026-09-07 04:35:43",
-          "score": 0.0325
-        },
-        {
-          "inicio": "2026-09-07 04:40:32",
-          "fin": "2026-09-07 04:42:48",
-          "score": 0.0365
-        },
-        {
-          "inicio": "2026-09-07 04:39:16",
-          "fin": "2026-09-07 04:41:33",
-          "score": 0.0425
-        },
-        {
-          "inicio": "2026-09-07 04:39:46",
-          "fin": "2026-09-07 04:42:03",
-          "score": 0.0435
-        },
-        {
-          "inicio": "2026-09-07 04:40:02",
-          "fin": "2026-09-07 04:42:18",
-          "score": 0.0444
-        },
-        {
-          "inicio": "2026-09-07 04:33:41",
-          "fin": "2026-09-07 04:35:58",
-          "score": 0.045
-        },
-        {
-          "inicio": "2026-09-07 04:35:58",
-          "fin": "2026-09-07 04:38:15",
-          "score": 0.0461
-        },
-        {
-          "inicio": "2026-09-07 04:38:46",
-          "fin": "2026-09-07 04:41:02",
-          "score": 0.047
-        },
-        {
-          "inicio": "2026-09-07 04:40:17",
-          "fin": "2026-09-07 04:42:33",
-          "score": 0.0481
-        },
-        {
-          "inicio": "2026-09-07 04:35:13",
-          "fin": "2026-09-07 04:37:30",
-          "score": 0.0483
-        },
-        {
-          "inicio": "2026-09-07 04:40:47",
-          "fin": "2026-09-07 04:43:04",
-          "score": 0.0488
-        }
-      ],
-      "total_ventanas_alertadas": 14,
-      "tiene_timeline": true,
-      "resumen_deteccion": {
-        "ventanas_test": 32,
-        "ventanas_fault": 0,
-        "ventanas_normal": 32,
-        "alertas_en_fault": 0,
-        "alertas_en_normal_fp": 14,
-        "recall": null,
-        "fpr": 0.438
-      },
-      "por_fault": {
-        "fault_2": {
-          "ventana": "2026-09-11 00:41:04 -> 2026-09-11 00:41:44",
-          "sospecha_esperada": "",
-          "variables_causantes_top": [],
-          "coincidencia_con_huella": [],
-          "reglas": {
-            "detecciones_reglas": 0,
-            "reglas_disparadas": "normal",
-            "conteo_por_regla": {}
-          },
-          "deteccion": {}
-        }
-      },
-      "aviso": "El timeline de esta corrida no cruza con sus ventanas reales: no se puede calcular TPR con ground truth. La detección se informa por modelo y reglas.",
+      "ventanas_alertadas": [],
+      "total_ventanas_alertadas": 0,
+      "tiene_timeline": false,
       "top_variables_alertas": []
     },
     "carga4": {
       "grupo": "baseline",
-      "ventanas": 398,
-      "alertas_modelo": 19,
-      "fraccion_alertas_modelo": 0.0477,
+      "ventanas": 0,
+      "alertas_modelo": 0,
+      "fraccion_alertas_modelo": 0.0,
       "reglas": {
         "detecciones": 8,
         "por_regla": {
@@ -936,133 +1099,16 @@
         ]
       },
       "detectado": true,
-      "ventanas_alertadas": [
-        {
-          "inicio": "2026-09-07 05:07:11",
-          "fin": "2026-09-07 05:07:30",
-          "score": 0.0222
-        },
-        {
-          "inicio": "2026-09-07 07:04:56",
-          "fin": "2026-09-07 07:05:25",
-          "score": 0.0246
-        },
-        {
-          "inicio": "2026-09-07 07:04:51",
-          "fin": "2026-09-07 07:05:19",
-          "score": 0.0308
-        },
-        {
-          "inicio": "2026-09-07 06:57:33",
-          "fin": "2026-09-07 06:58:45",
-          "score": 0.0347
-        },
-        {
-          "inicio": "2026-09-07 07:04:44",
-          "fin": "2026-09-07 07:05:12",
-          "score": 0.0362
-        },
-        {
-          "inicio": "2026-09-07 07:05:12",
-          "fin": "2026-09-07 07:05:41",
-          "score": 0.0369
-        },
-        {
-          "inicio": "2026-09-07 07:04:53",
-          "fin": "2026-09-07 07:05:22",
-          "score": 0.037
-        },
-        {
-          "inicio": "2026-09-07 07:05:02",
-          "fin": "2026-09-07 07:05:32",
-          "score": 0.0377
-        },
-        {
-          "inicio": "2026-09-07 05:07:12",
-          "fin": "2026-09-07 05:07:31",
-          "score": 0.0392
-        },
-        {
-          "inicio": "2026-09-07 07:05:00",
-          "fin": "2026-09-07 07:05:28",
-          "score": 0.0396
-        },
-        {
-          "inicio": "2026-09-07 07:05:05",
-          "fin": "2026-09-07 07:05:35",
-          "score": 0.04
-        },
-        {
-          "inicio": "2026-09-07 07:05:09",
-          "fin": "2026-09-07 07:05:38",
-          "score": 0.0407
-        },
-        {
-          "inicio": "2026-09-07 06:58:05",
-          "fin": "2026-09-07 06:58:48",
-          "score": 0.0424
-        },
-        {
-          "inicio": "2026-09-07 07:05:15",
-          "fin": "2026-09-07 07:05:44",
-          "score": 0.0448
-        },
-        {
-          "inicio": "2026-09-07 07:05:19",
-          "fin": "2026-09-07 07:05:47",
-          "score": 0.045
-        },
-        {
-          "inicio": "2026-09-07 07:04:47",
-          "fin": "2026-09-07 07:05:15",
-          "score": 0.0475
-        },
-        {
-          "inicio": "2026-09-07 07:03:21",
-          "fin": "2026-09-07 07:03:50",
-          "score": 0.0488
-        },
-        {
-          "inicio": "2026-09-07 06:59:25",
-          "fin": "2026-09-07 06:59:54",
-          "score": 0.0503
-        },
-        {
-          "inicio": "2026-09-07 07:03:14",
-          "fin": "2026-09-07 07:03:43",
-          "score": 0.0503
-        }
-      ],
-      "total_ventanas_alertadas": 19,
+      "ventanas_alertadas": [],
+      "total_ventanas_alertadas": 0,
       "tiene_timeline": false,
-      "top_variables_alertas": [
-        {
-          "variable": "api_status",
-          "desviacion": 403000000000.0
-        },
-        {
-          "variable": "api_latency_ms",
-          "desviacion": 221.413
-        },
-        {
-          "variable": "load1",
-          "desviacion": 8.121
-        },
-        {
-          "variable": "cpu_idl",
-          "desviacion": 7.527
-        },
-        {
-          "variable": "memory_used_mb",
-          "desviacion": 5.747
-        }
-      ]
+      "top_variables_alertas": []
     },
     "carga5": {
       "grupo": "anomalias",
       "ventanas": 27,
-      "alertas_modelo": 2,
-      "fraccion_alertas_modelo": 0.0741,
+      "alertas_modelo": 27,
+      "fraccion_alertas_modelo": 1.0,
       "reglas": {
         "detecciones": 0,
         "por_regla": {},
@@ -1071,25 +1117,150 @@
       "detectado": true,
       "ventanas_alertadas": [
         {
-          "inicio": "2026-09-11 10:39:30",
-          "fin": "2026-09-11 10:40:17",
-          "score": 0.0373
-        },
-        {
           "inicio": "2026-09-11 10:39:35",
           "fin": "2026-09-11 10:40:22",
-          "score": 0.0434
+          "score": -0.0824
+        },
+        {
+          "inicio": "2026-09-11 10:39:17",
+          "fin": "2026-09-11 10:40:06",
+          "score": -0.0814
+        },
+        {
+          "inicio": "2026-09-11 10:39:40",
+          "fin": "2026-09-11 10:40:27",
+          "score": -0.0797
+        },
+        {
+          "inicio": "2026-09-11 10:39:30",
+          "fin": "2026-09-11 10:40:17",
+          "score": -0.0792
+        },
+        {
+          "inicio": "2026-09-11 10:39:25",
+          "fin": "2026-09-11 10:40:12",
+          "score": -0.0759
+        },
+        {
+          "inicio": "2026-09-11 10:39:46",
+          "fin": "2026-09-11 10:40:33",
+          "score": -0.0727
+        },
+        {
+          "inicio": "2026-09-11 10:39:51",
+          "fin": "2026-09-11 10:40:38",
+          "score": -0.0725
+        },
+        {
+          "inicio": "2026-09-11 10:40:59",
+          "fin": "2026-09-11 10:41:48",
+          "score": -0.0707
+        },
+        {
+          "inicio": "2026-09-11 10:41:09",
+          "fin": "2026-09-11 10:41:59",
+          "score": -0.0681
+        },
+        {
+          "inicio": "2026-09-11 10:40:48",
+          "fin": "2026-09-11 10:41:38",
+          "score": -0.0665
+        },
+        {
+          "inicio": "2026-09-11 10:41:31",
+          "fin": "2026-09-11 10:42:20",
+          "score": -0.0646
+        },
+        {
+          "inicio": "2026-09-11 10:41:38",
+          "fin": "2026-09-11 10:42:25",
+          "score": -0.0638
+        },
+        {
+          "inicio": "2026-09-11 10:40:01",
+          "fin": "2026-09-11 10:40:48",
+          "score": -0.063
+        },
+        {
+          "inicio": "2026-09-11 10:40:43",
+          "fin": "2026-09-11 10:41:31",
+          "score": -0.0629
+        },
+        {
+          "inicio": "2026-09-11 10:40:38",
+          "fin": "2026-09-11 10:41:25",
+          "score": -0.0615
+        },
+        {
+          "inicio": "2026-09-11 10:41:25",
+          "fin": "2026-09-11 10:42:15",
+          "score": -0.0604
+        },
+        {
+          "inicio": "2026-09-11 10:40:53",
+          "fin": "2026-09-11 10:41:43",
+          "score": -0.0596
+        },
+        {
+          "inicio": "2026-09-11 10:40:33",
+          "fin": "2026-09-11 10:41:19",
+          "score": -0.059
+        },
+        {
+          "inicio": "2026-09-11 10:40:17",
+          "fin": "2026-09-11 10:41:04",
+          "score": -0.0582
+        },
+        {
+          "inicio": "2026-09-11 10:41:04",
+          "fin": "2026-09-11 10:41:54",
+          "score": -0.0545
+        },
+        {
+          "inicio": "2026-09-11 10:39:56",
+          "fin": "2026-09-11 10:40:43",
+          "score": -0.0533
+        },
+        {
+          "inicio": "2026-09-11 10:40:06",
+          "fin": "2026-09-11 10:40:53",
+          "score": -0.0528
+        },
+        {
+          "inicio": "2026-09-11 10:41:19",
+          "fin": "2026-09-11 10:42:09",
+          "score": -0.0515
+        },
+        {
+          "inicio": "2026-09-11 10:41:14",
+          "fin": "2026-09-11 10:42:04",
+          "score": -0.0508
+        },
+        {
+          "inicio": "2026-09-11 10:40:12",
+          "fin": "2026-09-11 10:40:59",
+          "score": -0.0491
+        },
+        {
+          "inicio": "2026-09-11 10:40:27",
+          "fin": "2026-09-11 10:41:14",
+          "score": -0.0472
+        },
+        {
+          "inicio": "2026-09-11 10:40:22",
+          "fin": "2026-09-11 10:41:09",
+          "score": -0.0418
         }
       ],
-      "total_ventanas_alertadas": 2,
+      "total_ventanas_alertadas": 27,
       "tiene_timeline": true,
       "resumen_deteccion": {
         "ventanas_test": 27,
         "ventanas_fault": 27,
         "ventanas_normal": 0,
-        "alertas_en_fault": 2,
+        "alertas_en_fault": 27,
         "alertas_en_normal_fp": 0,
-        "recall": 0.074,
+        "recall": 1.0,
         "fpr": null
       },
       "por_fault": {
@@ -1132,8 +1303,8 @@
           },
           "deteccion": {
             "ventanas_total": 7,
-            "ventanas_alertadas": 2,
-            "tpr": 0.286
+            "ventanas_alertadas": 7,
+            "tpr": 1.0
           }
         },
         "fault1": {
@@ -1176,8 +1347,8 @@
           },
           "deteccion": {
             "ventanas_total": 7,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 7,
+            "tpr": 1.0
           }
         },
         "fault2": {
@@ -1220,8 +1391,8 @@
           },
           "deteccion": {
             "ventanas_total": 6,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 6,
+            "tpr": 1.0
           }
         },
         "fault5": {
@@ -1264,8 +1435,8 @@
           },
           "deteccion": {
             "ventanas_total": 6,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 6,
+            "tpr": 1.0
           }
         },
         "fault3": {
@@ -1307,55 +1478,18 @@
           },
           "deteccion": {
             "ventanas_total": 1,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 1,
+            "tpr": 1.0
           }
         }
       },
-      "top_variables_alertas": [
-        {
-          "variable": "memory_used_mb",
-          "desviacion": 2.923
-        },
-        {
-          "variable": "memory_available_mb",
-          "desviacion": 2.909
-        },
-        {
-          "variable": "active_requests",
-          "desviacion": 2.698
-        },
-        {
-          "variable": "active_sessions",
-          "desviacion": 2.023
-        },
-        {
-          "variable": "page_life_expectancy",
-          "desviacion": 1.717
-        }
-      ]
+      "top_variables_alertas": []
     },
     "carga7": {
       "grupo": "baseline",
       "ventanas": 10,
-      "alertas_modelo": 0,
-      "fraccion_alertas_modelo": 0.0,
-      "reglas": {
-        "detecciones": 0,
-        "por_regla": {},
-        "reglas": []
-      },
-      "detectado": false,
-      "ventanas_alertadas": [],
-      "total_ventanas_alertadas": 0,
-      "tiene_timeline": false,
-      "top_variables_alertas": []
-    },
-    "run1": {
-      "grupo": "baseline",
-      "ventanas": 53,
-      "alertas_modelo": 20,
-      "fraccion_alertas_modelo": 0.3774,
+      "alertas_modelo": 1,
+      "fraccion_alertas_modelo": 0.1,
       "reglas": {
         "detecciones": 0,
         "por_regla": {},
@@ -1364,136 +1498,41 @@
       "detectado": true,
       "ventanas_alertadas": [
         {
-          "inicio": "2026-09-04 05:01:46",
-          "fin": "2026-09-04 05:03:55",
-          "score": -0.1153
-        },
-        {
-          "inicio": "2026-09-04 05:01:57",
-          "fin": "2026-09-04 05:04:10",
-          "score": -0.0388
-        },
-        {
-          "inicio": "2026-09-04 05:02:09",
-          "fin": "2026-09-04 05:04:25",
-          "score": -0.0098
-        },
-        {
-          "inicio": "2026-09-04 05:02:24",
-          "fin": "2026-09-04 05:04:41",
-          "score": 0.0139
-        },
-        {
-          "inicio": "2026-09-04 05:06:27",
-          "fin": "2026-09-04 05:08:43",
-          "score": 0.0178
-        },
-        {
-          "inicio": "2026-09-04 05:02:39",
-          "fin": "2026-09-04 05:04:56",
-          "score": 0.0254
-        },
-        {
-          "inicio": "2026-09-04 05:05:57",
-          "fin": "2026-09-04 05:08:13",
-          "score": 0.0307
-        },
-        {
-          "inicio": "2026-09-04 05:13:32",
-          "fin": "2026-09-04 05:15:48",
-          "score": 0.0316
-        },
-        {
-          "inicio": "2026-09-04 05:06:12",
-          "fin": "2026-09-04 05:08:28",
-          "score": 0.0365
-        },
-        {
-          "inicio": "2026-09-04 05:02:54",
-          "fin": "2026-09-04 05:05:11",
-          "score": 0.0385
-        },
-        {
-          "inicio": "2026-09-04 05:06:42",
-          "fin": "2026-09-04 05:08:59",
-          "score": 0.0409
-        },
-        {
-          "inicio": "2026-09-04 05:14:02",
-          "fin": "2026-09-04 05:16:19",
-          "score": 0.0412
-        },
-        {
-          "inicio": "2026-09-04 05:04:56",
-          "fin": "2026-09-04 05:07:12",
-          "score": 0.0413
-        },
-        {
-          "inicio": "2026-09-04 05:12:01",
-          "fin": "2026-09-04 05:14:17",
-          "score": 0.0413
-        },
-        {
-          "inicio": "2026-09-04 05:13:17",
-          "fin": "2026-09-04 05:15:33",
-          "score": 0.0427
-        },
-        {
-          "inicio": "2026-09-04 05:07:28",
-          "fin": "2026-09-04 05:09:44",
-          "score": 0.0432
-        },
-        {
-          "inicio": "2026-09-04 05:14:48",
-          "fin": "2026-09-04 05:17:04",
-          "score": 0.0452
-        },
-        {
-          "inicio": "2026-09-04 05:05:26",
-          "fin": "2026-09-04 05:07:43",
-          "score": 0.048
-        },
-        {
-          "inicio": "2026-09-04 05:14:17",
-          "fin": "2026-09-04 05:16:34",
-          "score": 0.0484
-        },
-        {
-          "inicio": "2026-09-04 05:07:12",
-          "fin": "2026-09-04 05:09:29",
-          "score": 0.05
+          "inicio": "2026-09-11 03:03:22",
+          "fin": "2026-09-11 03:04:10",
+          "score": -0.0266
         }
       ],
-      "total_ventanas_alertadas": 20,
+      "total_ventanas_alertadas": 1,
       "tiene_timeline": false,
       "top_variables_alertas": [
         {
-          "variable": "memory_used_mb",
-          "desviacion": 8.961
-        },
-        {
-          "variable": "memory_available_mb",
-          "desviacion": 8.961
-        },
-        {
           "variable": "page_life_expectancy",
-          "desviacion": 3.417
+          "desviacion": 3.097
         },
         {
-          "variable": "transactions_per_sec",
-          "desviacion": 1.986
+          "variable": "disk_write_per_sec",
+          "desviacion": 2.35
         },
         {
-          "variable": "load1",
-          "desviacion": 1.536
+          "variable": "total_writes",
+          "desviacion": 2.203
+        },
+        {
+          "variable": "disk_read_per_sec",
+          "desviacion": 1.936
+        },
+        {
+          "variable": "memory_used_mb",
+          "desviacion": 1.419
         }
       ]
     },
     "run2": {
       "grupo": "baseline",
-      "ventanas": 9,
-      "alertas_modelo": 9,
-      "fraccion_alertas_modelo": 1.0,
+      "ventanas": 0,
+      "alertas_modelo": 0,
+      "fraccion_alertas_modelo": 0.0,
       "reglas": {
         "detecciones": 9,
         "por_regla": {
@@ -1506,62 +1545,16 @@
         ]
       },
       "detectado": true,
-      "ventanas_alertadas": [
-        {
-          "inicio": "2026-09-07 04:26:22",
-          "fin": "2026-09-07 04:28:35",
-          "score": -0.0824
-        },
-        {
-          "inicio": "2026-09-07 04:26:33",
-          "fin": "2026-09-07 04:28:53",
-          "score": -0.0368
-        },
-        {
-          "inicio": "2026-09-07 04:28:05",
-          "fin": "2026-09-07 04:30:31",
-          "score": -0.0261
-        },
-        {
-          "inicio": "2026-09-07 04:26:48",
-          "fin": "2026-09-07 04:29:08",
-          "score": -0.0248
-        },
-        {
-          "inicio": "2026-09-07 04:28:20",
-          "fin": "2026-09-07 04:30:46",
-          "score": -0.0139
-        },
-        {
-          "inicio": "2026-09-07 04:27:04",
-          "fin": "2026-09-07 04:29:27",
-          "score": 0.0028
-        },
-        {
-          "inicio": "2026-09-07 04:27:49",
-          "fin": "2026-09-07 04:30:14",
-          "score": 0.0035
-        },
-        {
-          "inicio": "2026-09-07 04:27:34",
-          "fin": "2026-09-07 04:29:59",
-          "score": 0.0079
-        },
-        {
-          "inicio": "2026-09-07 04:27:19",
-          "fin": "2026-09-07 04:29:43",
-          "score": 0.017
-        }
-      ],
-      "total_ventanas_alertadas": 9,
+      "ventanas_alertadas": [],
+      "total_ventanas_alertadas": 0,
       "tiene_timeline": false,
       "top_variables_alertas": []
     },
     "run3": {
-      "grupo": "anomalias",
-      "ventanas": 32,
-      "alertas_modelo": 14,
-      "fraccion_alertas_modelo": 0.4375,
+      "grupo": "baseline",
+      "ventanas": 0,
+      "alertas_modelo": 0,
+      "fraccion_alertas_modelo": 0.0,
       "reglas": {
         "detecciones": 1,
         "por_regla": {
@@ -1572,111 +1565,16 @@
         ]
       },
       "detectado": true,
-      "ventanas_alertadas": [
-        {
-          "inicio": "2026-09-07 04:33:00",
-          "fin": "2026-09-07 04:35:13",
-          "score": -0.0586
-        },
-        {
-          "inicio": "2026-09-07 04:33:10",
-          "fin": "2026-09-07 04:35:28",
-          "score": 0.0098
-        },
-        {
-          "inicio": "2026-09-07 04:36:29",
-          "fin": "2026-09-07 04:38:46",
-          "score": 0.0316
-        },
-        {
-          "inicio": "2026-09-07 04:33:26",
-          "fin": "2026-09-07 04:35:43",
-          "score": 0.0325
-        },
-        {
-          "inicio": "2026-09-07 04:40:32",
-          "fin": "2026-09-07 04:42:48",
-          "score": 0.0365
-        },
-        {
-          "inicio": "2026-09-07 04:39:16",
-          "fin": "2026-09-07 04:41:33",
-          "score": 0.0425
-        },
-        {
-          "inicio": "2026-09-07 04:39:46",
-          "fin": "2026-09-07 04:42:03",
-          "score": 0.0435
-        },
-        {
-          "inicio": "2026-09-07 04:40:02",
-          "fin": "2026-09-07 04:42:18",
-          "score": 0.0444
-        },
-        {
-          "inicio": "2026-09-07 04:33:41",
-          "fin": "2026-09-07 04:35:58",
-          "score": 0.045
-        },
-        {
-          "inicio": "2026-09-07 04:35:58",
-          "fin": "2026-09-07 04:38:15",
-          "score": 0.0461
-        },
-        {
-          "inicio": "2026-09-07 04:38:46",
-          "fin": "2026-09-07 04:41:02",
-          "score": 0.047
-        },
-        {
-          "inicio": "2026-09-07 04:40:17",
-          "fin": "2026-09-07 04:42:33",
-          "score": 0.0481
-        },
-        {
-          "inicio": "2026-09-07 04:35:13",
-          "fin": "2026-09-07 04:37:30",
-          "score": 0.0483
-        },
-        {
-          "inicio": "2026-09-07 04:40:47",
-          "fin": "2026-09-07 04:43:04",
-          "score": 0.0488
-        }
-      ],
-      "total_ventanas_alertadas": 14,
-      "tiene_timeline": true,
-      "resumen_deteccion": {
-        "ventanas_test": 32,
-        "ventanas_fault": 0,
-        "ventanas_normal": 32,
-        "alertas_en_fault": 0,
-        "alertas_en_normal_fp": 14,
-        "recall": null,
-        "fpr": 0.438
-      },
-      "por_fault": {
-        "fault_2": {
-          "ventana": "2026-09-11 00:41:04 -> 2026-09-11 00:41:44",
-          "sospecha_esperada": "",
-          "variables_causantes_top": [],
-          "coincidencia_con_huella": [],
-          "reglas": {
-            "detecciones_reglas": 0,
-            "reglas_disparadas": "normal",
-            "conteo_por_regla": {}
-          },
-          "deteccion": {}
-        }
-      },
-      "aviso": "El timeline de esta corrida no cruza con sus ventanas reales: no se puede calcular TPR con ground truth. La detección se informa por modelo y reglas.",
+      "ventanas_alertadas": [],
+      "total_ventanas_alertadas": 0,
+      "tiene_timeline": false,
       "top_variables_alertas": []
     },
     "run4": {
       "grupo": "baseline",
-      "ventanas": 398,
-      "alertas_modelo": 19,
-      "fraccion_alertas_modelo": 0.0477,
+      "ventanas": 0,
+      "alertas_modelo": 0,
+      "fraccion_alertas_modelo": 0.0,
       "reglas": {
         "detecciones": 8,
         "por_regla": {
@@ -1687,149 +1585,168 @@
         ]
       },
       "detectado": true,
-      "ventanas_alertadas": [
-        {
-          "inicio": "2026-09-07 05:07:11",
-          "fin": "2026-09-07 05:07:30",
-          "score": 0.0222
-        },
-        {
-          "inicio": "2026-09-07 07:04:56",
-          "fin": "2026-09-07 07:05:25",
-          "score": 0.0246
-        },
-        {
-          "inicio": "2026-09-07 07:04:51",
-          "fin": "2026-09-07 07:05:19",
-          "score": 0.0308
-        },
-        {
-          "inicio": "2026-09-07 06:57:33",
-          "fin": "2026-09-07 06:58:45",
-          "score": 0.0347
-        },
-        {
-          "inicio": "2026-09-07 07:04:44",
-          "fin": "2026-09-07 07:05:12",
-          "score": 0.0362
-        },
-        {
-          "inicio": "2026-09-07 07:05:12",
-          "fin": "2026-09-07 07:05:41",
-          "score": 0.0369
-        },
-        {
-          "inicio": "2026-09-07 07:04:53",
-          "fin": "2026-09-07 07:05:22",
-          "score": 0.037
-        },
-        {
-          "inicio": "2026-09-07 07:05:02",
-          "fin": "2026-09-07 07:05:32",
-          "score": 0.0377
-        },
-        {
-          "inicio": "2026-09-07 05:07:12",
-          "fin": "2026-09-07 05:07:31",
-          "score": 0.0392
-        },
-        {
-          "inicio": "2026-09-07 07:05:00",
-          "fin": "2026-09-07 07:05:28",
-          "score": 0.0396
-        },
-        {
-          "inicio": "2026-09-07 07:05:05",
-          "fin": "2026-09-07 07:05:35",
-          "score": 0.04
-        },
-        {
-          "inicio": "2026-09-07 07:05:09",
-          "fin": "2026-09-07 07:05:38",
-          "score": 0.0407
-        },
-        {
-          "inicio": "2026-09-07 06:58:05",
-          "fin": "2026-09-07 06:58:48",
-          "score": 0.0424
-        },
-        {
-          "inicio": "2026-09-07 07:05:15",
-          "fin": "2026-09-07 07:05:44",
-          "score": 0.0448
-        },
-        {
-          "inicio": "2026-09-07 07:05:19",
-          "fin": "2026-09-07 07:05:47",
-          "score": 0.045
-        },
-        {
-          "inicio": "2026-09-07 07:04:47",
-          "fin": "2026-09-07 07:05:15",
-          "score": 0.0475
-        },
-        {
-          "inicio": "2026-09-07 07:03:21",
-          "fin": "2026-09-07 07:03:50",
-          "score": 0.0488
-        },
-        {
-          "inicio": "2026-09-07 06:59:25",
-          "fin": "2026-09-07 06:59:54",
-          "score": 0.0503
-        },
-        {
-          "inicio": "2026-09-07 07:03:14",
-          "fin": "2026-09-07 07:03:43",
-          "score": 0.0503
-        }
-      ],
-      "total_ventanas_alertadas": 19,
+      "ventanas_alertadas": [],
+      "total_ventanas_alertadas": 0,
       "tiene_timeline": false,
-      "top_variables_alertas": [
-        {
-          "variable": "api_status",
-          "desviacion": 403000000000.0
-        },
-        {
-          "variable": "api_latency_ms",
-          "desviacion": 221.413
-        },
-        {
-          "variable": "load1",
-          "desviacion": 8.121
-        },
-        {
-          "variable": "cpu_idl",
-          "desviacion": 7.527
-        },
-        {
-          "variable": "memory_used_mb",
-          "desviacion": 5.747
-        }
-      ]
+      "top_variables_alertas": []
     },
     "run5": {
       "grupo": "anomalias",
       "ventanas": 27,
-      "alertas_modelo": 0,
-      "fraccion_alertas_modelo": 0.0,
+      "alertas_modelo": 27,
+      "fraccion_alertas_modelo": 1.0,
       "reglas": {
         "detecciones": 0,
         "por_regla": {},
         "reglas": []
       },
-      "detectado": false,
-      "ventanas_alertadas": [],
-      "total_ventanas_alertadas": 0,
+      "detectado": true,
+      "ventanas_alertadas": [
+        {
+          "inicio": "2026-09-11 03:06:12",
+          "fin": "2026-09-11 03:06:58",
+          "score": -0.0966
+        },
+        {
+          "inicio": "2026-09-11 03:06:06",
+          "fin": "2026-09-11 03:06:53",
+          "score": -0.091
+        },
+        {
+          "inicio": "2026-09-11 03:06:17",
+          "fin": "2026-09-11 03:07:03",
+          "score": -0.0879
+        },
+        {
+          "inicio": "2026-09-11 03:06:22",
+          "fin": "2026-09-11 03:07:09",
+          "score": -0.0858
+        },
+        {
+          "inicio": "2026-09-11 03:06:01",
+          "fin": "2026-09-11 03:06:48",
+          "score": -0.0851
+        },
+        {
+          "inicio": "2026-09-11 03:06:43",
+          "fin": "2026-09-11 03:07:29",
+          "score": -0.0805
+        },
+        {
+          "inicio": "2026-09-11 03:05:45",
+          "fin": "2026-09-11 03:06:32",
+          "score": -0.0763
+        },
+        {
+          "inicio": "2026-09-11 03:06:38",
+          "fin": "2026-09-11 03:07:24",
+          "score": -0.0747
+        },
+        {
+          "inicio": "2026-09-11 03:06:27",
+          "fin": "2026-09-11 03:07:14",
+          "score": -0.0735
+        },
+        {
+          "inicio": "2026-09-11 03:05:56",
+          "fin": "2026-09-11 03:06:43",
+          "score": -0.0721
+        },
+        {
+          "inicio": "2026-09-11 03:08:02",
+          "fin": "2026-09-11 03:08:48",
+          "score": -0.0719
+        },
+        {
+          "inicio": "2026-09-11 03:05:51",
+          "fin": "2026-09-11 03:06:38",
+          "score": -0.0667
+        },
+        {
+          "inicio": "2026-09-11 03:07:19",
+          "fin": "2026-09-11 03:08:07",
+          "score": -0.0636
+        },
+        {
+          "inicio": "2026-09-11 03:06:32",
+          "fin": "2026-09-11 03:07:19",
+          "score": -0.062
+        },
+        {
+          "inicio": "2026-09-11 03:07:14",
+          "fin": "2026-09-11 03:08:02",
+          "score": -0.0593
+        },
+        {
+          "inicio": "2026-09-11 03:07:29",
+          "fin": "2026-09-11 03:08:17",
+          "score": -0.0589
+        },
+        {
+          "inicio": "2026-09-11 03:07:40",
+          "fin": "2026-09-11 03:08:28",
+          "score": -0.0577
+        },
+        {
+          "inicio": "2026-09-11 03:07:45",
+          "fin": "2026-09-11 03:08:33",
+          "score": -0.0562
+        },
+        {
+          "inicio": "2026-09-11 03:06:48",
+          "fin": "2026-09-11 03:07:35",
+          "score": -0.0561
+        },
+        {
+          "inicio": "2026-09-11 03:07:09",
+          "fin": "2026-09-11 03:07:56",
+          "score": -0.0536
+        },
+        {
+          "inicio": "2026-09-11 03:07:50",
+          "fin": "2026-09-11 03:08:38",
+          "score": -0.0534
+        },
+        {
+          "inicio": "2026-09-11 03:07:56",
+          "fin": "2026-09-11 03:08:43",
+          "score": -0.0526
+        },
+        {
+          "inicio": "2026-09-11 03:06:53",
+          "fin": "2026-09-11 03:07:40",
+          "score": -0.0523
+        },
+        {
+          "inicio": "2026-09-11 03:07:35",
+          "fin": "2026-09-11 03:08:23",
+          "score": -0.0502
+        },
+        {
+          "inicio": "2026-09-11 03:07:03",
+          "fin": "2026-09-11 03:07:50",
+          "score": -0.0484
+        },
+        {
+          "inicio": "2026-09-11 03:07:24",
+          "fin": "2026-09-11 03:08:12",
+          "score": -0.0474
+        },
+        {
+          "inicio": "2026-09-11 03:06:58",
+          "fin": "2026-09-11 03:07:45",
+          "score": -0.0471
+        }
+      ],
+      "total_ventanas_alertadas": 27,
       "tiene_timeline": true,
       "resumen_deteccion": {
         "ventanas_test": 27,
         "ventanas_fault": 27,
         "ventanas_normal": 0,
-        "alertas_en_fault": 0,
+        "alertas_en_fault": 27,
         "alertas_en_normal_fp": 0,
-        "recall": 0.0,
+        "recall": 1.0,
         "fpr": null
       },
       "por_fault": {
@@ -1872,8 +1789,8 @@
           },
           "deteccion": {
             "ventanas_total": 8,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 8,
+            "tpr": 1.0
           }
         },
         "fault1": {
@@ -1916,8 +1833,8 @@
           },
           "deteccion": {
             "ventanas_total": 6,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 6,
+            "tpr": 1.0
           }
         },
         "fault2": {
@@ -1960,8 +1877,8 @@
           },
           "deteccion": {
             "ventanas_total": 7,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 7,
+            "tpr": 1.0
           }
         },
         "fault5": {
@@ -2004,8 +1921,8 @@
           },
           "deteccion": {
             "ventanas_total": 6,
-            "ventanas_alertadas": 0,
-            "tpr": 0.0
+            "ventanas_alertadas": 6,
+            "tpr": 1.0
           }
         },
         "fault3": {
@@ -2049,37 +1966,26 @@
         }
       },
       "top_variables_alertas": []
-    },
-    "run7": {
-      "grupo": "baseline",
-      "ventanas": 10,
-      "alertas_modelo": 0,
-      "fraccion_alertas_modelo": 0.0,
-      "reglas": {
-        "detecciones": 0,
-        "por_regla": {},
-        "reglas": []
-      },
-      "detectado": false,
-      "ventanas_alertadas": [],
-      "total_ventanas_alertadas": 0,
-      "tiene_timeline": false,
-      "top_variables_alertas": []
     }
   },
   "conclusion": {
     "es_anomalo": true,
     "corridas_con_alertas": [
+      "10",
       "11",
-      "carga1",
+      "6",
+      "carga11",
+      "carga18",
       "carga2",
+      "carga20",
       "carga3",
       "carga4",
       "carga5",
-      "run1",
+      "carga7",
       "run2",
       "run3",
-      "run4"
+      "run4",
+      "run5"
     ],
     "faults_inyectados": 108,
     "faults_con_reglas": 6

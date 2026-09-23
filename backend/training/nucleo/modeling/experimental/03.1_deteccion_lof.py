@@ -23,10 +23,18 @@ def cargar_muestras(ruta):
     return d
 
 def seleccionar_features(datos, ruta_features_modelo):
-    if not os.path.exists(ruta_features_modelo):
-        return list(range(len(datos["features"])))
-    mantenidas = pd.read_csv(ruta_features_modelo, encoding="utf-8-sig")["columna"].tolist()
-    return [datos["features"].index(m) for m in mantenidas if m in datos["features"]]
+    """
+    Usa SOLO las VARIABLES_MODELO definidas en config (igual que
+    03_deteccion_isolation_forest.py). ``ruta_features_modelo`` se ignora
+    por compatibilidad con el resto del pipeline.
+    """
+    modelo = [
+        c for c in config.VARIABLES_MODELO
+        if c in datos["features"]
+    ]
+    indice = [datos["features"].index(c) for c in modelo]
+    log(f"Modelo con {len(indice)} variables del motor/apoyo — poda aplicada.")
+    return indice
 
 def flat(x, indice):
     return x[:, :, indice].reshape(x.shape[0], -1)
@@ -55,12 +63,13 @@ def main():
 
     os.makedirs(config.DIR_DETECCION, exist_ok=True)
     joblib.dump(modelo, os.path.join(config.DIR_DETECCION, "modelo_lof.joblib"))
-    joblib.dump(train["scaler"], os.path.join(config.DIR_DETECCION, "scaler.joblib"))
-    log("Modelo LOF entrenado y guardado.")
+    log("Modelo LOF entrenado y guardado (sin tocar scaler.joblib de producción).")
 
-    # Scores y Umbrales
-    scores_train = -modelo.decision_function(X_train)
-    scores_test = -modelo.decision_function(X_test)
+    # Scores y Umbrales.
+    # En LOF (novelty=True) decision_function es "mayor = normal, menor =
+    # anomalia" (misma convención que IsolationForest), asi que NO se invierte.
+    scores_train = modelo.decision_function(X_train)
+    scores_test = modelo.decision_function(X_test)
 
     umbrales = {
         "q10": np.quantile(scores_train, 0.10),

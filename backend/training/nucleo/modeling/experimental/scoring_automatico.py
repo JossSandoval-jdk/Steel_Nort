@@ -8,7 +8,7 @@ modelo IsolationForest ya entrenado.
 Flujo:
     1. Carga el dataset final de la corrida (dataset_carga_principales.csv)
        del directorio de diagnóstico.
-    2. Normalización RELATIVA por corrida (mediana/MAD robusta).
+    2. (Opcional, si config.NORMALIZACION_RELATIVA) normaliza relativa por corrida.
     3. Construcción de ventanas de VENTANA muestras consecutivas.
     4. Escalado con el StandardScaler guardado (orden de train).
     5. Selección de las features del modelo (features_modelo.csv).
@@ -32,10 +32,11 @@ import joblib
 import numpy as np
 import pandas as pd
 
+import config
 import util_normalizacion
 
-OUTPUT_BASE = os.getenv("STEELNORT_OUTPUT_DIR", r"D:\Steel_Nort\output")
-MODELO_DIR = os.getenv("STEELNORT_MODELO_DIR", r"D:\Steel_Nort\modelo_final\modelado")
+OUTPUT_BASE = os.getenv("STEELNORT_OUTPUT_DIR", config.OUTPUT_BASE)
+MODELO_DIR = os.getenv("STEELNORT_MODELO_DIR", config.DIR_MODELADO)
 
 DATASET_CORRIDA = os.path.join(
     OUTPUT_BASE, "integrado", "dataset_carga_principales.csv"
@@ -130,7 +131,10 @@ def main():
     log(f"Dataset corrida nueva: {len(datos)} filas x {len(datos.columns)} cols")
     log(f"Corridas en dataset: {sorted(datos['run_name'].unique())}")
 
-    datos = util_normalizacion.transformar_relativo(datos, features_train)
+    if config.NORMALIZACION_RELATIVA:
+        datos = util_normalizacion.transformar_relativo(datos, features_train)
+    else:
+        log("Normalización relativa DESACTIVADA (match con entrenamiento).")
 
     X, runs, ventanas = construir_muestras(datos, features_train)
 

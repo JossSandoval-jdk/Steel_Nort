@@ -39,23 +39,12 @@ import pandas as pd
 
 import config
 
-
-# ============================================================
-# LOG
-# ============================================================
-
 def log(msg):
     print(f"[LIMPIEZA] {msg}", flush=True)
-
-
-# ============================================================
-# PARSER DE MÉTRICAS
-# ============================================================
 
 _RE_METRICS = re.compile(
     r"^(\S+\s+\S+)\s{2,}(\S+)\s+(\S+)$"
 )
-
 
 def limpiar_metrics(ruta):
     """
@@ -83,7 +72,6 @@ def limpiar_metrics(ruta):
 
         for i, linea in enumerate(f):
 
-            # Saltar cabecera
             if i == 0:
                 continue
 
@@ -136,11 +124,6 @@ def limpiar_metrics(ruta):
         "no_numericas": no_numericas,
     }
 
-
-# ============================================================
-# CLASIFICACIÓN DE EVENTOS
-# ============================================================
-
 EVENTOS_SQL_SERVER_INTERNOS = {
     "TASK MANAGER",
     "TRACE QUEUE TASK",
@@ -150,7 +133,6 @@ EVENTOS_SQL_SERVER_INTERNOS = {
     "CHECKPOINT",
     "HADR_AR_MGR_NOTIFICATION_WORKER",
 }
-
 
 def clasificar_evento(evento):
     """
@@ -169,16 +151,8 @@ def clasificar_evento(evento):
         evento.get("event_name") or ""
     ).strip().lower()
 
-    # --------------------------------------------------------
-    # Eventos internos de SQL Server
-    # --------------------------------------------------------
-
     if command in EVENTOS_SQL_SERVER_INTERNOS:
         return "SQL_SERVER_INTERNAL"
-
-    # --------------------------------------------------------
-    # Eventos que no representan una consulta de usuario
-    # --------------------------------------------------------
 
     if event_name in {
         "login",
@@ -190,10 +164,6 @@ def clasificar_evento(evento):
         "error_reported",
     }:
         return "UNKNOWN"
-
-    # --------------------------------------------------------
-    # Consultas SQL de usuario
-    # --------------------------------------------------------
 
     if command.startswith(
         (
@@ -218,11 +188,6 @@ def clasificar_evento(evento):
             return "USER"
 
     return "UNKNOWN"
-
-
-# ============================================================
-# PARSER DE EVENTS.LOG
-# ============================================================
 
 def limpiar_events(ruta):
     """
@@ -265,10 +230,6 @@ def limpiar_events(ruta):
                 malformados += 1
                 continue
 
-            # ------------------------------------------------
-            # Detectar duplicados
-            # ------------------------------------------------
-
             clave = linea
 
             if clave in vistos:
@@ -282,20 +243,12 @@ def limpiar_events(ruta):
 
     df = pd.DataFrame(registros)
 
-    # --------------------------------------------------------
-    # Timestamp
-    # --------------------------------------------------------
-
     if not df.empty and "timestamp" in df.columns:
 
         df["timestamp"] = pd.to_datetime(
             df["timestamp"],
             errors="coerce"
         )
-
-    # --------------------------------------------------------
-    # Clasificación
-    # --------------------------------------------------------
 
     if not df.empty:
 
@@ -304,7 +257,6 @@ def limpiar_events(ruta):
             axis=1
         )
 
-        # Rellenar campos vacíos para evitar NaN
         for col in df.columns:
             if col == "timestamp":
                 continue
@@ -318,17 +270,11 @@ def limpiar_events(ruta):
         "duplicados": len(duplicados),
     }
 
-
-# ============================================================
-# PARSER DE SQL SERVER LOGS
-# ============================================================
-
 _RE_SQLSERVER_LOG = re.compile(
     r"^(\d{4}-\d{2}-\d{2} "
     r"\d{2}:\d{2}:\d{2}\.\d+)"
     r"\s+(\S+)\s+(.*)$"
 )
-
 
 def limpiar_sqlserver_logs(ruta):
     """
@@ -390,20 +336,12 @@ def limpiar_sqlserver_logs(ruta):
 
     if not df.empty:
 
-        # ----------------------------------------------------
-        # Normalización del mensaje
-        # ----------------------------------------------------
-
         texto = (
             df["error_message"]
             .fillna("")
             .astype(str)
             .str.lower()
         )
-
-        # ----------------------------------------------------
-        # Extraer severidad
-        # ----------------------------------------------------
 
         severidad = texto.str.extract(
             r"severity\s*(?:level)?\s*[:=]?\s*(\d+)",
@@ -417,7 +355,6 @@ def limpiar_sqlserver_logs(ruta):
 
         df["error_level"] = severidad
 
-        # Rellenar campos vacíos para evitar NaN
         for col in df.columns:
             if col == "timestamp":
                 continue
@@ -426,13 +363,8 @@ def limpiar_sqlserver_logs(ruta):
             else:
                 df[col] = df[col].fillna(0)
 
-        # ----------------------------------------------------
-        # Clasificación inicial
-        # ----------------------------------------------------
-
         df["log_category"] = "INFO"
 
-        # Startup
         df.loc[
             texto.str.contains(
                 "start|startup|starting|recovery|ready for client",
@@ -442,7 +374,6 @@ def limpiar_sqlserver_logs(ruta):
             "log_category"
         ] = "STARTUP"
 
-        # Configuration
         df.loc[
             texto.str.contains(
                 "configuration|configured|setting|parameter",
@@ -452,7 +383,6 @@ def limpiar_sqlserver_logs(ruta):
             "log_category"
         ] = "CONFIGURATION"
 
-        # Warning
         df.loc[
             texto.str.contains(
                 "warning|advertencia",
@@ -462,7 +392,6 @@ def limpiar_sqlserver_logs(ruta):
             "log_category"
         ] = "WARNING"
 
-        # Performance
         df.loc[
             texto.str.contains(
                 "performance|slow|timeout|latency",
@@ -472,7 +401,6 @@ def limpiar_sqlserver_logs(ruta):
             "log_category"
         ] = "PERFORMANCE"
 
-        # Fatal
         df.loc[
             texto.str.contains(
                 "fatal",
@@ -487,7 +415,6 @@ def limpiar_sqlserver_logs(ruta):
             "log_category"
         ] = "FATAL"
 
-        # Error
         df.loc[
             texto.str.contains(
                 "error",
@@ -500,11 +427,6 @@ def limpiar_sqlserver_logs(ruta):
     return df, {
         "descartadas": descartadas
     }
-
-
-# ============================================================
-# LIMPIEZA DE UNA CORRIDA
-# ============================================================
 
 def limpiar_corrida(corrida, ruta_corrida=None):
     """
@@ -531,10 +453,6 @@ def limpiar_corrida(corrida, ruta_corrida=None):
     resumen = {
         "corrida": corrida
     }
-
-    # ========================================================
-    # 1. METRICS.LOG
-    # ========================================================
 
     ruta_m = os.path.join(
         dir_corrida,
@@ -580,10 +498,6 @@ def limpiar_corrida(corrida, ruta_corrida=None):
         log(
             "   metrics.log: NO ENCONTRADO"
         )
-
-    # ========================================================
-    # 2. EVENTS.LOG
-    # ========================================================
 
     ruta_e = os.path.join(
         dir_corrida,
@@ -640,10 +554,6 @@ def limpiar_corrida(corrida, ruta_corrida=None):
         log(
             "   events.log: NO ENCONTRADO"
         )
-
-    # ========================================================
-    # 3. SQLSERVER_LOGS.LOG
-    # ========================================================
 
     ruta_s = os.path.join(
         dir_corrida,
@@ -702,16 +612,7 @@ def limpiar_corrida(corrida, ruta_corrida=None):
 
     return resumen
 
-
-# ============================================================
-# MAIN
-# ============================================================
-
 def main():
-
-    # ========================================================
-    # 1. VALIDAR DIRECTORIO
-    # ========================================================
 
     if not os.path.isdir(
         config.OUTPUT_BASE_DIR
@@ -724,13 +625,6 @@ def main():
 
         return
 
-    # ========================================================
-    # 2. OBTENER CARGAS / CORRIDAS
-    # ========================================================
-
-    # Descubrimiento canónico: recorre baseline/, anomalias/ y los
-    # contenedores legacy (run1-7). Los artefactos del pipeline jamás
-    # se listan como corridas.
     corridas_info = config.descubrir_corridas()
     corridas = sorted(corridas_info)
 
@@ -746,10 +640,6 @@ def main():
         )
 
         return
-
-    # ========================================================
-    # 3. PROCESAR CADA CARGA
-    # ========================================================
 
     resumenes = []
 
@@ -767,10 +657,6 @@ def main():
         resumenes.append(
             resumen
         )
-
-    # ========================================================
-    # 4. RESUMEN GLOBAL
-    # ========================================================
 
     df_resumen = pd.DataFrame(
         resumenes
@@ -796,10 +682,6 @@ def main():
         f"Resumen global en: {ruta}"
     )
 
-    # ========================================================
-    # 5. MOSTRAR RESUMEN
-    # ========================================================
-
     print(
         "\n=== RESUMEN LIMPIEZA GLOBAL ==="
     )
@@ -813,7 +695,6 @@ def main():
         "sqlserver_descartadas",
     ]
 
-    # Solo mostrar columnas existentes
     columnas_existentes = [
         c
         for c in columnas_resumen
@@ -825,7 +706,6 @@ def main():
             columnas_existentes
         ].to_string(index=False)
     )
-
 
 if __name__ == "__main__":
     main()

@@ -44,18 +44,8 @@ import pandas as pd
 
 import config
 
-
-# ============================================================
-# LOG
-# ============================================================
-
 def log(msg):
     print(f"[INTEGRACION] {msg}", flush=True)
-
-
-# ============================================================
-# CARGAR DATASETS TRANSFORMADOS
-# ============================================================
 
 def cargar_transformadas():
     """
@@ -160,11 +150,6 @@ def cargar_transformadas():
 
     return out
 
-
-# ============================================================
-# CONSTRUIR DATASET INTEGRADO
-# ============================================================
-
 def construir_integrado(corridas):
     """
     Integra todas las corridas en un único DataFrame.
@@ -185,28 +170,16 @@ def construir_integrado(corridas):
 
         d = df.copy()
 
-        # ----------------------------------------------------
-        # Asegurar columnas canónicas
-        # ----------------------------------------------------
-
         for col in feats:
 
             if col not in d.columns:
                 d[col] = np.nan
-
-        # ----------------------------------------------------
-        # Identificación de la corrida
-        # ----------------------------------------------------
 
         d["run_name"] = corrida
 
         d["experiment_id"] = (
             f"exp_{idx + 1:02d}"
         )
-
-        # ----------------------------------------------------
-        # Orden final
-        # ----------------------------------------------------
 
         orden = [
             "timestamp"
@@ -222,19 +195,11 @@ def construir_integrado(corridas):
     if not frames:
         return pd.DataFrame()
 
-    # --------------------------------------------------------
-    # Concatenar todas las corridas
-    # --------------------------------------------------------
-
     df = pd.concat(
         frames,
         ignore_index=True,
         sort=False
     )
-
-    # --------------------------------------------------------
-    # Ordenar conservando independencia de cada corrida
-    # --------------------------------------------------------
 
     df = df.sort_values(
         [
@@ -246,11 +211,6 @@ def construir_integrado(corridas):
     )
 
     return df
-
-
-# ============================================================
-# DATASET DE VARIABLES PRINCIPALES
-# ============================================================
 
 def construir_dataset_principales(df):
     """
@@ -288,10 +248,6 @@ def construir_dataset_principales(df):
         if col not in df_final.columns:
             df_final[col] = pd.NA
 
-    # --------------------------------------------------------
-    # Descartar variables principales sin datos
-    # --------------------------------------------------------
-
     conservar = set(config.VARIABLES_CONSERVAR_VACIAS)
 
     vacias = [
@@ -314,14 +270,6 @@ def construir_dataset_principales(df):
 
     df_final = df_final[columnas_final]
 
-    # --------------------------------------------------------
-    # Reconstruir series por corrida (ffill) y rellenar el resto
-    # --------------------------------------------------------
-
-    # Variables de tasa y settings que el colector captura de forma
-    # dispersa (p. ej. una sola vez por corrida) se propagan hacia
-    # adelante dentro de cada corrida para completar la serie.
-
     principales_ok = [
         col
         for col in config.columnas_principales()
@@ -334,10 +282,6 @@ def construir_dataset_principales(df):
             .apply(lambda s: s.ffill())
         )
 
-    # --------------------------------------------------------
-    # Rellenar NaN residuales con 0
-    # --------------------------------------------------------
-
     numericas = df_final.select_dtypes(
         include="number"
     ).columns
@@ -347,11 +291,6 @@ def construir_dataset_principales(df):
     )
 
     return df_final
-
-
-# ============================================================
-# REPORTE DE CALIDAD
-# ============================================================
 
 def reporte_calidad(df):
     """
@@ -441,11 +380,6 @@ def reporte_calidad(df):
         filas
     )
 
-
-# ============================================================
-# EXPORTAR EVENTOS Y LOGS
-# ============================================================
-
 _COLUMNAS_INUTILES_EVENTOS = [
     "_linea",
     "status",
@@ -459,7 +393,6 @@ _COLUMNAS_INUTILES_LOGS = [
     "error_message",
     "error_level",
 ]
-
 
 def quitar_columnas_inutiles(df, tipo):
     """
@@ -499,7 +432,6 @@ def quitar_columnas_inutiles(df, tipo):
 
     return df
 
-
 def exportar_fuentes_detalle(corridas):
     """
     Consolida los eventos y logs originales ya limpiados.
@@ -519,10 +451,6 @@ def exportar_fuentes_detalle(corridas):
             config.DIR_LIMPIO,
             corrida
         )
-
-        # ----------------------------------------------------
-        # EVENTOS
-        # ----------------------------------------------------
 
         ruta_eventos = os.path.join(
             dir_salida,
@@ -547,7 +475,6 @@ def exportar_fuentes_detalle(corridas):
                         "eventos"
                     )
 
-                    # Rellenar campos vacíos para evitar NaN en exportación
                     for col in df_eventos.columns:
                         if df_eventos[col].dtype == "object":
                             df_eventos[col] = df_eventos[col].fillna("")
@@ -568,10 +495,6 @@ def exportar_fuentes_detalle(corridas):
                     f"   Error leyendo eventos "
                     f"de {corrida}: {e}"
                 )
-
-        # ----------------------------------------------------
-        # SQL SERVER LOGS
-        # ----------------------------------------------------
 
         ruta_logs = os.path.join(
             dir_salida,
@@ -596,7 +519,6 @@ def exportar_fuentes_detalle(corridas):
                         "logs"
                     )
 
-                    # Rellenar campos vacíos para evitar NaN en exportación
                     for col in df_logs.columns:
                         if df_logs[col].dtype == "object":
                             df_logs[col] = df_logs[col].fillna("")
@@ -617,10 +539,6 @@ def exportar_fuentes_detalle(corridas):
                     f"   Error leyendo logs "
                     f"de {corrida}: {e}"
                 )
-
-    # --------------------------------------------------------
-    # GUARDAR EVENTOS
-    # --------------------------------------------------------
 
     if eventos:
 
@@ -647,10 +565,6 @@ def exportar_fuentes_detalle(corridas):
             f"({len(df_eventos_final)} filas)"
         )
 
-    # --------------------------------------------------------
-    # GUARDAR LOGS
-    # --------------------------------------------------------
-
     if logs:
 
         df_logs_final = pd.concat(
@@ -675,11 +589,6 @@ def exportar_fuentes_detalle(corridas):
             f"{ruta_logs_salida} "
             f"({len(df_logs_final)} filas)"
         )
-
-
-# ============================================================
-# METADATA
-# ============================================================
 
 def construir_metadata(corridas, df):
     """
@@ -778,16 +687,7 @@ def construir_metadata(corridas, df):
 
     return metadata
 
-
-# ============================================================
-# MAIN
-# ============================================================
-
 def main():
-
-    # --------------------------------------------------------
-    # Verificar directorio
-    # --------------------------------------------------------
 
     if not os.path.isdir(
         config.DIR_LIMPIO
@@ -799,10 +699,6 @@ def main():
         )
 
         return
-
-    # --------------------------------------------------------
-    # Cargar transformaciones
-    # --------------------------------------------------------
 
     corridas = cargar_transformadas()
 
@@ -826,18 +722,10 @@ def main():
         f"{nombres_corridas}"
     )
 
-    # --------------------------------------------------------
-    # Crear directorio de salida
-    # --------------------------------------------------------
-
     os.makedirs(
         config.DIR_INTEGRADO,
         exist_ok=True
     )
-
-    # --------------------------------------------------------
-    # Construir dataset integrado
-    # --------------------------------------------------------
 
     df = construir_integrado(
         corridas
@@ -850,10 +738,6 @@ def main():
         )
 
         return
-
-    # --------------------------------------------------------
-    # Guardar dataset principal
-    # --------------------------------------------------------
 
     ruta_csv = os.path.join(
         config.DIR_INTEGRADO,
@@ -872,10 +756,6 @@ def main():
         f"({df.shape[0]} filas x "
         f"{df.shape[1]} columnas)"
     )
-
-    # --------------------------------------------------------
-    # Guardar dataset de variables principales
-    # --------------------------------------------------------
 
     df_principales = construir_dataset_principales(
         df
@@ -899,17 +779,9 @@ def main():
         f"{df_principales.shape[1]} cols)"
     )
 
-    # --------------------------------------------------------
-    # Exportar eventos y logs
-    # --------------------------------------------------------
-
     exportar_fuentes_detalle(
         corridas
     )
-
-    # --------------------------------------------------------
-    # Reporte de calidad
-    # --------------------------------------------------------
 
     reporte = reporte_calidad(
         df
@@ -930,10 +802,6 @@ def main():
         f"Reporte de calidad: "
         f"{ruta_rep}"
     )
-
-    # --------------------------------------------------------
-    # Metadata
-    # --------------------------------------------------------
 
     metadata = construir_metadata(
         corridas,
@@ -961,10 +829,6 @@ def main():
     log(
         f"Metadata: {ruta_meta}"
     )
-
-    # --------------------------------------------------------
-    # RESUMEN FINAL
-    # --------------------------------------------------------
 
     print(
         "\n=== RESUMEN INTEGRACION (PREPARACION) ==="
@@ -995,11 +859,6 @@ def main():
             "run_name"
         ).size().to_string()
     )
-
-
-# ============================================================
-# EJECUCIÓN
-# ============================================================
 
 if __name__ == "__main__":
     main()

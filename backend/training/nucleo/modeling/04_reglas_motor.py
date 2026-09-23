@@ -19,10 +19,8 @@ import pandas as pd
 
 import config
 
-
 def log(msg):
     print(f"[REGLAS-MOTOR] {msg}", flush=True)
-
 
 FONDO = {
     "MSQL_XP", "SLEEP_TASK", "BROKER_TO_FLUSH", "BROKER_TASK_STOP",
@@ -38,14 +36,12 @@ FONDO = {
     "RESOURCE_MONITOR_ANTIPRIORITY", "QDS_PERSIST_TASK",
 }
 
-
 def es_relevante(wait_type):
     if not wait_type:
         return False
     if wait_type.upper() in FONDO:
         return False
     return True
-
 
 METRICAS_R1 = ["disk_read_per_sec", "disk_write_per_sec",
                "page_reads_per_sec", "page_writes_per_sec",
@@ -54,7 +50,6 @@ METRICAS_R2 = ["lock_waits", "deadlocks_per_sec", "total_locks"]
 METRICAS_R3 = ["cpu_usr", "cpu_sys"]  # Uso general del procesador según Microsoft
 METRICAS_R5 = ["buffer_cache_hit_ratio", "page_life_expectancy"]
 METRICAS_R7 = ["batch_requests_per_sec", "sql_compilations_per_sec"]
-
 
 def leer_metricas(ruta):
     if not ruta or not os.path.exists(ruta):
@@ -93,7 +88,6 @@ def leer_metricas(ruta):
 
     return ancho
 
-
 def umbrales_por_corrida(df_m):
     if df_m is None:
         return {}
@@ -104,7 +98,6 @@ def umbrales_por_corrida(df_m):
             continue
         out[col] = (float(serie.quantile(0.90)), float(serie.quantile(0.99)))
     return out
-
 
 def unir_metricas(eventos, df_m, umbrales):
     if df_m is None or not eventos:
@@ -143,7 +136,6 @@ def unir_metricas(eventos, df_m, umbrales):
 
     return eventos_finales
 
-
 def v_met(met, nombre):
     v = met.get("m_" + nombre)
     if v is None:
@@ -155,7 +147,6 @@ def v_met(met, nombre):
     if not np.isfinite(v):
         return None
     return v
-
 
 def estado_gauge(valor, umbrales, nombre):
     if valor is None:
@@ -172,12 +163,10 @@ def estado_gauge(valor, umbrales, nombre):
         return "alto"
     return "normal"
 
-
 def texto_gauge(nombre, valor, estado):
     if valor is None:
         return f"{nombre}=n.d."
     return f"{nombre}={valor:g} ({estado or 'n.d.'})"
-
 
 def corroboracion_io(met, umbrales):
     evidencias, estados = [], []
@@ -195,7 +184,6 @@ def corroboracion_io(met, umbrales):
         return "sin_pico", "; ".join(evidencias)
     return None, None
 
-
 def corroboracion_locks(met, umbrales):
     """Corrobora bloqueos evaluando si los contadores globales superan el baseline (p90/p99)."""
     evidencias, estados = [], []
@@ -206,15 +194,13 @@ def corroboracion_locks(met, umbrales):
         est = estado_gauge(v, umbrales, nombre)
         evidencias.append(texto_gauge(nombre, v, est))
         estados.append(est)
-    
-    # Exigimos estado alto o pico validado estadísticamente frente al baseline
+
     fuertes = [s for s in estados if s in ("pico", "alto")]
     if fuertes:
         return "confirmado", "; ".join(evidencias)
     if evidencias:
         return "sin_pico", "; ".join(evidencias)
     return None, None
-
 
 def corroboracion_cpu(met, umbrales):
     """R3: Corrobora presión de CPU evaluando la saturación combinada de usuario y sistema frente al baseline."""
@@ -226,16 +212,15 @@ def corroboracion_cpu(met, umbrales):
         est = estado_gauge(v, umbrales, nombre)
         evidencias.append(texto_gauge(nombre, v, est))
         estados.append(est)
-    
+
     fuertes = [s for s in estados if s in ("pico", "alto")]
     cpu_usr = v_met(met, "cpu_usr")
-    
+
     if fuertes or (cpu_usr is not None and cpu_usr >= config.UMBRAL_CPU_ALTO_MS):
         return "confirmado", "; ".join(evidencias)
     if evidencias:
         return "sin_pico", "; ".join(evidencias)
     return None, None
-
 
 def corroboracion_memoria(met, umbrales):
     evidencias = []
@@ -256,7 +241,6 @@ def corroboracion_memoria(met, umbrales):
     return ("confirmado" if bch is not None and bch < config.BUFFER_CACHE_HIT_RATIO_DESEABLE
             else "sin_pico"), "; ".join(evidencias)
 
-
 def corroboracion_compilaciones(met):
     b = v_met(met, "batch_requests_per_sec")
     c = v_met(met, "sql_compilations_per_sec")
@@ -268,7 +252,6 @@ def corroboracion_compilaciones(met):
     if c > 50:
         return "confirmado", texto
     return "sin_pico", texto
-
 
 def regla_r1(wt, duration, met, umbrales):
     if not wt:
@@ -302,7 +285,6 @@ def regla_r1(wt, duration, met, umbrales):
         "fuente": "Microsoft Learn: Troubleshoot Slow SQL Server Performance Caused by I/O Issues",
     }
 
-
 def regla_r2(wt, blocking, met, umbrales):
     if not wt:
         return None
@@ -326,7 +308,6 @@ def regla_r2(wt, blocking, met, umbrales):
         "apoyo": apoyo,
         "fuente": "Microsoft Learn: Understand and Resolve SQL Server Blocking Problems",
     }
-
 
 def regla_r3(wt, cpu, duration, signal, met, umbrales):
     cpu_close = False
@@ -358,7 +339,6 @@ def regla_r3(wt, cpu, duration, signal, met, umbrales):
         "fuente": "Microsoft Learn: Troubleshoot High CPU Usage Issues in SQL Server",
     }
 
-
 def regla_r4(wt, wait_resource):
     if not wt:
         return None
@@ -378,7 +358,6 @@ def regla_r4(wt, wait_resource):
             "fuente": "Microsoft Learn: Recommendations to Reduce Allocation Contention",
         }
     return None
-
 
 def regla_r5(wt, met, umbrales):
     if not wt:
@@ -401,7 +380,6 @@ def regla_r5(wt, met, umbrales):
         "fuente": "Microsoft Learn: Troubleshoot Slow Performance Caused by Memory Grants",
     }
 
-
 def regla_r6(wt):
     if not wt:
         return None
@@ -416,7 +394,6 @@ def regla_r6(wt):
         "apoyo": ["Revisar desempeño de la aplicación cliente y red."],
         "fuente": "Microsoft Learn: Troubleshoot Slow Queries Resulting from ASYNC_NETWORK_IO",
     }
-
 
 def regla_r7(command, wait_type, logical_reads, historial_comando, met):
     if not command:
@@ -445,7 +422,6 @@ def regla_r7(command, wait_type, logical_reads, historial_comando, met):
         "fuente": "Microsoft Learn: Troubleshoot Slow-Running Queries in SQL Server",
     }
 
-
 def leer_eventos(ruta):
     eventos = []
     with open(ruta, encoding="utf-8") as f:
@@ -459,7 +435,6 @@ def leer_eventos(ruta):
                 continue
             eventos.append(ev)
     return eventos
-
 
 def encontrar_events_log():
     """Localiza un events.log por corrida en toda la estructura de salida.
@@ -515,7 +490,6 @@ def encontrar_events_log():
     _escaneo(raiz)
     return rutas
 
-
 def aplicar_reglas_a_eventos(eventos, df_m, umbrales):
     detecciones = []
     historial = {}
@@ -567,7 +541,6 @@ def aplicar_reglas_a_eventos(eventos, df_m, umbrales):
             if r7:
                 reglas.append(r7)
 
-        # Historial robusto por comando (acumulado ponderado para R7)
         cmd = ev.get("command")
         if en == "sql_batch_completed" and cmd:
             if cmd not in historial:
@@ -581,7 +554,6 @@ def aplicar_reglas_a_eventos(eventos, df_m, umbrales):
             detecciones.append(fila)
 
     return detecciones, historial
-
 
 def main():
     rutas = encontrar_events_log()
@@ -621,7 +593,6 @@ def main():
         df.to_csv(ruta_csv, index=False, encoding="utf-8-sig")
         log(f"Detecciones guardadas en: {ruta_csv} ({len(df)} filas)")
 
-        # Catálogo de diagnóstico por regla (lo consume 05_diagnostico_resultados.py).
         catalogo = {}
         for _, fila in df.iterrows():
             regla = fila.get("regla")
@@ -641,14 +612,13 @@ def main():
         resumen_reglas.to_csv(ruta_resumen, index=False, encoding="utf-8-sig")
 
         corrob = df.groupby(["regla", "corroborado"]).size().reset_index(name="conteo")
-        
+
         print("\n=== REGLAS DE MOTOR (Alineadas con Microsoft Learn) ===")
         print(df.groupby("regla").size().to_string())
         print("\nCorroboración métrica:")
         print(corrob.to_string(index=False))
     else:
         log("Sin detecciones registradas.")
-
 
 if __name__ == "__main__":
     main()

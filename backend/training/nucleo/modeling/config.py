@@ -14,10 +14,6 @@ import os
 
 from pathlib import Path
 
-# Raiz de salida del pipeline DENTRO del proyecto web
-# (backend/training/output). Se puede redefinir con STEELNORT_OUTPUT_DIR.
-# NOTA: config.py vive en backend/training/nucleo/modeling, así que
-# la raiz de datos es backend/training/output.
 OUTPUT_BASE = os.getenv(
     "STEELNORT_OUTPUT_DIR",
     str(
@@ -26,21 +22,52 @@ OUTPUT_BASE = os.getenv(
     )
 )
 
-# ---------------------------------------------------------------------
-# CORRIDAS DE ENTRENAMIENTO (SOLO NORMALES) Y CORRIDA DE ANOMALIAS
-# ---------------------------------------------------------------------
-# El modelo se entrena EXCLUSIVAMENTE con corridas normales de carga.
-# La corrida de anomalías (la que contiene anomalias_timeline.csv) NUNCA
-# entra en el entrenamiento: se usa solo como test para detección.
-#
-#   STEELNORT_CORRIDAS_TRAIN: lista separada por comas que fija qué
-#   corridas normales entrenan (por defecto carga7 y carga8).
 _CORRIDAS_TRAIN_DEF = os.getenv("STEELNORT_CORRIDAS_TRAIN", "carga7,carga8")
 
 CORRIDAS_ENTRENAMIENTO = [
     c.strip() for c in _CORRIDAS_TRAIN_DEF.split(",") if c.strip()
 ]
 
+# Corridas que NO son línea base sana aunque no estén en anomalias/.
+# Son capturas con la API COLGADA (api_status=0, latencia ~5007ms,
+# load1 ~9.5): el mismo patrón de fallo que queremos detectar. Si entran
+# al train, el modelo aprende que "el fallo es normal" y el FPR explota
+# (medido: 69.6% medio en q10). Se excluyen del entrenamiento.
+CORRIDAS_NO_BASE_SANA = [
+    "carga1",
+    "carga2",
+    "carga4",
+]
+
+# ---------------------------------------------------------------------------
+# Poda del conjunto canónico de data_preparation (VARIABLES_PRINCIPALES).
+# El DATASET conserva las 22 columnas para diagnóstico, pero EL MODELO usa
+# SOLO estas 19 variables. Se excluyen por redundancia comprobada:
+#   - cpu_idl          : complemento de cpu_usr (r=-0.78)
+#   - memory_used_mb   : complemento de memory_available_mb (r=-0.75)
+#   - duration_max_ms  : idéntica a duration_avg_ms (r=1.00)
+# ---------------------------------------------------------------------------
+VARIABLES_MODELO = [
+    "cpu_usr",
+    "cpu_sys",
+    "cpu_wai",
+    "memory_available_mb",
+    "page_life_expectancy",
+    "disk_read_per_sec",
+    "disk_write_per_sec",
+    "total_reads",
+    "total_writes",
+    "active_sessions",
+    "active_requests",
+    "transactions_per_sec",
+    "long_queries",
+    "long_transactions",
+    "duration_avg_ms",
+    "cpu_time_sum_ms",
+    "api_latency_ms",
+    "api_status",
+    "load1",
+]
 
 def _carpetas_con(raiz, archivo):
     """Subcarpetas de raiz que contienen 'archivo'."""
@@ -51,7 +78,6 @@ def _carpetas_con(raiz, archivo):
         if os.path.isdir(os.path.join(raiz, nombre))
         and os.path.isfile(os.path.join(raiz, nombre, archivo))
     ]
-
 
 def corridas_anomalia(raiz=None):
     """Carpetas que son corridas de anomalias.
@@ -82,7 +108,6 @@ def corridas_anomalia(raiz=None):
     carpetas.sort(key=_mtime, reverse=True)
     return carpetas
 
-
 def ruta_corrida(raiz, corrida):
     """Ruta de la carpeta de una corrida (busca en anomalias/, baseline/
     y raiz)."""
@@ -93,29 +118,12 @@ def ruta_corrida(raiz, corrida):
             return str(p)
     return str(raiz / corrida)
 
-
-def corrida_anomalia_principal(raiz=None):
-    """La corrida de anomalías a diagnosticar (si hay varias, la más
-    reciente). Devuelve None si no existe ninguna."""
-    carp = corridas_anomalia(raiz)
-    return carp[0] if carp else None
-
-# ---------------------------------------------------------------------
-# DATASET DE ENTRADA
-# ---------------------------------------------------------------------
-# Es el archivo final que produce el pipeline de data_preparation
-# (00 → 04): una fila por instante de muestreo, solo variables
-# principales, sin NaN. Aquí lo consumimos como "fuente de verdad".
 DATASET_PRINCIPALES = os.path.join(
     OUTPUT_BASE,
     "integrado",
     "dataset_carga_principales.csv"
 )
 
-# ---------------------------------------------------------------------
-# DIRECTORIOS DE SALIDA
-# ---------------------------------------------------------------------
-# Todo lo que genera este módulo cae dentro de <OUTPUT>/modelado/
 DIR_MODELADO = os.path.join(
     OUTPUT_BASE,
     "modelado"
@@ -131,15 +139,8 @@ DIR_DETECCION = os.path.join(
     "deteccion"
 )
 
-# Directorio donde viven los logs crudos de cada corrida
-# (output/carga1, output/carga2, ...). Allí están los events.log
-# con TODAS las columnas (incluidas blocking_session_id,
-# signal_wait_time_ms y wait_resource en las capturas nuevas).
 DIR_CORRIDAS = OUTPUT_BASE
 
-# Subcarpetas de OUTPUT_BASE que NO son corridas reales (artefactos
-# de salida del pipeline/modelado) y deben ignorarse al buscar
-# events.log.
 CARPETAS_NO_CORRIDA = {
     "limpio",
     "integrado",
@@ -148,38 +149,22 @@ CARPETAS_NO_CORRIDA = {
     "datasets",
 }
 
-# Directorio de salida de las reglas de motor.
 DIR_REGLAS = os.path.join(
     DIR_MODELADO,
     "reglas_motor"
 )
 
-# Ventana temporal de muestras por observación (como DBPA: 10).
 VENTANA = 10
 
-# Umbral de correlación para considerar variables redundantes.
 UMBRAL_CORRELACION = 0.85
 
-# Normalización RELATIVA por corrida: cada corrida define su
-# propio baseline (media/desv. por variable) y las muestras se
-# expresan como desviaciones internas. Elimina la deriva de
-# entorno entre corridas (carga4 vs carga1-3).
-# ---------------------------------------------------------------------
-# NORMALIZACIÓN RELATIVA (el paso que elimina la deriva de entorno)
-# ---------------------------------------------------------------------
-# False → el modelo aprende niveles absolutos (sensible a cambios de
-# entorno entre corridas). True → cada corrida se mide contra su propio
-# baseline interno y solo se detectan desviaciones dentro de la corrida.
-NORMALIZACION_RELATIVA = True
-
-# ---------------------------------------------------------------------
-# SPLIT TRAIN / TEST POR MUESTRAS
-# ---------------------------------------------------------------------
-# Se divide el 70% de TODAS las muestras para entrenamiento y 30% para
-# prueba, mezclando aleatoriamente para maximizar la representatividad.
-# Split por corrida completa: se eliminó a petición del usuario.
-FRACCION_TRAIN = 0.70
-FRACCION_TEST = 0.30
+# Normalización RELATIVA por corrida (mediana/MAD de la propia corrida).
+# DESACTIVADA de forma deliberada: en corridas donde la inyección de fallos
+# cubre toda la corrida, el baseline interno YA es el fallo, así que la
+# anomalía se expresa como desviación ~0 y el modelo no la ve (TPR ~2%).
+# Además la API de producción (app/ml/detector.py) puntúa sin esta
+# transformación; entrenar sin ella mantiene entrenamiento == scoring.
+NORMALIZACION_RELATIVA = False
 
 COLUMNAS_CONTEXTO = [
     "timestamp",      # etiqueta temporal (contexto, no es variable)
@@ -187,35 +172,17 @@ COLUMNAS_CONTEXTO = [
     "experiment_id",  # id del experimento de captura
 ]
 
-# Reproducibilidad: misma semilla ⇒ mismos árboles ⇒ mismos resultados.
 SEED = 42
 
-# ---------------------------------------------------------------
-# PARÁMETROS DE LAS REGLAS DE MOTOR (R1-R7)
-# ---------------------------------------------------------------
-# Umbral (ms) a partir del cual una espera se considera "alta".
-# Se usa en R1 (I/O con duration alto) y como cota de referencia.
 UMBRAL_DURATION_MS_ALTO = 500
 
-# Umbral (ms) para considerar que cpu_time ≈ duration (R3).
-# Si cpu_time >= duration * (1 - TOL) ya no está esperando casi nada.
 TOLERANCIA_CPU_DURATION = 0.10
 
-# Fracción del historial de la misma consulta por encima de la cual
-# se dispara R7 (logical_reads muy superior a su media histórica).
 UMBRAL_DESVIO_LOGICAL_READS = 1.5
 
-# Duración mínima (ms) para que una consulta sea "lenta" en R7/R1.
 UMBRAL_DURACION_LENTA_MS = 800
 
-# ---------------------------------------------------------------------
-# UMBRALES DE MÉTRICAS PARA CORROBORACIÓN DE REGLAS
-# (referencias explícitas de Microsoft Learn)
-# ---------------------------------------------------------------------
-# Processor: % Processor Time — señal de necesitar más CPU/procesadores
-# si se mantiene sostenido en 80-90% (Microsoft).
 UMBRAL_CPU_ALTO_MS = 80.0
 UMBRAL_CPU_CRITICO_MS = 90.0
 
-# Buffer Manager: Buffer cache hit ratio — Microsoft: >= 90 es deseable.
 BUFFER_CACHE_HIT_RATIO_DESEABLE = 90.0

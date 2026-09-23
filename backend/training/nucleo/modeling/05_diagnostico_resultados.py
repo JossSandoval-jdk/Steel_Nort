@@ -33,9 +33,6 @@ import pandas as pd
 
 import config
 
-# ---------------------------------------------------------------------
-# RUTAS
-# ---------------------------------------------------------------------
 DIR_DIAG = os.path.join(config.DIR_MODELADO, "diagnostico")
 
 RUTA_DATASET = config.DATASET_PRINCIPALES
@@ -46,10 +43,8 @@ RUTA_ALERTAS = os.path.join(config.DIR_DETECCION, "alertas_test.csv")
 RUTA_REGLAS = os.path.join(config.DIR_REGLAS, "detecciones_reglas.csv")
 RUTA_DIAG_REGLAS = os.path.join(config.DIR_REGLAS, "diagnostico_reglas.json")
 
-# Máxima cantidad de ventanas/reglas que se listan en el informe por corrida.
 MAX_VENTANAS_ALERTADAS = 40
 MAX_TIMESTAMPS_REGLAS = 30
-
 
 def corridas_anomalia_diagnosticables():
     """Todas las corridas de anomalías con su ruta de timeline.
@@ -70,8 +65,6 @@ def corridas_anomalia_diagnosticables():
                 break
     return rutas
 
-
-# Huella esperada por fault según DBPA (domain knowledge, para el cruce).
 FOOTPRINT_ESPERADO = {
     "fault1":   {"sospecha": "Escrituras al log de transacciones por INSERTs"
                               " altamente concurrentes",
@@ -97,19 +90,12 @@ FOOTPRINT_ESPERADO = {
 
 EPS = 1e-9
 
-
 def log(msg):
     try:
         print(msg, flush=True)
     except UnicodeEncodeError:
-        # Consolas Windows (cp1252): degrada los caracteres no imprimibles.
         print(msg.encode("cp1252", errors="replace").decode("cp1252"),
               flush=True)
-
-
-# ---------------------------------------------------------------------
-# CARGA UNIFICADA DE VENTANAS (train + test) CON ALERTA MODELO
-# ---------------------------------------------------------------------
 
 def cargar_ventanas():
     """Todas las ventanas (train + test) con su score del modelo.
@@ -142,7 +128,6 @@ def cargar_ventanas():
     w = pd.DataFrame(filas)
     return w, umbral_q10
 
-
 def etiquetar_fases_windows(w, corrida, timeline):
     """Marca la fase real de cada ventana de 'corrida' con su timeline."""
     for i in w[w["run"] == corrida].index.tolist():
@@ -157,11 +142,6 @@ def etiquetar_fases_windows(w, corrida, timeline):
         w.at[i, "fase"] = fase
     return w
 
-
-# ---------------------------------------------------------------------
-# 1. GROUND TRUTH: etiquetar muestras de una corrida de anomalías
-# ---------------------------------------------------------------------
-
 def etiquetar_muestras(df, corrida, timeline):
     """Devuelve df_run (solo la corrida de anomalías) con columna 'fase'."""
     c_run = df[df["run_name"] == corrida].copy()
@@ -175,11 +155,6 @@ def etiquetar_muestras(df, corrida, timeline):
         )
         c_run.loc[mask, "fase"] = row["tipo"]
     return c_run
-
-
-# ---------------------------------------------------------------------
-# 2. MÉTRICAS DE DETECCIÓN CON GROUND TRUTH (por corrida con timeline)
-# ---------------------------------------------------------------------
 
 def metricas_deteccion(sub):
     """Confusión ventana a ventana sobre una corrida con timeline."""
@@ -207,11 +182,6 @@ def metricas_deteccion(sub):
         }
     return reporte, por_fault
 
-
-# ---------------------------------------------------------------------
-# 3. RECONSTRUCCIÓN POR FAULT DE REGLAS R1-R7 (con timeline)
-# ---------------------------------------------------------------------
-
 def reglas_por_fault(reglas, corrida, timeline):
     reglas_run = reglas[reglas["run_name"] == corrida].copy()
     if reglas_run.empty:
@@ -237,11 +207,6 @@ def reglas_por_fault(reglas, corrida, timeline):
         }
     return out
 
-
-# ---------------------------------------------------------------------
-# 4. REGLAS POR CORRIDA (todas las corridas, con o sin timeline)
-# ---------------------------------------------------------------------
-
 def reglas_por_corrida(reglas):
     out = {}
     if reglas.empty:
@@ -256,11 +221,6 @@ def reglas_por_corrida(reglas):
         }
     return out
 
-
-# ---------------------------------------------------------------------
-# 5. ATRIBUCIÓN DE VARIABLES (DBPA) Y TOP VARIABLES DE VENTANAS ALERTADAS
-# ---------------------------------------------------------------------
-
 def desviacion_robusta(anormal, normal):
     """|Δmediana| normalizada por la dispersión robusta del baseline."""
     med_n = float(normal.median()) if len(normal) else np.nan
@@ -269,7 +229,6 @@ def desviacion_robusta(anormal, normal):
     if not np.isfinite(med_n):
         return 0.0
     return abs(float(anormal.median()) - med_n) / escala
-
 
 def atribuir_variables(c_run, features, timeline):
     """Por fault: top variables desviadas vs baseline normal de la corrida."""
@@ -291,7 +250,6 @@ def atribuir_variables(c_run, features, timeline):
         punt.sort(key=lambda x: x["desviacion"], reverse=True)
         resultado[fault] = punt[:10]
     return resultado
-
 
 def atribuir_variables_ventanas(c_run, w_al, features):
     """Top variables de las ventanas ALERTADAS vs el resto de la corrida."""
@@ -317,11 +275,6 @@ def atribuir_variables_ventanas(c_run, w_al, features):
     punt.sort(key=lambda x: x["desviacion"], reverse=True)
     return punt[:5]
 
-
-# ---------------------------------------------------------------------
-# MAIN
-# ---------------------------------------------------------------------
-
 def main():
     os.makedirs(DIR_DIAG, exist_ok=True)
 
@@ -333,9 +286,11 @@ def main():
     anom = corridas_anomalia_diagnosticables()
     log(f"Corridas de anomalies/ ({len(anom)}): {', '.join(sorted(anom))}")
 
-    # ---- Carga ----
     df = pd.read_csv(RUTA_DATASET, encoding="utf-8-sig")
     w, umbral_q10 = cargar_ventanas()
+
+    presentes = set(w["run"].tolist()) if (w is not None and len(w)) else set()
+    anom = {c: r for c, r in anom.items() if c in presentes}
 
     if os.path.isfile(RUTA_REGLAS):
         reglas = pd.read_csv(RUTA_REGLAS, encoding="utf-8-sig")
@@ -355,7 +310,6 @@ def main():
         if c not in config.COLUMNAS_CONTEXTO
     ]
 
-    # Corridas a evaluar = unión de corridas con ventanas + con reglas.
     corridas_evaluadas = sorted(
         set(w["run"].tolist()) | set(reglas_x_corrida) | set(anom))
 
@@ -384,11 +338,9 @@ def main():
             "reglas": rg.get("reglas", []),
         }
 
-        # Detección consolidada: modelo y/o reglas
         sec["detectado"] = bool(
             (sec["alertas_modelo"] > 0) or (sec["reglas"]["detecciones"] > 0))
 
-        # Ventanas alertadas (la evidencia temporal del modelo)
         sec["ventanas_alertadas"] = [
             {"inicio": str(r["inicio"]), "fin": str(r["fin"]),
              "score": round(float(r["score"]), 4)}
@@ -396,7 +348,6 @@ def main():
         ]
         sec["total_ventanas_alertadas"] = sec["alertas_modelo"]
 
-        # Timeline (solo corridas de anomalies/ con anomalias_timeline.csv)
         tiene_timeline = corrida in anom
         sec["tiene_timeline"] = tiene_timeline
         aviso = None
@@ -439,7 +390,6 @@ def main():
                 sec["aviso"] = aviso
                 log(f"Aviso [{corrida}]: {aviso}")
 
-        # Top variables causantes de las ventanas alertadas (con o sin timeline)
         if sec["alertas_modelo"] > 0 and not w_run.empty:
             c_run = df[df["run_name"] == corrida].copy()
             sec["top_variables_alertas"] = atribuir_variables_ventanas(
@@ -449,13 +399,11 @@ def main():
 
         por_corrida[corrida] = sec
 
-    # ---- Acumulados globales ----
     corridas_detectadas = sorted(
         c for c, s in por_corrida.items() if s["detectado"])
     corridas_limpias = sorted(
         c for c, s in por_corrida.items() if not s["detectado"])
 
-    # Métricas con ground truth (solo timeline)
     ttl_fault = sum(
         s["resumen_deteccion"]["ventanas_fault"]
         for s in por_corrida.values() if s.get("resumen_deteccion"))
@@ -503,12 +451,10 @@ def main():
         },
     }
 
-    # ---- Guardar ----
     ruta_json = os.path.join(DIR_DIAG, "informe_deteccion.json")
     with open(ruta_json, "w", encoding="utf-8") as f:
         json.dump(informe, f, ensure_ascii=False, indent=2)
 
-    # ---- Reporte de consola ----
     log("==========================================================")
     log("DIAGNÓSTICO FINAL DEL DIAGNÓSTICO (RESULTADO)")
     log("==========================================================")
@@ -553,7 +499,6 @@ def main():
         log("")
     log("==========================================================")
     log(f"Informe completo: {ruta_json}")
-
 
 if __name__ == "__main__":
     main()

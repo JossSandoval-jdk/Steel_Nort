@@ -30,14 +30,29 @@ function Login() {
     e.preventDefault()
     setError('')
 
-    // Validacion basica del lado del cliente.
-    if (!email || !password) {
-      setError('Ingrese su correo y contrasena.')
+    const em = email.trim()
+
+    // Validaciones del lado del cliente (formato y longitud) para
+    // evitar llamadas al backend con datos claramente invalidos.
+    if (!em) {
+      setError('Ingrese su correo electronico.')
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+      setError('Ingrese un correo electronico valido.')
+      return
+    }
+    if (!password) {
+      setError('Ingrese su contrasena.')
+      return
+    }
+    if (password.length < 8) {
+      setError('La contrasena debe tener al menos 8 caracteres.')
       return
     }
 
     try {
-      await login({ email, password })
+      await login({ email: em, password })
       navigate('/inicio')
     } catch (err) {
       setError(err.message || 'No se pudo iniciar sesion.')

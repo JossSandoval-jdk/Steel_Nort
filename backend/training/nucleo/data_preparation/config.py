@@ -38,17 +38,8 @@ import os
 
 from pathlib import Path
 
-
-# ============================================================
-# 1. RUTAS DEL PROYECTO
-# ============================================================
-
 BASE_PROYECTO = Path(__file__).resolve().parent
 
-# Raiz de salida del pipeline: vive DENTRO del proyecto web
-# (backend/training/output). Se puede redefinir con STEELNORT_OUTPUT_DIR.
-# NOTA: config.py vive en backend/training/nucleo/data_preparation,
-# así que la raiz de datos es backend/training/output.
 _OUTPUT_PROYECTO = (
     Path(__file__).resolve().parents[3]
     / "training" / "output"
@@ -66,24 +57,13 @@ DIR_INVENTARIO = OUTPUT_BASE_DIR / "inventario"
 DIR_LIMPIO = OUTPUT_BASE_DIR / "limpio"
 DIR_INTEGRADO = OUTPUT_BASE_DIR / "integrado"
 
-# ============================================================
-# 1b. ORGANIZACIÓN DE CORRIDAS
-# ============================================================
-# Las capturas se dividen en DOS grupos:
-#   - baseline/cargaN   : corridas de CARGA NORMAL (se usan para entrenar)
-#   - anomalias/cargaN  : corridas con TODO → anomalia_timeline.csv (solo
-#                         detección, NUNCA entrenan)
-# Además se soportan contenedores legacy en la raíz (p. ej. run1-7/)
-# que agrupan corridas antiguas; NUNCA se tratan como corridas.
 DIR_BASELINE = OUTPUT_BASE_DIR / "baseline"
 DIR_ANOMALIAS = OUTPUT_BASE_DIR / "anomalias"
 
-# Carpetas de artefactos del propio pipeline: jamás son corridas.
 DIRS_ARTEFACTO = (
     {d.name for d in (DIR_DATASETS, DIR_INVENTARIO, DIR_LIMPIO, DIR_INTEGRADO)}
     | {"modelado"}
 )
-
 
 def ruta_corrida(raiz, corrida):
     """Ruta de la carpeta de una corrida (busca en anomalias/,
@@ -94,7 +74,6 @@ def ruta_corrida(raiz, corrida):
         if p.is_dir():
             return str(p)
     return str(raiz / corrida)
-
 
 def _subcarpetas_con_logs(carpeta):
     """Subcarpetas de 'carpeta' que contienen al menos un log de entrada."""
@@ -108,7 +87,6 @@ def _subcarpetas_con_logs(carpeta):
             for f in ARCHIVOS_ENTRADA
         )
     ]
-
 
 def descubrir_corridas(raiz=None):
 
@@ -142,11 +120,6 @@ def descubrir_corridas(raiz=None):
         info.pop("prioridad", None)
     return corridas
 
-
-# ============================================================
-# 2. ARCHIVOS DE SALIDA
-# ============================================================
-
 ARCHIVO_INVENTARIO = "inventario_corridas.csv"
 
 ARCHIVO_VARIABLES = "variables_seleccionadas.csv"
@@ -163,11 +136,6 @@ ARCHIVO_DATASET_EVENTOS = "dataset_eventos.csv"
 
 ARCHIVO_DATASET_LOGS = "dataset_logs.csv"
 
-
-# ============================================================
-# 3. ARCHIVOS INTERMEDIOS
-# ============================================================
-
 NOMBRE_METRICAS_LIMPIO = "metricas_limpio.csv"
 
 NOMBRE_EVENTS_LIMPIO = "eventos_limpio.csv"
@@ -179,11 +147,6 @@ NOMBRE_EVENTOS_PREPARADOS = "eventos_preparados.csv"
 NOMBRE_LOGS_PREPARADOS = "logs_preparados.csv"
 
 NOMBRE_TRANSFORMADO = "datos_transformados.csv"
-
-
-# ============================================================
-# 4. ARCHIVOS DE ENTRADA
-# ============================================================
 
 """
 Cada carga/corrida debe contener únicamente estos archivos.
@@ -202,17 +165,11 @@ NOMBRE_EVENTS = "events.log"
 
 NOMBRE_SQLSERVER_LOGS = "sqlserver_logs.log"
 
-
 ARCHIVOS_ENTRADA = [
     NOMBRE_METRICAS,
     NOMBRE_EVENTS,
     NOMBRE_SQLSERVER_LOGS,
 ]
-
-
-# ============================================================
-# 5. CONFIGURACIÓN GENERAL
-# ============================================================
 
 FORMATO_INTERMEDIO = "csv"
 
@@ -220,22 +177,9 @@ ENCODING = "utf-8"
 
 SEPARADOR_CSV = ","
 
-
-# ============================================================
-# 6. UMBRALES GENERALES
-# ============================================================
-
-# Umbral de NAV utilizado durante las validaciones.
 UMBRAL_NAV = 50.0
 
-# Número mínimo de valores únicos para considerar
-# una variable útil para análisis estadístico.
 MIN_UNICOS = 2
-
-
-# ============================================================
-# 7. VARIABLES DEL SISTEMA
-# ============================================================
 
 FEATURES_SISTEMA = [
     {
@@ -345,11 +289,6 @@ FEATURES_SISTEMA = [
     },
 ]
 
-
-# ============================================================
-# 8. VARIABLES DE SESIONES
-# ============================================================
-
 FEATURES_SESIONES = [
     {
         "columna": "active_sessions",
@@ -387,11 +326,6 @@ FEATURES_SESIONES = [
         "descripcion": "Sesiones inactivas",
     },
 ]
-
-
-# ============================================================
-# 9. VARIABLES DE BLOQUEOS
-# ============================================================
 
 FEATURES_LOCKS = [
     {
@@ -466,11 +400,6 @@ FEATURES_LOCKS = [
     },
 ]
 
-
-# ============================================================
-# 10. VARIABLES DE BUFFER / SQL SERVER
-# ============================================================
-
 FEATURES_BUFFER = [
     {
         "columna": "transactions_per_sec",
@@ -544,11 +473,6 @@ FEATURES_BUFFER = [
     },
 ]
 
-
-# ============================================================
-# 11. VARIABLES DE API
-# ============================================================
-
 FEATURES_API = [
     {
         "columna": "api_status",
@@ -579,11 +503,6 @@ FEATURES_API = [
         "descripcion": "Cantidad de ventas procesadas",
     },
 ]
-
-
-# ============================================================
-# 12. VARIABLES DE EVENTOS
-# ============================================================
 
 FEATURES_EVENTOS = [
     {
@@ -742,11 +661,6 @@ FEATURES_EVENTOS = [
     },
 ]
 
-
-# ============================================================
-# 13. VARIABLES DE CONFIGURACIÓN DE SQL SERVER
-# ============================================================
-
 FEATURES_SETTINGS = [
     {
         "columna": "max_server_memory",
@@ -770,11 +684,6 @@ FEATURES_SETTINGS = [
         "descripcion": "Cost Threshold for Parallelism",
     },
 ]
-
-
-# ============================================================
-# 14. VARIABLES DE LOGS
-# ============================================================
 
 FEATURES_LOGS = [
     {
@@ -800,11 +709,6 @@ FEATURES_LOGS = [
     },
 ]
 
-
-# ============================================================
-# 15. VARIABLE DE TEXTO
-# ============================================================
-
 COLUMNA_TEXTO = {
     "columna": "sql_text",
     "fuente": "derivada",
@@ -813,15 +717,15 @@ COLUMNA_TEXTO = {
     "descripcion": "SQL de la consulta más lenta",
 }
 
-
-# ============================================================
-# 16. VARIABLES REDUNDANTES
-# ============================================================
-
 """
 Estas variables pueden conservarse durante la preparación
 para fines de diagnóstico, pero no son necesarias como
 variables principales del modelo.
+
+NOTA DE ALINEACIÓN: esta lista es SOLO de clasificación diagnóstica
+(puebla variables_seleccionadas.csv). La poda operativa EFECTIVA del
+modelo de producción está definida en modeling/config.VARIABLES_MODELO
+(19 variables); no modificar esta lista sin revisar esa referencia.
 """
 
 VARIABLES_REDUNDANTES = [
@@ -837,11 +741,6 @@ VARIABLES_REDUNDANTES = [
     "query_duration_avg_ms",
 ]
 
-
-# ============================================================
-# 17. VARIABLES QUE REQUIEREN CORRECCIÓN
-# ============================================================
-
 """
 Estas métricas son contadores y requieren cálculo correcto
 de delta por intervalo antes de utilizarse directamente
@@ -856,11 +755,6 @@ VARIABLES_REQUIEREN_CORRECCION = [
     "sql_compilations_per_sec",
 ]
 
-
-# ============================================================
-# 18. MEDICIONES NO CONFIABLES
-# ============================================================
-
 """
 buffer_cache_hit_ratio no debe utilizarse actualmente
 porque el colector registra el cntr_value sin disponer
@@ -872,11 +766,6 @@ EXCLUIR_MEDICION_CORRUPTA = [
     "buffer_cache_hit_ratio",
 ]
 
-
-# ============================================================
-# 19. VARIABLES PRINCIPALES PARA EL MODELO (22 CANÓNICAS)
-# ============================================================
-
 """
 Conjunto canónico de 22 variables para el modelo de detección
 de anomalías, definido por experta de dominio OLTP (ver
@@ -885,45 +774,29 @@ este set y NADA más.
 """
 
 VARIABLES_PRINCIPALES = [
-    # cpu
     "cpu_usr",
     "cpu_sys",
     "cpu_wai",
     "cpu_idl",
-    # memoria
     "memory_used_mb",
     "memory_available_mb",
-    # buffer
     "page_life_expectancy",
-    # io
     "disk_read_per_sec",
     "disk_write_per_sec",
-    # io motor sql
     "total_reads",
     "total_writes",
-    # sesiones
     "active_sessions",
     "active_requests",
-    # transacciones
     "transactions_per_sec",
-    # sesiones / consultas largas
     "long_queries",
     "long_transactions",
-    # rendimiento
     "duration_avg_ms",
     "duration_max_ms",
     "cpu_time_sum_ms",
-    # api
     "api_latency_ms",
     "api_status",
-    # carga
     "load1",
 ]
-
-
-# ============================================================
-# 19b. VARIABLES QUE SIEMPRE SE CONSERVAN (CONTRATO 22)
-# ============================================================
 
 """
 Variables del conjunto canónico que aún no tienen datos
@@ -936,11 +809,6 @@ VARIABLES_CONSERVAR_VACIAS = [
     "long_queries",
     "long_transactions",
 ]
-
-
-# ============================================================
-# 20. VARIABLES DE DIAGNÓSTICO
-# ============================================================
 
 """
 Variables que pueden ayudar a explicar una anomalía,
@@ -984,11 +852,6 @@ VARIABLES_DIAGNOSTICO = [
     "auditoria_locks",
 ]
 
-
-# ============================================================
-# 21. INVENTARIO CANÓNICO DE VARIABLES
-# ============================================================
-
 _FEATURES = (
     FEATURES_SISTEMA
     + FEATURES_SESIONES
@@ -1000,21 +863,11 @@ _FEATURES = (
     + FEATURES_LOGS
 )
 
-
-# ============================================================
-# 22. VARIABLES CANÓNICAS SELECCIONADAS
-# ============================================================
-
 FEATURES_SELECCIONADAS = [
     feature
     for feature in _FEATURES
     if feature["columna"] not in EXCLUIR_MEDICION_CORRUPTA
 ]
-
-
-# ============================================================
-# 23. COLUMNAS DE CONTEXTO
-# ============================================================
 
 """
 Estas columnas identifican la corrida/carga y permiten
@@ -1027,11 +880,6 @@ COLUMNAS_CONTEXTO = [
     "es_carga_normal",
 ]
 
-
-# ============================================================
-# 24. FUNCIONES AUXILIARES
-# ============================================================
-
 def columnas_features():
     """
     Devuelve las columnas de las variables canónicas.
@@ -1041,7 +889,6 @@ def columnas_features():
         for feature in FEATURES_SELECCIONADAS
     ]
 
-
 def columnas_principales():
     """
     Devuelve las columnas seleccionadas como variables
@@ -1049,32 +896,9 @@ def columnas_principales():
     """
     return VARIABLES_PRINCIPALES.copy()
 
-
 def columnas_contexto():
     """
     Devuelve las columnas utilizadas para identificar
     y contextualizar cada corrida.
     """
     return COLUMNAS_CONTEXTO.copy()
-
-
-def columnas_diagnostico():
-    """
-    Devuelve las variables utilizadas para diagnóstico.
-    """
-    return VARIABLES_DIAGNOSTICO.copy()
-
-
-def columnas_redundantes():
-    """
-    Devuelve las variables consideradas redundantes.
-    """
-    return VARIABLES_REDUNDANTES.copy()
-
-
-def columnas_requieren_correccion():
-    """
-    Devuelve las variables que requieren una transformación
-    o cálculo correcto antes de utilizarse.
-    """
-    return VARIABLES_REQUIEREN_CORRECCION.copy()

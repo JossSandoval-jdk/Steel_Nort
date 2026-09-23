@@ -25,26 +25,16 @@ import pandas as pd
 
 import config
 
-
 def log(msg):
     print(f"[SELECCION] {msg}", flush=True)
 
-
 def main():
-
-    # ========================================================
-    # 1. OBTENER VARIABLES CANÓNICAS
-    # ========================================================
 
     variables_principales = set(config.VARIABLES_PRINCIPALES)
     variables_diagnostico = set(config.VARIABLES_DIAGNOSTICO)
     variables_redundantes = set(config.VARIABLES_REDUNDANTES)
     variables_correccion = set(config.VARIABLES_REQUIEREN_CORRECCION)
     variables_excluidas = set(config.EXCLUIR_MEDICION_CORRUPTA)
-
-    # ========================================================
-    # 2. CONSTRUIR CATÁLOGO
-    # ========================================================
 
     filas = []
 
@@ -74,15 +64,7 @@ def main():
             "clasificacion": clasificacion,
         })
 
-    # ========================================================
-    # 3. CREAR DATAFRAME
-    # ========================================================
-
     df = pd.DataFrame(filas)
-
-    # ========================================================
-    # 4. GUARDAR CATÁLOGO
-    # ========================================================
 
     dir_inventario = Path(config.DIR_INVENTARIO)
     dir_inventario.mkdir(parents=True, exist_ok=True)
@@ -95,27 +77,14 @@ def main():
         encoding="utf-8-sig"
     )
 
-    # ========================================================
-    # 5. REGISTRO
-    # ========================================================
-
     log(f"Variables seleccionadas: {len(df)}")
     log(f"Guardado en: {ruta_salida}")
-
-    # ========================================================
-    # 6. RESUMEN POR DOMINIO
-    # ========================================================
 
     print("\n=== RESUMEN SELECCIÓN POR DOMINIO ===")
     print(df.groupby("dominio").size().to_string())
 
-    # ========================================================
-    # 7. RESUMEN POR CLASIFICACIÓN
-    # ========================================================
-
     print("\n=== RESUMEN POR CLASIFICACIÓN ===")
     print(df.groupby("clasificacion").size().to_string())
-
 
 if __name__ == "__main__":
     main()

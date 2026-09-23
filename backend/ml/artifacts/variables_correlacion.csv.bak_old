@@ -1,2 +1,6 @@
 ﻿var_a,var_b,pearson,spearman,involucrada
-active_sessions,active_requests,0.8068,0.867,
+cpu_usr,api_latency_ms,0.8512,0.7582,
+memory_used_mb,memory_available_mb,-0.7463,-0.9579,
+total_writes,transactions_per_sec,0.8878,0.5706,
+duration_avg_ms,duration_max_ms,1.0,0.9885,
+api_latency_ms,api_status,-0.9785,-0.8334,

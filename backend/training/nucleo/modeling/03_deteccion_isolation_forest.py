@@ -36,29 +36,28 @@ from sklearn.ensemble import IsolationForest
 
 import config
 
-
 def log(msg):
     print(f"[DETECCION IsoForest] {msg}", flush=True)
-
 
 def cargar_muestras(ruta):
     with open(ruta, "rb") as f:
         d = pickle.load(f)
     return d
 
-
 def seleccionar_features(datos, ruta_features_modelo):
     """
-    Se usan TODAS las variables del dataset (se eliminó la selección
-    a un subconjunto). ``ruta_features_modelo`` se ignora por
-    compatibilidad con el resto del pipeline.
+    Usa SOLO las VARIABLES_MODELO definidas en config (poda de
+    redundancias: cpu_idl, memory_used_mb, duration_max_ms).
+    ``ruta_features_modelo`` se ignora por compatibilidad con el resto
+    del pipeline.
     """
-    log(
-        "Modelo con TODAS las variables "
-        f"({len(datos['features'])}) — sin selección."
-    )
-    return list(range(len(datos["features"])))
-
+    modelo = [
+        c for c in config.VARIABLES_MODELO
+        if c in datos["features"]
+    ]
+    indice = [datos["features"].index(c) for c in modelo]
+    log(f"Modelo con {len(indice)} variables del motor/apoyo — poda aplicada.")
+    return indice
 
 def flat(x, indice):
     """
@@ -66,44 +65,11 @@ def flat(x, indice):
     las features seleccionadas.
     """
 
-    # Cada muestra es [VENTANA, F]; el IsolationForest espera un vector
-    # por fila, así que concatenamos la ventana: [VENTANA*F]. El árbol
-    # "ve" cada variable en cada instante de la ventana por separado.
     n = x.shape[0]
 
-    # reshape(n, -1) falla cuando n == 0 (los scripts de reentrenamiento
-    # usan un test vacío si no hay corrida de anomalías).
     return x[:, :, indice].reshape(n, x.shape[1] * len(indice))
 
-
-def metricas(prediccion, etiquetas):
-    """
-    Calcula TP/FP/TN/FN y P, R, F1 (positivo = anomalía).
-    """
-
-    # Convención de sklearn: -1 = ANÓMALO, +1 = NORMAL. Contamos cuántas
-    # celdas caen en cada combinación (predicción vs etiqueta real).
-    tp = int(np.sum((prediccion == -1) & (etiquetas == -1)))  # acierto en anomalía
-    fp = int(np.sum((prediccion == -1) & (etiquetas == 1)))   # falsa alarma
-    tn = int(np.sum((prediccion == 1) & (etiquetas == 1)))    # acierto en normal
-    fn = int(np.sum((prediccion == 1) & (etiquetas == -1)))   # anomalía no vista
-
-    # Precision = de lo que marcamos, cuánto era real; Recall = de las
-    # anomalías reales, cuántas vimos; F1 = media armónica de ambas.
-    p = tp / (tp + fp) if (tp + fp) else 0.0
-
-    r = tp / (tp + fn) if (tp + fn) else 0.0
-
-    f1 = (2 * p * r / (p + r)) if (p + r) else 0.0
-
-    return tp, fp, tn, fn, p, r, f1
-
-
 def main():
-
-    # --------------------------------------------------------
-    # 1. CARGAR MUESTRAS
-    # --------------------------------------------------------
 
     ruta_train = os.path.join(
         config.DIR_MODELADO,
@@ -121,13 +87,6 @@ def main():
 
         return
 
-    # -----------------------------------------------------------------
-    # PREPARACIÓN
-    # -----------------------------------------------------------------
-    # Cargamos los pkl que generó 01 (train: 3 corridas normales; test:
-    # la corrida retenida) y reducimos X a las variables que sobrevivieron
-    # la poda por correlación (02). flat() aplana cada ventana de 10
-    # instantes en un único vector.
     train = cargar_muestras(ruta_train)
 
     test = cargar_muestras(ruta_test)
@@ -144,7 +103,6 @@ def main():
 
     X_test = flat(test["X"], indice)
 
-    # Ejemplo real: 16 variables × 10 instantes = 160 características.
     n_feat_ventana = X_train.shape[1]
 
     log(
@@ -156,19 +114,10 @@ def main():
         f"Test:  {X_test.shape[0]} muestras"
     )
 
-    # El test depende de que exista una corrida de anomalias con timeline.
-    # En reentrenamiento automatico (sin corrida de anomalias) el test
-    # queda vacio y el flujo se reduce a entrenar el modelo nuevo.
     hay_test = X_test.shape[0] > 0
     if not hay_test:
         log("Sin test de anomalias (modo reentrenamiento): solo entrenamiento.")
 
-    # -----------------------------------------------------------------
-    # ENTRENAMIENTO: SOLO datos normales de referencia
-    # -----------------------------------------------------------------
-    # contamination="auto" → el modelo usa ~10 % del train (los más raros
-    # de la referencia normal) como punto de comparación interno al fijar
-    # su límite. random_state=SEED ⇒ resultados reproducibles.
     modelo = IsolationForest(
         random_state=config.SEED,
         contamination="auto"
@@ -176,9 +125,6 @@ def main():
 
     modelo.fit(X_train)
 
-    # GUARDAR con joblib: es el formato recomendado para objetos de
-    # scikit-learn/numpy (rápido y confiable). En producción se cargan
-    # estos dos archivos y se puntúan ventanas nuevas sin reentrenar.
     os.makedirs(config.DIR_DETECCION, exist_ok=True)
 
     joblib.dump(
@@ -199,11 +145,6 @@ def main():
 
     log("Modelo entrenado y guardado.")
 
-    # -----------------------------------------------------------------
-    # SCORES Y UMBRALES
-    # -----------------------------------------------------------------
-    # decision_function(): score ALTO = más "normal", score BAJO = más
-    # anómalo (un punto suelto se aísla con pocas divisiones del árbol).
     scores_train = modelo.decision_function(X_train)
 
     scores_test = (
@@ -211,9 +152,6 @@ def main():
         if hay_test else np.empty(0)
     )
 
-    # Umbrales dinámicos = percentiles de la distribución de scores NORMALES
-    # de entrenamiento. Con q01 solo se alerta con los puntos del 1 % más
-    # raro respecto al baseline ⇒ muy pocas falsas alarmas.
     umbrales = {
         "q10": np.quantile(scores_train, 0.10),
         "q05": np.quantile(scores_train, 0.05),
@@ -227,13 +165,6 @@ def main():
         f"q01={umbrales['q01']:.4f}"
     )
 
-    # -----------------------------------------------------------------
-    # EVALUACIÓN EN TEST: corrida de ANOMALIAS
-    # -----------------------------------------------------------------
-    # El test son las ventanas de la corrida de anomalías (carga5), con su
-    # ground truth en carga5/anomalias_timeline.csv. El % de ventanas
-    # marcadas aquí NO es un FPR: el TPR/FPR reales los calcula el paso 5
-    # (05_diagnostico_resultados.py) cruzando con el timeline.
     if hay_test:
         df_alertas = pd.DataFrame({
             "idx": range(len(test["ventanas"])),
@@ -263,10 +194,6 @@ def main():
     else:
         df_alertas = None
 
-    # --------------------------------------------------------
-    # 5. SCORES DE ENTRENAMIENTO (referencia)
-    # --------------------------------------------------------
-
     df_scores = pd.DataFrame({
         "idx": range(len(train["ventanas"])),
         "run": train["runs"],
@@ -285,16 +212,6 @@ def main():
         encoding="utf-8-sig"
     )
 
-    # --------------------------------------------------------
-    # 6. IMPORTANCIA POR VARIABLE
-    # --------------------------------------------------------
-
-    # -----------------------------------------------------------------
-    # IMPORTANCIA DE VARIABLES
-    # -----------------------------------------------------------------
-    # sklearn ≥ 1.9 ya NO expone feature_importances_ en IsolationForest.
-    # Solución: promediar la importancia de cada árbol interno
-    # (modelo.estimators_ es la lista de árboles construidos).
     importancias = np.mean(
         [
             tree.feature_importances_
@@ -303,14 +220,10 @@ def main():
         axis=0
     )
 
-    # Traducimos índices → nombres de variables mantenidas.
     mant = [train["features"][i] for i in indice]
 
     v = config.VENTANA
 
-    # Cada variable ocupa 10 posiciones CONSECUTIVAS en el vector aplanado
-    # (una por instante de la ventana). Agregamos su importancia como
-    # promedio de esas 10 posiciones → un número por variable de modelo.
     agg = {
         c: float(
             np.abs(importancias[i * v: (i + 1) * v]).mean()
@@ -333,10 +246,6 @@ def main():
         index=False,
         encoding="utf-8-sig"
     )
-
-    # --------------------------------------------------------
-    # 7. RESUMEN
-    # --------------------------------------------------------
 
     print("\n=== IsoForest SOBRE NORMAL (train) / ANOMALIAS (test) ===")
 
@@ -381,7 +290,6 @@ def main():
     log(f"Scores en: {ruta_scores}")
 
     log(f"Importancia en: {ruta_imp}")
-
 
 if __name__ == "__main__":
     main()

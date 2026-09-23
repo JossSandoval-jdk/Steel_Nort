@@ -2,15 +2,16 @@
 01_muestras.py
 ==============
 
-Construye las observaciones (muestras) usadas por el detector,
-adaptando la metodología de DBPA (dataset.py):
+Construye las observaciones (muestras) usadas por el detector:
 
-    1. Genera ventanas deslizantes de VENTANA muestras temporales
-       (por defecto 10) sobre TODAS las corridas.
-    2. Mezcla aleatoriamente todas las muestras generadas.
-    3. Divide 70% train / 30% test de TODAS las muestras.
-    4. Normaliza con StandardScaler ajustado SOLO sobre el
-       conjunto de entrenamiento.
+    1. Deduplica corridas (cargaX/runX repetidos) y descarta corridas
+       de anomalia cuyo timeline no solapa sus datos.
+    2. Genera ventanas deslizantes de VENTANA muestras temporales
+       (por defecto 10) sobre las corridas.
+    3. Train = TODAS las corridas normales; Test = las corridas de
+       anomalia validas (el split NO es aleatorio, es por corrida).
+    4. Normaliza con StandardScaler ajustado SOLO sobre el conjunto
+       de entrenamiento.
     5. Guarda un pickle con las muestras normalizadas.
 
 Salidas (en <OUTPUT>/modelado/):
@@ -29,10 +30,78 @@ from sklearn.preprocessing import StandardScaler
 import config
 import util_normalizacion
 
-
 def log(msg):
     print(f"[MUESTRAS] {msg}", flush=True)
 
+def _deduplicar_corridas(datos):
+    """
+    Detecta corridas duplicadas (misma cantidad de filas y el mismo rango
+    de timestamps, p.ej. carga1/run1, carga3/run3) y devuelve
+    (conservadas, descartadas). Se prefiere el nombre no 'run*'.
+    """
+    ts = pd.to_datetime(datos["timestamp"])
+    resumen = pd.DataFrame({
+        "run": datos["run_name"].values,
+        "ts": ts.values,
+    }).groupby("run")["ts"].agg(["size", "min", "max"])
+    resumen.columns = ["n", "desde", "hasta"]
+
+    por_fingerprint = {}
+    for run, fila in resumen.iterrows():
+        clave = (int(fila["n"]), fila["desde"], fila["hasta"])
+        por_fingerprint.setdefault(clave, []).append(run)
+
+    conservadas, descartadas = [], []
+    for runs in por_fingerprint.values():
+        if len(runs) == 1:
+            conservadas.append(runs[0])
+            continue
+        canonical = sorted(runs, key=lambda r: (r.startswith("run"), r))[0]
+        conservadas.append(canonical)
+        descartadas.extend(r for r in runs if r != canonical)
+
+    return conservadas, descartadas
+
+def _leer_timeline(corrida):
+    """Timeline de fallo de una corrida en anomalias/ o en la raiz."""
+    for grupo in ("anomalias", ""):
+        ruta = os.path.join(config.OUTPUT_BASE, grupo, corrida, "anomalias_timeline.csv")
+        if os.path.isfile(ruta):
+            tl = pd.read_csv(ruta, encoding="utf-8-sig")
+            tl["inicio"] = pd.to_datetime(tl["inicio"])
+            tl["fin"] = pd.to_datetime(tl["fin"])
+            return tl
+    return None
+
+def _corridas_test_validas(datos, candidatas):
+    """
+    Solo son test válido las corridas cuyo timeline de fallo SOLAPE sus
+    datos. Si el timeline 'no existe o no coincide' (captura fantasma),
+    la corrida se descarta: sus ventanas no aportan etiquetas de fault
+    fiables y solo contaminan FPR/TPR.
+    """
+    validas = []
+    for corrida in candidatas:
+        sub = pd.to_datetime(datos.loc[datos["run_name"] == corrida, "timestamp"])
+        if sub.empty:
+            continue
+        tl = _leer_timeline(corrida)
+        if tl is None:
+            log(f"Test descartado: {corrida} (sin anomalias_timeline.csv)")
+            continue
+        desde_c, hasta_c = sub.min(), sub.max()
+        solapa = any(
+            pd.Timestamp(f["inicio"]) <= hasta_c and pd.Timestamp(f["fin"]) >= desde_c
+            for _, f in tl.iterrows()
+        )
+        if not solapa:
+            log(
+                f"Test descartado: {corrida} "
+                f"(datos {desde_c}->{hasta_c}; timeline no solapa)"
+            )
+            continue
+        validas.append(corrida)
+    return validas
 
 def ventanas_por_corrida(df_corrida, n=config.VENTANA):
     """
@@ -40,31 +109,22 @@ def ventanas_por_corrida(df_corrida, n=config.VENTANA):
     ordenadas por timestamp dentro de una corrida.
     """
 
-    # Ordenamos por timestamp para que la secuencia tenga sentido
-    # (una fila = un instante de muestreo) y reseteamos el índice,
-    # porque la ventana deslizante trabaja por POSICIÓN (iloc).
     df_corrida = (
         df_corrida
         .sort_values("timestamp")
         .reset_index(drop=True)
     )
 
-    # Una ventana necesita n filas consecutivas. Si la corrida tiene
-    # menos de n muestras, no se puede formar ni una sola ventana.
     if len(df_corrida) < n:
         return []
 
     ventanas = []
 
-    # Desplazamos un "marco" de n filas de a una posición:
-    #   inicio=0 → filas 0..n-1 ; inicio=1 → filas 1..n ; ...
-    # Número de ventanas posibles = len(df) - n + 1.
     for inicio in range(len(df_corrida) - n + 1):
 
         ventanas.append(df_corrida.iloc[inicio:inicio + n])
 
     return ventanas
-
 
 def construir_muestras(datos, corridas, features):
     """
@@ -76,10 +136,6 @@ def construir_muestras(datos, corridas, features):
     todos_run = []
     todas_ventanas = []
 
-    # CLAVE ANTIFUGA: las ventanas NUNCA cruzan entre corridas, porque
-    # ventanas_por_corrida() trabaja sobre UNA corrida a la vez. Así el
-    # split train/test por corrida no deja filtraciones de información
-    # temporal entre muestras vecinas.
     for corrida in corridas:
 
         if corrida not in datos["run_name"].values:
@@ -89,16 +145,12 @@ def construir_muestras(datos, corridas, features):
 
         for w in ventanas_por_corrida(df_c):
 
-            # Cada ventana w es un mini-dataframe de n filas; extraemos
-            # SOLO las variables (sin timestamp/run_name).
             x = w[features].to_numpy(dtype="float64")
 
             todas_x.append(x)
 
             todos_run.append(corrida)
 
-            # Guardamos además la metadata temporal de la ventana para
-            # poder localizar cada observación en las alertas.
             todas_ventanas.append({
                 "run": corrida,
                 "inicio": str(w["timestamp"].iloc[0]),
@@ -110,18 +162,11 @@ def construir_muestras(datos, corridas, features):
         return (np.empty((0, config.VENTANA, len(features))),
                 [], [])
 
-    # np.stack une todas las ventanas en UN array 3D:
-    # forma final = [n_muestras, VENTANA, F] → (muestra, instante, variable)
     X = np.stack(todas_x)
 
     return X, todos_run, todas_ventanas
 
-
 def main():
-
-    # --------------------------------------------------------
-    # 1. CARGAR DATASET FINAL
-    # --------------------------------------------------------
 
     if not os.path.exists(config.DATASET_PRINCIPALES):
 
@@ -148,6 +193,11 @@ def main():
         f"{len(features)} variables principales"
     )
 
+    conservadas, descartadas = _deduplicar_corridas(datos)
+    if descartadas:
+        log(f"Corridas duplicadas descartadas: {sorted(descartadas)}")
+        datos = datos[datos["run_name"].isin(conservadas)]
+
     if config.NORMALIZACION_RELATIVA:
 
         datos = util_normalizacion.transformar_relativo(
@@ -159,23 +209,25 @@ def main():
             "(baseline interno por corrida)"
         )
 
-    # --------------------------------------------------------
-    # 2. VENTANAS: TRAIN SOLO NORMALES, TEST SOLO ANOMALIAS
-    # --------------------------------------------------------
-    # El modelo se entrena EXCLUSIVAMENTE con corridas normales de carga
-    # (config.CORRIDAS_ENTRENAMIENTO). La corrida de anomalías (la que
-    # tiene anomalias_timeline.csv, p.ej. carga5) NO se usa para
-    # entrenar: sus ventanas solo alimentan el test de detección.
-
     todas_corridas = set(datos["run_name"].unique())
 
-    # Entrenamiento con todas las corridas normales (excluyendo anomalías)
     corridas_anom = set(config.corridas_anomalia())
-    corridas_train = [c for c in todas_corridas if c not in corridas_anom]
-
-    corridas_test = [
-        c for c in config.corridas_anomalia() if c in todas_corridas
+    corridas_train = [
+        c for c in todas_corridas
+        if c not in corridas_anom
+        and c not in config.CORRIDAS_NO_BASE_SANA
     ]
+
+    excluidas = sorted(set(config.CORRIDAS_NO_BASE_SANA) & todas_corridas)
+    if excluidas:
+        log(
+            f"Excluidas del train (no línea base sana): {excluidas}"
+        )
+
+    corridas_test = _corridas_test_validas(
+        datos,
+        [c for c in config.corridas_anomalia() if c in todas_corridas],
+    )
 
     log(f"Corridas disponibles: {sorted(todas_corridas)}")
     log(f"Train (solo normal): {corridas_train}")
@@ -200,13 +252,17 @@ def main():
     log(f"Train: {len(X_train)} muestras (corridas normales)")
     log(f"Test:  {len(X_test)} muestras (corrida de anomalias)")
 
+    if 0 < len(X_train) < 200:
+        log(
+            f"ADVERTENCIA: {len(X_train)} ventanas de train es INSUFICIENTE "
+            "para unas 190 características. El modelo resultante será débil "
+            "(TPR bajo) y NO debe desplegarse. Genera más capturas normales "
+            "con tools/simular_carga.py antes de reentrenar."
+        )
+
     if len(X_train) == 0:
         log("No se generaron muestras de entrenamiento.")
         return
-
-    # --------------------------------------------------------
-    # 4. NORMALIZACIÓN (solo sobre train)
-    # --------------------------------------------------------
 
     n_train_dim, n_ventana, n_feat = X_train.shape
 
@@ -233,10 +289,6 @@ def main():
     else:
 
         X_test_n = np.empty((0, n_ventana, n_feat))
-
-    # --------------------------------------------------------
-    # 5. GUARDAR
-    # --------------------------------------------------------
 
     os.makedirs(config.DIR_MODELADO, exist_ok=True)
 
@@ -279,7 +331,6 @@ def main():
     )
 
     log(f"Muestras guardadas en: {config.DIR_MODELADO}")
-
 
 if __name__ == "__main__":
     main()

@@ -28,10 +28,8 @@ import pandas as pd
 
 import config
 
-
 def log(msg):
     print(f"[INVENTARIO] {msg}", flush=True)
-
 
 def obtener_info_archivo(ruta):
     """
@@ -48,12 +46,7 @@ def obtener_info_archivo(ruta):
         log(f"Advertencia al leer {ruta}: {e}")
         return 0.0, 0
 
-
 def main():
-
-    # ========================================================
-    # 1. VALIDAR DIRECTORIO PRINCIPAL
-    # ========================================================
 
     if not os.path.isdir(config.OUTPUT_BASE_DIR):
         log(
@@ -62,13 +55,6 @@ def main():
         )
         return
 
-    # ========================================================
-    # 2. IDENTIFICAR CORRIDAS / CARGAS
-    # ========================================================
-
-    # Descubrimiento canónico: recorre baseline/, anomalias/ y los
-    # contenedores legacy (run1-7). Los artefactos (inventario, limpio,
-    # integrado, datasets, modelado) jamás se listan como corridas.
     corridas_info = config.descubrir_corridas()
     corridas = sorted(corridas_info)
 
@@ -81,19 +67,11 @@ def main():
         log("No se encontraron corridas/cargas.")
         return
 
-    # ========================================================
-    # 3. FUENTES DE CADA CORRIDA
-    # ========================================================
-
     fuentes = [
         config.NOMBRE_METRICAS,
         config.NOMBRE_EVENTS,
         config.NOMBRE_SQLSERVER_LOGS,
     ]
-
-    # ========================================================
-    # 4. CONSTRUIR INVENTARIO
-    # ========================================================
 
     registros = []
 
@@ -120,15 +98,7 @@ def main():
                 "lineas": lineas,
             })
 
-    # ========================================================
-    # 5. CREAR DATAFRAME
-    # ========================================================
-
     df = pd.DataFrame(registros)
-
-    # ========================================================
-    # 6. GUARDAR INVENTARIO
-    # ========================================================
 
     os.makedirs(
         config.DIR_INVENTARIO,
@@ -151,10 +121,6 @@ def main():
         f"{ruta_salida}"
     )
 
-    # ========================================================
-    # 7. RESUMEN
-    # ========================================================
-
     print("\n=== RESUMEN INVENTARIO ===")
 
     piv = df.pivot_table(
@@ -170,7 +136,6 @@ def main():
         f"\nTotal registros "
         f"(corridas x fuentes): {len(df)}"
     )
-
 
 if __name__ == "__main__":
     main()

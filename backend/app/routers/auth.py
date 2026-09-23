@@ -17,7 +17,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -123,7 +123,11 @@ def login(payload: LoginRequest, request: Request, response: Response, db: Sessi
     seed_admin_if_empty(db)
 
     email = payload.email
-    user = db.scalar(select(Usuarios).where(Usuarios.usu_ema == email))
+    # Consulta insensible a mayusculas: el email se normaliza (lower) en
+    # el schema, y la comparacion contra la BD tambien es case-insensitive.
+    user = db.scalar(
+        select(Usuarios).where(func.lower(Usuarios.usu_ema) == email)
+    )
 
     # Mensaje generico para no filtrar si el email existe o la clave falla.
     if user is None or not verify_password(payload.password, user.usu_pwd):

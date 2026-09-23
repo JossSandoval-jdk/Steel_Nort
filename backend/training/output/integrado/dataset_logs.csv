@@ -917,6 +917,312 @@
 2026-09-11 13:50:45.220,spid92,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,carga11
 2026-09-11 13:50:45.240,spid92,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,carga11
 2026-09-11 14:44:47.460,spid30s,[DevOpsSnapshotTelemetryTask] Evaluating the background task.,INFO,carga11
+2026-09-18 21:09:46.720,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,carga18
+2026-09-18 21:09:46.730,Server,UTC adjustment: 0:00,INFO,carga18
+2026-09-18 21:09:46.730,Server,(c) Microsoft Corporation.,INFO,carga18
+2026-09-18 21:09:46.730,Server,All rights reserved.,INFO,carga18
+2026-09-18 21:09:46.730,Server,Server process ID is 456.,INFO,carga18
+2026-09-18 21:09:46.730,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,carga18
+2026-09-18 21:09:46.740,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,carga18
+2026-09-18 21:09:46.770,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,carga18
+2026-09-18 21:09:46.780,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,carga18
+2026-09-18 21:09:46.790,Server,"Detected 3916 MB of RAM, 2976 MB of available memory, 2976 MB of available page file. This is an informational message; no user action is required.",INFO,carga18
+2026-09-18 21:09:46.790,Server,Using conventional memory in the memory manager.,INFO,carga18
+2026-09-18 21:09:46.800,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,carga18
+2026-09-18 21:09:46.800,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,carga18
+2026-09-18 21:09:46.810,Server,Page exclusion bitmap is enabled.,INFO,carga18
+2026-09-18 21:09:46.880,Server,Buffer pool extension is not supported on Linux platform.,INFO,carga18
+2026-09-18 21:09:46.900,Server,Buffer Pool: Allocating 4194304 bytes for 468015 hashPages.,INFO,carga18
+2026-09-18 21:09:47.390,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,carga18
+2026-09-18 21:09:48.770,Server,Installing Client TLS certificates to the store.,INFO,carga18
+2026-09-18 21:09:48.790,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,carga18
+2026-09-18 21:09:48.940,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,carga18
+2026-09-18 21:09:49.000,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,carga18
+2026-09-18 21:09:49.030,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,carga18
+2026-09-18 21:09:49.040,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,carga18
+2026-09-18 21:09:49.080,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:09:49.130,Server,In-Memory OLTP initialized on lowend machine.,INFO,carga18
+2026-09-18 21:09:49.230,Server,CLR version v4.0.30319 loaded.,INFO,carga18
+2026-09-18 21:09:49.310,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,carga18
+2026-09-18 21:09:49.320,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,carga18
+2026-09-18 21:09:49.340,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,carga18
+2026-09-18 21:09:49.370,Server,clwb is selected for pmem flush operation.,INFO,carga18
+2026-09-18 21:09:49.370,Server,Software Usage Metrics is disabled.,INFO,carga18
+2026-09-18 21:09:49.400,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga18
+2026-09-18 21:09:49.400,spid24s,Starting up database 'master'.,STARTUP,carga18
+2026-09-18 21:09:49.520,spid24s,35 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:09:49.560,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:09:49.570,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,carga18
+2026-09-18 21:09:49.740,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga18
+2026-09-18 21:09:49.760,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga18
+2026-09-18 21:09:49.760,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,carga18
+2026-09-18 21:09:49.760,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,carga18
+2026-09-18 21:09:49.780,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:09:49.830,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga18
+2026-09-18 21:09:49.830,spid26s,Starting up database 'model'.,STARTUP,carga18
+2026-09-18 21:09:49.910,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,carga18
+2026-09-18 21:09:49.910,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,carga18
+2026-09-18 21:09:49.940,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,carga18
+2026-09-18 21:09:49.970,Server,Common language runtime (CLR) functionality initialized.,INFO,carga18
+2026-09-18 21:09:50.030,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,carga18
+2026-09-18 21:09:50.060,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,carga18
+2026-09-18 21:09:50.090,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,carga18
+2026-09-18 21:09:50.120,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,carga18
+2026-09-18 21:09:50.140,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,carga18
+2026-09-18 21:09:50.160,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,carga18
+2026-09-18 21:09:50.190,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,carga18
+2026-09-18 21:09:50.220,Server,External governance manager initialized,INFO,carga18
+2026-09-18 21:09:50.220,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,carga18
+2026-09-18 21:09:50.240,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,carga18
+2026-09-18 21:09:50.270,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,carga18
+2026-09-18 21:09:50.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,carga18
+2026-09-18 21:09:50.320,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,carga18
+2026-09-18 21:09:50.350,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,carga18
+2026-09-18 21:09:50.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,carga18
+2026-09-18 21:09:50.450,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,carga18
+2026-09-18 21:09:50.460,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,carga18
+2026-09-18 21:09:50.460,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,carga18
+2026-09-18 21:09:50.470,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,carga18
+2026-09-18 21:09:50.470,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,carga18
+2026-09-18 21:09:50.480,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,carga18
+2026-09-18 21:09:50.490,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,carga18
+2026-09-18 21:09:50.490,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,carga18
+2026-09-18 21:09:50.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,carga18
+2026-09-18 21:09:50.500,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,carga18
+2026-09-18 21:09:50.520,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,carga18
+2026-09-18 21:09:50.560,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,carga18
+2026-09-18 21:09:50.590,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,carga18
+2026-09-18 21:09:50.620,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,carga18
+2026-09-18 21:09:50.650,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,carga18
+2026-09-18 21:09:50.690,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,carga18
+2026-09-18 21:09:50.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,carga18
+2026-09-18 21:09:50.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,carga18
+2026-09-18 21:09:50.810,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,carga18
+2026-09-18 21:09:50.870,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,carga18
+2026-09-18 21:09:50.890,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,carga18
+2026-09-18 21:09:50.920,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,carga18
+2026-09-18 21:09:50.980,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,carga18
+2026-09-18 21:09:51.120,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga18
+2026-09-18 21:09:51.120,spid24s,Starting up database 'model_msdb'.,STARTUP,carga18
+2026-09-18 21:09:51.310,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,carga18
+2026-09-18 21:09:51.310,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,carga18
+2026-09-18 21:09:51.350,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,carga18
+2026-09-18 21:09:51.450,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,carga18
+2026-09-18 21:09:51.490,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,carga18
+2026-09-18 21:09:51.530,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,carga18
+2026-09-18 21:09:51.590,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,carga18
+2026-09-18 21:09:51.620,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,carga18
+2026-09-18 21:09:51.680,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,carga18
+2026-09-18 21:09:51.710,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,carga18
+2026-09-18 21:09:51.750,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,carga18
+2026-09-18 21:09:51.790,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,carga18
+2026-09-18 21:09:51.820,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,carga18
+2026-09-18 21:09:51.860,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,carga18
+2026-09-18 21:09:51.890,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,carga18
+2026-09-18 21:09:51.920,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,carga18
+2026-09-18 21:09:51.950,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,carga18
+2026-09-18 21:09:52.070,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,carga18
+2026-09-18 21:09:52.100,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,carga18
+2026-09-18 21:09:52.180,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,carga18
+2026-09-18 21:09:52.220,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,carga18
+2026-09-18 21:09:52.250,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,carga18
+2026-09-18 21:09:52.290,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,carga18
+2026-09-18 21:09:52.330,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,carga18
+2026-09-18 21:09:52.360,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,carga18
+2026-09-18 21:09:52.420,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,carga18
+2026-09-18 21:09:52.450,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,carga18
+2026-09-18 21:09:52.490,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,carga18
+2026-09-18 21:09:52.520,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,carga18
+2026-09-18 21:09:52.540,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,carga18
+2026-09-18 21:09:52.640,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,carga18
+2026-09-18 21:09:52.770,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,carga18
+2026-09-18 21:09:52.770,spid41s,Attribute synchronization initialized,INFO,carga18
+2026-09-18 21:09:52.770,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,carga18
+2026-09-18 21:09:52.770,spid41s,Attribute synchronization manager initialized,INFO,carga18
+2026-09-18 21:09:52.790,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,carga18
+2026-09-18 21:09:53.040,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,carga18
+2026-09-18 21:09:53.070,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:09:53.180,spid26s,Clearing tempdb database.,INFO,carga18
+2026-09-18 21:09:53.180,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,carga18
+2026-09-18 21:09:53.190,spid56s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga18
+2026-09-18 21:09:53.190,spid57s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga18
+2026-09-18 21:09:53.190,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:09:53.200,spid56s,Starting up database 'msdb'.,STARTUP,carga18
+2026-09-18 21:09:53.210,spid57s,Starting up database 'SteelNort'.,STARTUP,carga18
+2026-09-18 21:09:53.210,spid57s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,carga18
+2026-09-18 21:09:53.220,spid57s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,carga18
+2026-09-18 21:09:53.390,spid57s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,carga18
+2026-09-18 21:09:54.060,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga18
+2026-09-18 21:09:54.070,spid26s,Starting up database 'tempdb'.,STARTUP,carga18
+2026-09-18 21:09:54.380,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,carga18
+2026-09-18 21:09:55.310,spid26s,The tempdb database has 8 data file(s).,INFO,carga18
+2026-09-18 21:09:55.330,spid56s,The Service Broker endpoint is in disabled or stopped state.,INFO,carga18
+2026-09-18 21:09:55.330,spid56s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,carga18
+2026-09-18 21:09:55.360,spid56s,Service Broker manager has started.,STARTUP,carga18
+2026-09-18 21:09:58.680,spid57s,Recovery of database 'SteelNort' (5) is 1% complete (approximately 276 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,carga18
+2026-09-18 21:09:59.480,spid57s,42041 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:09:59.600,spid57s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:09:59.610,spid57s,Recovery is writing a checkpoint in database 'SteelNort' (5). This is an informational message only. No user action is required.,STARTUP,carga18
+2026-09-18 21:09:59.720,spid57s,"Recovery completed for database SteelNort (database ID 5) in 7 second(s) (analysis 5284 ms, redo 798 ms, undo 71 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,carga18
+2026-09-18 21:09:59.730,spid57s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,carga18
+2026-09-18 21:09:59.760,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,carga18
+2026-09-18 21:16:47.910,spid65,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:16:47.980,spid65,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,carga18
+2026-09-18 21:40:17.240,spid85,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,carga18
+2026-09-18 21:40:17.330,spid85,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,carga18
+2026-09-18 21:09:46.720,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,carga19
+2026-09-18 21:09:46.730,Server,UTC adjustment: 0:00,INFO,carga19
+2026-09-18 21:09:46.730,Server,(c) Microsoft Corporation.,INFO,carga19
+2026-09-18 21:09:46.730,Server,All rights reserved.,INFO,carga19
+2026-09-18 21:09:46.730,Server,Server process ID is 456.,INFO,carga19
+2026-09-18 21:09:46.730,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,carga19
+2026-09-18 21:09:46.740,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,carga19
+2026-09-18 21:09:46.770,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,carga19
+2026-09-18 21:09:46.780,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,carga19
+2026-09-18 21:09:46.790,Server,"Detected 3916 MB of RAM, 2976 MB of available memory, 2976 MB of available page file. This is an informational message; no user action is required.",INFO,carga19
+2026-09-18 21:09:46.790,Server,Using conventional memory in the memory manager.,INFO,carga19
+2026-09-18 21:09:46.800,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,carga19
+2026-09-18 21:09:46.800,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,carga19
+2026-09-18 21:09:46.810,Server,Page exclusion bitmap is enabled.,INFO,carga19
+2026-09-18 21:09:46.880,Server,Buffer pool extension is not supported on Linux platform.,INFO,carga19
+2026-09-18 21:09:46.900,Server,Buffer Pool: Allocating 4194304 bytes for 468015 hashPages.,INFO,carga19
+2026-09-18 21:09:47.390,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,carga19
+2026-09-18 21:09:48.770,Server,Installing Client TLS certificates to the store.,INFO,carga19
+2026-09-18 21:09:48.790,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,carga19
+2026-09-18 21:09:48.940,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,carga19
+2026-09-18 21:09:49.000,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,carga19
+2026-09-18 21:09:49.030,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,carga19
+2026-09-18 21:09:49.040,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,carga19
+2026-09-18 21:09:49.080,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:09:49.130,Server,In-Memory OLTP initialized on lowend machine.,INFO,carga19
+2026-09-18 21:09:49.230,Server,CLR version v4.0.30319 loaded.,INFO,carga19
+2026-09-18 21:09:49.310,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,carga19
+2026-09-18 21:09:49.320,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,carga19
+2026-09-18 21:09:49.340,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,carga19
+2026-09-18 21:09:49.370,Server,clwb is selected for pmem flush operation.,INFO,carga19
+2026-09-18 21:09:49.370,Server,Software Usage Metrics is disabled.,INFO,carga19
+2026-09-18 21:09:49.400,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga19
+2026-09-18 21:09:49.400,spid24s,Starting up database 'master'.,STARTUP,carga19
+2026-09-18 21:09:49.520,spid24s,35 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:09:49.560,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:09:49.570,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,carga19
+2026-09-18 21:09:49.740,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga19
+2026-09-18 21:09:49.760,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga19
+2026-09-18 21:09:49.760,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,carga19
+2026-09-18 21:09:49.760,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,carga19
+2026-09-18 21:09:49.780,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:09:49.830,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga19
+2026-09-18 21:09:49.830,spid26s,Starting up database 'model'.,STARTUP,carga19
+2026-09-18 21:09:49.910,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,carga19
+2026-09-18 21:09:49.910,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,carga19
+2026-09-18 21:09:49.940,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,carga19
+2026-09-18 21:09:49.970,Server,Common language runtime (CLR) functionality initialized.,INFO,carga19
+2026-09-18 21:09:50.030,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,carga19
+2026-09-18 21:09:50.060,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,carga19
+2026-09-18 21:09:50.090,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,carga19
+2026-09-18 21:09:50.120,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,carga19
+2026-09-18 21:09:50.140,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,carga19
+2026-09-18 21:09:50.160,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,carga19
+2026-09-18 21:09:50.190,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,carga19
+2026-09-18 21:09:50.220,Server,External governance manager initialized,INFO,carga19
+2026-09-18 21:09:50.220,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,carga19
+2026-09-18 21:09:50.240,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,carga19
+2026-09-18 21:09:50.270,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,carga19
+2026-09-18 21:09:50.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,carga19
+2026-09-18 21:09:50.320,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,carga19
+2026-09-18 21:09:50.350,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,carga19
+2026-09-18 21:09:50.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,carga19
+2026-09-18 21:09:50.450,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,carga19
+2026-09-18 21:09:50.460,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,carga19
+2026-09-18 21:09:50.460,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,carga19
+2026-09-18 21:09:50.470,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,carga19
+2026-09-18 21:09:50.470,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,carga19
+2026-09-18 21:09:50.480,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,carga19
+2026-09-18 21:09:50.490,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,carga19
+2026-09-18 21:09:50.490,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,carga19
+2026-09-18 21:09:50.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,carga19
+2026-09-18 21:09:50.500,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,carga19
+2026-09-18 21:09:50.520,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,carga19
+2026-09-18 21:09:50.560,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,carga19
+2026-09-18 21:09:50.590,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,carga19
+2026-09-18 21:09:50.620,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,carga19
+2026-09-18 21:09:50.650,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,carga19
+2026-09-18 21:09:50.690,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,carga19
+2026-09-18 21:09:50.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,carga19
+2026-09-18 21:09:50.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,carga19
+2026-09-18 21:09:50.810,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,carga19
+2026-09-18 21:09:50.870,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,carga19
+2026-09-18 21:09:50.890,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,carga19
+2026-09-18 21:09:50.920,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,carga19
+2026-09-18 21:09:50.980,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,carga19
+2026-09-18 21:09:51.120,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga19
+2026-09-18 21:09:51.120,spid24s,Starting up database 'model_msdb'.,STARTUP,carga19
+2026-09-18 21:09:51.310,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,carga19
+2026-09-18 21:09:51.310,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,carga19
+2026-09-18 21:09:51.350,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,carga19
+2026-09-18 21:09:51.450,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,carga19
+2026-09-18 21:09:51.490,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,carga19
+2026-09-18 21:09:51.530,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,carga19
+2026-09-18 21:09:51.590,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,carga19
+2026-09-18 21:09:51.620,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,carga19
+2026-09-18 21:09:51.680,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,carga19
+2026-09-18 21:09:51.710,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,carga19
+2026-09-18 21:09:51.750,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,carga19
+2026-09-18 21:09:51.790,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,carga19
+2026-09-18 21:09:51.820,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,carga19
+2026-09-18 21:09:51.860,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,carga19
+2026-09-18 21:09:51.890,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,carga19
+2026-09-18 21:09:51.920,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,carga19
+2026-09-18 21:09:51.950,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,carga19
+2026-09-18 21:09:52.070,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,carga19
+2026-09-18 21:09:52.100,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,carga19
+2026-09-18 21:09:52.180,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,carga19
+2026-09-18 21:09:52.220,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,carga19
+2026-09-18 21:09:52.250,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,carga19
+2026-09-18 21:09:52.290,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,carga19
+2026-09-18 21:09:52.330,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,carga19
+2026-09-18 21:09:52.360,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,carga19
+2026-09-18 21:09:52.420,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,carga19
+2026-09-18 21:09:52.450,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,carga19
+2026-09-18 21:09:52.490,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,carga19
+2026-09-18 21:09:52.520,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,carga19
+2026-09-18 21:09:52.540,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,carga19
+2026-09-18 21:09:52.640,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,carga19
+2026-09-18 21:09:52.770,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,carga19
+2026-09-18 21:09:52.770,spid41s,Attribute synchronization initialized,INFO,carga19
+2026-09-18 21:09:52.770,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,carga19
+2026-09-18 21:09:52.770,spid41s,Attribute synchronization manager initialized,INFO,carga19
+2026-09-18 21:09:52.790,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,carga19
+2026-09-18 21:09:53.040,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,carga19
+2026-09-18 21:09:53.070,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:09:53.180,spid26s,Clearing tempdb database.,INFO,carga19
+2026-09-18 21:09:53.180,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,carga19
+2026-09-18 21:09:53.190,spid56s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga19
+2026-09-18 21:09:53.190,spid57s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga19
+2026-09-18 21:09:53.190,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:09:53.200,spid56s,Starting up database 'msdb'.,STARTUP,carga19
+2026-09-18 21:09:53.210,spid57s,Starting up database 'SteelNort'.,STARTUP,carga19
+2026-09-18 21:09:53.210,spid57s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,carga19
+2026-09-18 21:09:53.220,spid57s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,carga19
+2026-09-18 21:09:53.390,spid57s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,carga19
+2026-09-18 21:09:54.060,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga19
+2026-09-18 21:09:54.070,spid26s,Starting up database 'tempdb'.,STARTUP,carga19
+2026-09-18 21:09:54.380,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,carga19
+2026-09-18 21:09:55.310,spid26s,The tempdb database has 8 data file(s).,INFO,carga19
+2026-09-18 21:09:55.330,spid56s,The Service Broker endpoint is in disabled or stopped state.,INFO,carga19
+2026-09-18 21:09:55.330,spid56s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,carga19
+2026-09-18 21:09:55.360,spid56s,Service Broker manager has started.,STARTUP,carga19
+2026-09-18 21:09:58.680,spid57s,Recovery of database 'SteelNort' (5) is 1% complete (approximately 276 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,carga19
+2026-09-18 21:09:59.480,spid57s,42041 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:09:59.600,spid57s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:09:59.610,spid57s,Recovery is writing a checkpoint in database 'SteelNort' (5). This is an informational message only. No user action is required.,STARTUP,carga19
+2026-09-18 21:09:59.720,spid57s,"Recovery completed for database SteelNort (database ID 5) in 7 second(s) (analysis 5284 ms, redo 798 ms, undo 71 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,carga19
+2026-09-18 21:09:59.730,spid57s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,carga19
+2026-09-18 21:09:59.760,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,carga19
+2026-09-18 21:16:47.910,spid65,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:16:47.980,spid65,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,carga19
+2026-09-18 21:40:17.240,spid85,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,carga19
+2026-09-18 21:40:17.330,spid85,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,carga19
 2026-09-07 04:21:46.880,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,carga2
 2026-09-07 04:21:46.890,Server,UTC adjustment: 0:00,INFO,carga2
 2026-09-07 04:21:46.890,Server,(c) Microsoft Corporation.,INFO,carga2
@@ -1072,6 +1378,159 @@
 2026-09-07 04:26:22.680,spid71,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,carga2
 2026-09-07 04:28:57.700,spid82,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,carga2
 2026-09-07 04:28:57.780,spid82,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,carga2
+2026-09-18 21:09:46.720,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,carga20
+2026-09-18 21:09:46.730,Server,UTC adjustment: 0:00,INFO,carga20
+2026-09-18 21:09:46.730,Server,(c) Microsoft Corporation.,INFO,carga20
+2026-09-18 21:09:46.730,Server,All rights reserved.,INFO,carga20
+2026-09-18 21:09:46.730,Server,Server process ID is 456.,INFO,carga20
+2026-09-18 21:09:46.730,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,carga20
+2026-09-18 21:09:46.740,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,carga20
+2026-09-18 21:09:46.770,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,carga20
+2026-09-18 21:09:46.780,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,carga20
+2026-09-18 21:09:46.790,Server,"Detected 3916 MB of RAM, 2976 MB of available memory, 2976 MB of available page file. This is an informational message; no user action is required.",INFO,carga20
+2026-09-18 21:09:46.790,Server,Using conventional memory in the memory manager.,INFO,carga20
+2026-09-18 21:09:46.800,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,carga20
+2026-09-18 21:09:46.800,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,carga20
+2026-09-18 21:09:46.810,Server,Page exclusion bitmap is enabled.,INFO,carga20
+2026-09-18 21:09:46.880,Server,Buffer pool extension is not supported on Linux platform.,INFO,carga20
+2026-09-18 21:09:46.900,Server,Buffer Pool: Allocating 4194304 bytes for 468015 hashPages.,INFO,carga20
+2026-09-18 21:09:47.390,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,carga20
+2026-09-18 21:09:48.770,Server,Installing Client TLS certificates to the store.,INFO,carga20
+2026-09-18 21:09:48.790,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,carga20
+2026-09-18 21:09:48.940,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,carga20
+2026-09-18 21:09:49.000,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,carga20
+2026-09-18 21:09:49.030,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,carga20
+2026-09-18 21:09:49.040,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,carga20
+2026-09-18 21:09:49.080,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:09:49.130,Server,In-Memory OLTP initialized on lowend machine.,INFO,carga20
+2026-09-18 21:09:49.230,Server,CLR version v4.0.30319 loaded.,INFO,carga20
+2026-09-18 21:09:49.310,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,carga20
+2026-09-18 21:09:49.320,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,carga20
+2026-09-18 21:09:49.340,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,carga20
+2026-09-18 21:09:49.370,Server,clwb is selected for pmem flush operation.,INFO,carga20
+2026-09-18 21:09:49.370,Server,Software Usage Metrics is disabled.,INFO,carga20
+2026-09-18 21:09:49.400,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga20
+2026-09-18 21:09:49.400,spid24s,Starting up database 'master'.,STARTUP,carga20
+2026-09-18 21:09:49.520,spid24s,35 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:09:49.560,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:09:49.570,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,carga20
+2026-09-18 21:09:49.740,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga20
+2026-09-18 21:09:49.760,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga20
+2026-09-18 21:09:49.760,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,carga20
+2026-09-18 21:09:49.760,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,carga20
+2026-09-18 21:09:49.780,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:09:49.830,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga20
+2026-09-18 21:09:49.830,spid26s,Starting up database 'model'.,STARTUP,carga20
+2026-09-18 21:09:49.910,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,carga20
+2026-09-18 21:09:49.910,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,carga20
+2026-09-18 21:09:49.940,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,carga20
+2026-09-18 21:09:49.970,Server,Common language runtime (CLR) functionality initialized.,INFO,carga20
+2026-09-18 21:09:50.030,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,carga20
+2026-09-18 21:09:50.060,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,carga20
+2026-09-18 21:09:50.090,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,carga20
+2026-09-18 21:09:50.120,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,carga20
+2026-09-18 21:09:50.140,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,carga20
+2026-09-18 21:09:50.160,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,carga20
+2026-09-18 21:09:50.190,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,carga20
+2026-09-18 21:09:50.220,Server,External governance manager initialized,INFO,carga20
+2026-09-18 21:09:50.220,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,carga20
+2026-09-18 21:09:50.240,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,carga20
+2026-09-18 21:09:50.270,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,carga20
+2026-09-18 21:09:50.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,carga20
+2026-09-18 21:09:50.320,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,carga20
+2026-09-18 21:09:50.350,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,carga20
+2026-09-18 21:09:50.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,carga20
+2026-09-18 21:09:50.450,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,carga20
+2026-09-18 21:09:50.460,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,carga20
+2026-09-18 21:09:50.460,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,carga20
+2026-09-18 21:09:50.470,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,carga20
+2026-09-18 21:09:50.470,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,carga20
+2026-09-18 21:09:50.480,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,carga20
+2026-09-18 21:09:50.490,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,carga20
+2026-09-18 21:09:50.490,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,carga20
+2026-09-18 21:09:50.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,carga20
+2026-09-18 21:09:50.500,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,carga20
+2026-09-18 21:09:50.520,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,carga20
+2026-09-18 21:09:50.560,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,carga20
+2026-09-18 21:09:50.590,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,carga20
+2026-09-18 21:09:50.620,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,carga20
+2026-09-18 21:09:50.650,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,carga20
+2026-09-18 21:09:50.690,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,carga20
+2026-09-18 21:09:50.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,carga20
+2026-09-18 21:09:50.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,carga20
+2026-09-18 21:09:50.810,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,carga20
+2026-09-18 21:09:50.870,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,carga20
+2026-09-18 21:09:50.890,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,carga20
+2026-09-18 21:09:50.920,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,carga20
+2026-09-18 21:09:50.980,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,carga20
+2026-09-18 21:09:51.120,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga20
+2026-09-18 21:09:51.120,spid24s,Starting up database 'model_msdb'.,STARTUP,carga20
+2026-09-18 21:09:51.310,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,carga20
+2026-09-18 21:09:51.310,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,carga20
+2026-09-18 21:09:51.350,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,carga20
+2026-09-18 21:09:51.450,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,carga20
+2026-09-18 21:09:51.490,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,carga20
+2026-09-18 21:09:51.530,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,carga20
+2026-09-18 21:09:51.590,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,carga20
+2026-09-18 21:09:51.620,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,carga20
+2026-09-18 21:09:51.680,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,carga20
+2026-09-18 21:09:51.710,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,carga20
+2026-09-18 21:09:51.750,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,carga20
+2026-09-18 21:09:51.790,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,carga20
+2026-09-18 21:09:51.820,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,carga20
+2026-09-18 21:09:51.860,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,carga20
+2026-09-18 21:09:51.890,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,carga20
+2026-09-18 21:09:51.920,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,carga20
+2026-09-18 21:09:51.950,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,carga20
+2026-09-18 21:09:52.070,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,carga20
+2026-09-18 21:09:52.100,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,carga20
+2026-09-18 21:09:52.180,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,carga20
+2026-09-18 21:09:52.220,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,carga20
+2026-09-18 21:09:52.250,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,carga20
+2026-09-18 21:09:52.290,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,carga20
+2026-09-18 21:09:52.330,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,carga20
+2026-09-18 21:09:52.360,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,carga20
+2026-09-18 21:09:52.420,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,carga20
+2026-09-18 21:09:52.450,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,carga20
+2026-09-18 21:09:52.490,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,carga20
+2026-09-18 21:09:52.520,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,carga20
+2026-09-18 21:09:52.540,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,carga20
+2026-09-18 21:09:52.640,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,carga20
+2026-09-18 21:09:52.770,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,carga20
+2026-09-18 21:09:52.770,spid41s,Attribute synchronization initialized,INFO,carga20
+2026-09-18 21:09:52.770,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,carga20
+2026-09-18 21:09:52.770,spid41s,Attribute synchronization manager initialized,INFO,carga20
+2026-09-18 21:09:52.790,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,carga20
+2026-09-18 21:09:53.040,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,carga20
+2026-09-18 21:09:53.070,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:09:53.180,spid26s,Clearing tempdb database.,INFO,carga20
+2026-09-18 21:09:53.180,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,carga20
+2026-09-18 21:09:53.190,spid56s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga20
+2026-09-18 21:09:53.190,spid57s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga20
+2026-09-18 21:09:53.190,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:09:53.200,spid56s,Starting up database 'msdb'.,STARTUP,carga20
+2026-09-18 21:09:53.210,spid57s,Starting up database 'SteelNort'.,STARTUP,carga20
+2026-09-18 21:09:53.210,spid57s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,carga20
+2026-09-18 21:09:53.220,spid57s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,carga20
+2026-09-18 21:09:53.390,spid57s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,carga20
+2026-09-18 21:09:54.060,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,carga20
+2026-09-18 21:09:54.070,spid26s,Starting up database 'tempdb'.,STARTUP,carga20
+2026-09-18 21:09:54.380,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,carga20
+2026-09-18 21:09:55.310,spid26s,The tempdb database has 8 data file(s).,INFO,carga20
+2026-09-18 21:09:55.330,spid56s,The Service Broker endpoint is in disabled or stopped state.,INFO,carga20
+2026-09-18 21:09:55.330,spid56s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,carga20
+2026-09-18 21:09:55.360,spid56s,Service Broker manager has started.,STARTUP,carga20
+2026-09-18 21:09:58.680,spid57s,Recovery of database 'SteelNort' (5) is 1% complete (approximately 276 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,carga20
+2026-09-18 21:09:59.480,spid57s,42041 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:09:59.600,spid57s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:09:59.610,spid57s,Recovery is writing a checkpoint in database 'SteelNort' (5). This is an informational message only. No user action is required.,STARTUP,carga20
+2026-09-18 21:09:59.720,spid57s,"Recovery completed for database SteelNort (database ID 5) in 7 second(s) (analysis 5284 ms, redo 798 ms, undo 71 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,carga20
+2026-09-18 21:09:59.730,spid57s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,carga20
+2026-09-18 21:09:59.760,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,carga20
+2026-09-18 21:16:47.910,spid65,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:16:47.980,spid65,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,carga20
+2026-09-18 21:40:17.240,spid85,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,carga20
+2026-09-18 21:40:17.330,spid85,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,carga20
 2026-09-07 04:21:46.880,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,carga3
 2026-09-07 04:21:46.890,Server,UTC adjustment: 0:00,INFO,carga3
 2026-09-07 04:21:46.890,Server,(c) Microsoft Corporation.,INFO,carga3

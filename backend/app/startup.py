@@ -61,7 +61,7 @@ def _reporte_arranque(detect, mdl, nodos_lista, db_nombre: str) -> str:
         f"  Modelo registrado : {getattr(mdl, 'mdl_nom', 'n/a')}  (mdl_cod={getattr(mdl, 'mdl_cod', '?')})",
         "  Detector ML       : Isolation Forest",
         f"  Ventana           : {detect._ventana} muestras",
-        f"  Features          : {len(detect._features21)}  ->  {', '.join(detect._features21)}",
+        f"  Features          : {len(detect._features_modelo)}  ->  {', '.join(detect._features_modelo)}",
         f"  Umbral activo     : {detect._umbral_nombre} = {umbral}",
         f"  Umbrales q10/q05/q01: {detect._umbrales.get('q10')} / {detect._umbrales.get('q05')} / {detect._umbrales.get('q01')}",
         f"  Artefacto modelo  : {detect._ruta_modelo}",

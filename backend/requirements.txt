@@ -6,6 +6,7 @@
 #  - Seg: JWT (pyjwt) + bcrypt (hash de claves) + pydantic
 #  - Env: python-dotenv (variables de entorno)
 #  - Met: psutil (lectura de CPU/memoria de la maquina)
+#  - ML : scikit-learn/joblib (detector) + pandas/numpy/pyarrow (training)
 # ============================================================
 
 fastapi==0.115.6
@@ -21,3 +22,6 @@ email-validator==2.2.0
 psutil==6.1.1
 joblib==1.6.0
 scikit-learn==1.9.0
+pandas==3.0.3
+numpy==2.5.0
+pyarrow==25.0.1
