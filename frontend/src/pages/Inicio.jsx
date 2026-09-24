@@ -1,11 +1,16 @@
+import { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useSystemMetrics } from '../hooks/useSystemMetrics.js'
+import { useTelemetria } from '../hooks/useTelemetria.js'
+import {
+  useDashboardHeatmap,
+  useDashboardAnomaliasResumen,
+} from '../hooks/useDashboardData.js'
+import api from '../services/api.js'
 import '../css/Layout.css'
 import '../css/Inicio.css'
-
-const anomaliasData = [1, 0, 2, 1, 0, 1, 3, 2, 4, 3, 5, 4, 2, 6, 3, 4, 12, 5, 3, 4, 2, 3, 1, 2]
 
 const CHART_W = 640
 const CHART_H = 250
@@ -212,23 +217,77 @@ function AnomalyChart({ data }) {
   )
 }
 
-const alertas = [
-  { severidad: 'critica', titulo: 'Pico anómalo de CPU en nodo SCADA-02', meta: 'Crítica · Umbral superado por 6 min', hora: '16:04' },
-  { severidad: 'alta', titulo: 'Múltiples intentos de acceso fallidos', meta: 'Alta · usuario svc_backup', hora: '14:37' },
-  { severidad: 'media', titulo: 'Latencia elevada en base de datos', meta: 'Media · promedio 480 ms', hora: '11:20' },
-  { severidad: 'baja', titulo: 'Certificado TLS próximo a vencer', meta: 'Baja · expira en 15 días', hora: '08:45' },
-]
-
-const estados = [
-  { nombre: 'Servidor principal', desc: 'Uptime 99.98% · 42 días', estado: 'Operativo', tone: 'ok' },
-  { nombre: 'Base de datos PostgreSQL', desc: '128 conexiones activas', estado: 'Operativo', tone: 'ok' },
-  { nombre: 'Servicio SCADA', desc: 'Respuesta lenta últimos 20 min', estado: 'Degradado', tone: 'warn' },
-  { nombre: 'Respaldos automáticos', desc: 'Último respaldo: hoy 02:00', estado: 'Programado', tone: 'info' },
-]
+const SEVERIDADES = {
+  critica: 'critica',
+  alta: 'alta',
+  media: 'media',
+  baja: 'baja',
+}
 
 function Inicio() {
   const { actual, historico, error } = useSystemMetrics(3000, 80)
-  const user = useAuth().user
+  const { user, accessToken } = useAuth()
+
+  // Telemetria en vivo: sesiones activas/inactivas por nodo.
+  const { muestras: teleMuestras, conectado } = useTelemetria(80)
+
+  // Resumen de anomalias del dia (tarjetas).
+  const { total_hoy, alertas_activas } = useDashboardAnomaliasResumen(30000)
+
+  // Heatmap de anomalias por hora (grafico 24h).
+  const { datos: heatmapDatos } = useDashboardHeatmap(60000)
+
+  // Alertas recientes (top 4).
+  const [alertas, setAlertas] = useState([])
+  const [alertasError, setAlertasError] = useState(null)
+
+  useEffect(() => {
+    if (!accessToken) return
+    let activo = true
+    api
+      .get('/alertas', { token: accessToken })
+      .then((data) => {
+        if (activo) setAlertas(data)
+      })
+      .catch((err) => {
+        if (activo) setAlertasError(err.message || 'No se pudieron cargar las alertas.')
+      })
+    return () => {
+      activo = false
+    }
+  }, [accessToken])
+
+  // Suma por hora (0..23) del heatmap para el grafico de anomalias.
+  const anomaliasData = Array.from({ length: 24 }, (_, hora) =>
+    (heatmapDatos || [])
+      .filter((d) => d.hora === hora)
+      .reduce((acc, d) => acc + (Number(d.cantidad) || 0), 0)
+  )
+
+  // Sesiones activas/inactivas sumando la ultima muestra de cada nodo.
+  let sesionesActivas = 0
+  let sesionesInactivas = 0
+  for (const arr of Object.values(teleMuestras)) {
+    if (!arr || arr.length === 0) continue
+    const m = arr[arr.length - 1].muestra || {}
+    sesionesActivas += Number(m.active_sessions) || 0
+    sesionesInactivas += Number(m.idle_sessions) || 0
+  }
+
+  // Top 4 alertas recientes desde el backend.
+  const alertasRecientes = alertas
+    .slice(0, 4)
+    .map((a) => ({
+      severidad: SEVERIDADES[a.alt_sev] || 'media',
+      titulo: a.alt_titulo,
+      meta: a.alt_diag || a.alt_tipo || '',
+      hora: fmtHoraMinuto(a.alt_fec),
+    }))
+
+  const sesionesTxt = sesionesActivas > 0 ? String(sesionesActivas) : '—'
+  const sesionesTrend = conectado
+    ? `${sesionesInactivas} inactivas`
+    : 'Sin telemetría en vivo'
 
   // Series listas para los graficos.
   const cpuSerie = historico.map((h) => h.cpuTotal)
@@ -259,8 +318,24 @@ function Inicio() {
       icon: IconMemoria,
       tone: 'green',
     },
-    { id: 'anomalias', label: 'Anomalías detectadas', value: '14', unit: 'hoy', trend: '+3 respecto a ayer', icon: IconAnomalia, tone: 'red' },
-    { id: 'sesiones', label: 'Sesiones activas', value: '8', unit: '', trend: '2 administradores', icon: IconSesiones, tone: 'cyan' },
+    {
+      id: 'anomalias',
+      label: 'Anomalías detectadas',
+      value: String(total_hoy),
+      unit: 'hoy',
+      trend: `${alertas_activas} alertas activas`,
+      icon: IconAnomalia,
+      tone: 'red',
+    },
+    {
+      id: 'sesiones',
+      label: 'Sesiones activas',
+      value: sesionesTxt,
+      unit: '',
+      trend: sesionesTrend,
+      icon: IconSesiones,
+      tone: 'cyan',
+    },
   ]
 
   return (
@@ -324,7 +399,7 @@ function Inicio() {
               <article className="card">
                 <div className="card-head">
                   <h3 className="card-title">Anomalías</h3>
-                  <span className="chart-badge red">Total hoy: 14</span>
+                  <span className="chart-badge red">Total hoy: {total_hoy}</span>
                 </div>
                 <AnomalyChart data={anomaliasData} />
               </article>
@@ -333,35 +408,28 @@ function Inicio() {
                 <div className="card-head">
                   <h3 className="card-title">Alertas recientes</h3>
                 </div>
-                <ul className="alert-list">
-                  {alertas.map((a) => (
-                    <li key={a.hora} className="alert-item">
-                      <span className={`alert-dot ${a.severidad}`} />
-                      <div className="alert-body">
-                        <span className="alert-title">{a.titulo}</span>
-                        <span className="alert-meta">{a.meta}</span>
-                      </div>
-                      <span className="alert-time">{a.hora}</span>
+                {alertasError ? (
+                  <p className="metrics-error">{alertasError}</p>
+                ) : alertasRecientes.length === 0 ? (
+                  <ul className="alert-list">
+                    <li className="alert-item">
+                      <span className="status-desc">No hay alertas registradas.</span>
                     </li>
-                  ))}
-                </ul>
-              </article>
-
-              <article className="card">
-                <div className="card-head">
-                  <h3 className="card-title">Estado del sistema</h3>
-                </div>
-                <ul className="status-list">
-                  {estados.map((e) => (
-                    <li key={e.nombre} className="status-item">
-                      <div className="alert-body">
-                        <span className="status-name">{e.nombre}</span>
-                        <span className="status-desc">{e.desc}</span>
-                      </div>
-                      <span className={`pill ${e.tone}`}>{e.estado}</span>
-                    </li>
-                  ))}
-                </ul>
+                  </ul>
+                ) : (
+                  <ul className="alert-list">
+                    {alertasRecientes.map((a) => (
+                      <li key={`${a.hora}-${a.titulo}`} className="alert-item">
+                        <span className={`alert-dot ${a.severidad}`} />
+                        <div className="alert-body">
+                          <span className="alert-title">{a.titulo}</span>
+                          <span className="alert-meta">{a.meta}</span>
+                        </div>
+                        <span className="alert-time">{a.hora}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </article>
             </section>
           </div>

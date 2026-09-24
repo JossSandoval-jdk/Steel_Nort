@@ -425,6 +425,7 @@ def estado_reentrenamiento(db: Session) -> dict:
         "modelo_activo": ultimo.mdl_act,
         "nombre": ultimo.mdl_nom,
         "tipo": ultimo.mdl_tipo,
+        "umbral_pct": float(ultimo.mdl_umbral_pct or 0),
         "fecha_entrenamiento": str(ultimo.mdl_fec_entr) if ultimo.mdl_fec_entr else None,
         "features": ultimo.mdl_vars.split(",") if ultimo.mdl_vars else [],
         "umbrales": hparms.get("umbrales", {}),

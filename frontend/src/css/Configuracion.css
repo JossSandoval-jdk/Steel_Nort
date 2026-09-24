@@ -35,6 +35,11 @@
   white-space: nowrap;
 }
 
+.conn-pill.off {
+  background: #fdecec;
+  color: #dc2626;
+}
+
 .subhead {
   display: flex;
   align-items: center;
@@ -384,6 +389,10 @@
   margin: 10px 0 0;
   font-size: 12.5px;
   color: #b45309;
+}
+
+.import-msg.good {
+  color: #15803d;
 }
 
 .import-nodes {

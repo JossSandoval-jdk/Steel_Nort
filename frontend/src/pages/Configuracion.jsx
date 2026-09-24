@@ -1,25 +1,12 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
 import ModalUsuario from '../components/ModalUsuario.jsx'
+import RolesPermisosModal from '../components/RolesPermisosModal.jsx'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import '../css/Layout.css'
 import '../css/Configuracion.css'
-
-const logsInfo = [
-  { label: 'Host', value: 'logs.steelnort.local' },
-]
-
-function IconEye() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  )
-}
 
 function IconTrash() {
   return (
@@ -55,6 +42,15 @@ function IconRefresh() {
       <polyline points="23 4 23 10 17 10" />
       <polyline points="1 20 1 14 7 14" />
       <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+    </svg>
+  )
+}
+
+function IconEye() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   )
 }
@@ -109,16 +105,43 @@ function ImportResultado({ reporte }) {
   )
 }
 
+function PillConexion({ conectado, textoOk, textoOff, textoNull }) {
+  let estado = 'offline'
+  let texto = textoOff
+  if (conectado === null || conectado === undefined) {
+    estado = 'offline'
+    texto = textoNull || 'Sin verificar'
+  } else if (conectado) {
+    estado = 'online'
+    texto = textoOk
+  }
+  return (
+    <span className={`conn-pill ${conectado ? '' : 'off'}`}>
+      <span className={`status-led ${estado}`} />
+      {texto}
+    </span>
+  )
+}
+
 function Configuracion() {
   const [usuarios, setUsuarios] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isRolesModalOpen, setIsRolesModalOpen] = useState(false)
   const [importFile, setImportFile] = useState(null)
   const [importNodo, setImportNodo] = useState('')
   const [importando, setImportando] = useState(false)
   const [importResult, setImportResult] = useState(null)
   const [importError, setImportError] = useState(null)
-  const { accessToken } = useAuth()
-  const navigate = useNavigate()
+  const [sinc, setSinc] = useState(null)
+  const [modelo, setModelo] = useState(null)
+  const [mostrarVariables, setMostrarVariables] = useState(false)
+  const [reentrenando, setReentrenando] = useState(false)
+  const [retrainResult, setRetrainResult] = useState(null)
+  const { user, accessToken } = useAuth()
+  const sincTimer = useRef(null)
+  const modeloTimer = useRef(null)
+
+  const csrf = api.getCsrfToken()
 
   const handleImportar = async () => {
     if (!importFile) return
@@ -140,35 +163,115 @@ function Configuracion() {
 
   const handleSaveUsuario = async (nuevoUsuario) => {
     try {
-      await api.post('/usuarios', nuevoUsuario, { token: accessToken })
+      await api.post('/usuarios', nuevoUsuario, { token: accessToken, csrf })
       setIsModalOpen(false)
-      // Recargar lista
       const data = await api.get('/usuarios', { token: accessToken })
-        setUsuarios(data)
-      } catch (err) {
+      setUsuarios(data)
+    } catch (err) {
       console.error("Error al guardar usuario:", err)
-      }
     }
+  }
+
+  const handleEliminarUsuario = async (u) => {
+    if (!window.confirm(`¿Eliminar al usuario '${u.usu_nom}'?`)) return
+    try {
+      await api.del(`/usuarios/${u.usu_cod}`, { token: accessToken, csrf })
+      setUsuarios((prev) => prev.filter((x) => x.usu_cod !== u.usu_cod))
+    } catch (err) {
+      console.error("Error al eliminar usuario:", err)
+    }
+  }
+
+  const cargarUsuarios = useCallback(async () => {
+    if (!accessToken) return
+    try {
+      const data = await api.get('/usuarios', { token: accessToken })
+      setUsuarios(data)
+    } catch (err) {
+      console.error("Error al cargar usuarios:", err)
+    }
+  }, [accessToken])
 
   useEffect(() => {
-    async function loadUsuarios() {
-      if (!accessToken) return
-      try {
-        const data = await api.get('/usuarios', { token: accessToken })
-        console.log("Usuarios recibidos:", data) // <--- Agregamos este log para debug
-        setUsuarios(data)
-      } catch (err) {
-        console.error("Error al cargar usuarios:", err)
+    if (!accessToken) return undefined
+    const primerTick = setTimeout(cargarUsuarios, 0)
+    return () => clearTimeout(primerTick)
+  }, [accessToken, cargarUsuarios])
+
+  // Estado de sincronización (cadena VPS SQL + daemon).
+  const cargarSinc = useCallback(async () => {
+    if (!accessToken) return
+    try {
+      const data = await api.get('/telemetria/sincronizacion', { token: accessToken })
+      setSinc(data.sincronizacion || null)
+    } catch (err) {
+      console.error("Error al cargar sincronización:", err)
+    }
+  }, [accessToken])
+
+  useEffect(() => {
+    if (!accessToken) return undefined
+    const primerTick = setTimeout(cargarSinc, 0)
+    sincTimer.current = setInterval(cargarSinc, 15000)
+    return () => {
+      clearTimeout(primerTick)
+      if (sincTimer.current) {
+        clearInterval(sincTimer.current)
+        sincTimer.current = null
       }
     }
-    loadUsuarios()
+  }, [accessToken, cargarSinc])
+
+  // Estado del modelo de aprendizaje.
+  const cargarModelo = useCallback(async () => {
+    if (!accessToken) return
+    try {
+      const data = await api.get('/reentrenamiento/estado', { token: accessToken })
+      setModelo(data)
+    } catch (err) {
+      console.error("Error al cargar estado del modelo:", err)
+    }
   }, [accessToken])
+
+  useEffect(() => {
+    if (!accessToken) return undefined
+    const primerTick = setTimeout(cargarModelo, 0)
+    modeloTimer.current = setInterval(cargarModelo, 30000)
+    return () => {
+      clearTimeout(primerTick)
+      if (modeloTimer.current) {
+        clearInterval(modeloTimer.current)
+        modeloTimer.current = null
+      }
+    }
+  }, [accessToken, cargarModelo])
+
+  const handleReentrenar = async () => {
+    setReentrenando(true)
+    setRetrainResult(null)
+    try {
+      const data = await api.post('/reentrenamiento?dias=7', {}, { token: accessToken })
+      setRetrainResult(data)
+      await cargarModelo()
+    } catch (err) {
+      setRetrainResult({ exito: false, mensaje: err.message })
+    } finally {
+      setReentrenando(false)
+    }
+  }
+
+  const sqlVps = sinc?.sql_vps || null
+  const daemon = sinc?.daemon || null
+  const nombre = user?.usu_nom || 'Nombre Usuario'
+  const cargo = user?.usu_rol || 'Cargo'
+  const fpr = modelo?.fpr_actual
+  const fprPct = fpr !== null && fpr !== undefined ? (fpr * 100) : null
 
   return (
     <div className="layout">
       <Sidebar />
       <div className="layout-main">
-        <Topbar nombre="Nombre Usuario" cargo="Cargo" />
+        <Topbar nombre={nombre} cargo={cargo} />
         <main className="layout-content">
           <div className="config">
             <section className="config-col">
@@ -204,13 +307,15 @@ function Configuracion() {
                         <td>
                           <div className="row-actions">
                             {u.usu_rol !== 'Administrador' && (
-                            <button type="button" className="icon-btn" title="Ver usuario">
-                              <IconEye />
-                            </button>
+                              <button
+                                type="button"
+                                className="icon-btn danger"
+                                title="Eliminar usuario"
+                                onClick={() => handleEliminarUsuario(u)}
+                              >
+                                <IconTrash />
+                              </button>
                             )}
-                            <button type="button" className="icon-btn danger" title="Eliminar usuario">
-                              <IconTrash />
-                            </button>
                           </div>
                         </td>
                       </tr>
@@ -227,6 +332,14 @@ function Configuracion() {
                     <IconPlus />
                     Crear usuario
                   </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => setIsRolesModalOpen(true)}
+                  >
+                    <IconShield />
+                    Gestionar roles y permisos
+                  </button>
                 </div>
               </article>
             </section>
@@ -238,30 +351,43 @@ function Configuracion() {
                     <h3 className="card-title">SQL Server (OLTP)</h3>
                     <span className="card-subtitle">Conexión al servidor SQL</span>
                   </div>
-                  <span className="conn-pill">
-                    <span className="status-led online" />
-                    Conectado
-                  </span>
+                  <PillConexion
+                    conectado={sqlVps?.conectado}
+                    textoOk="Conectado"
+                    textoOff="Desconectado"
+                    textoNull="Sin verificar"
+                  />
                 </div>
 
                 <div className="subhead">
-                  <h4 className="subhead-title">Servidor de logs</h4>
-                  <span className="conn-pill">
-                    <span className="status-led online" />
-                    En línea
-                  </span>
+                  <h4 className="subhead-title">Daemon de telemetría</h4>
+                  <PillConexion
+                    conectado={daemon?.conectado}
+                    textoOk="En línea"
+                    textoOff="Sin datos"
+                    textoNull="Sin verificar"
+                  />
                 </div>
 
                 <ul className="info-list">
-                  {logsInfo.map((row) => (
-                    <InfoRow key={row.label} {...row} />
-                  ))}
+                  <InfoRow
+                    label="Nodos reportando"
+                    value={daemon?.nodos ? Object.keys(daemon.nodos).length : '-'}
+                  />
+                  <InfoRow
+                    label="Detalle SQL"
+                    value={sqlVps?.detalle || '—'}
+                  />
+                  <InfoRow
+                    label="Detalle daemon"
+                    value={daemon?.detalle || '—'}
+                  />
                 </ul>
 
                 <div className="card-foot">
-                  <button type="button" className="btn btn-outline">
+                  <button type="button" className="btn btn-outline" onClick={cargarSinc}>
                     <IconRefresh />
-                    Probar conexión
+                    Verificar ahora
                   </button>
                 </div>
               </article>
@@ -274,30 +400,79 @@ function Configuracion() {
                 <ul className="info-list">
                   <li className="info-item">
                     <div className="field-stack">
-                      <span className="info-label">Modelo de entrenamiento: Isolation Forest</span>
+                      <span className="info-label">Modelo de entrenamiento</span>
                       <div className="input-group">
-                        <input className="text-input" aria-label="Modelo de entrenamiento" />
-                        <button type="button" className="btn btn-primary btn-sm">
-                          <IconRefresh />
-                          Reentrenar modelo
-                        </button>
+                        <input
+                          className="text-input grow"
+                          value={
+                            modelo?.hay_modelo
+                              ? `${modelo.nombre} (${modelo.tipo})`
+                              : 'Sin modelo entrenado'
+                          }
+                          readOnly
+                          aria-label="Modelo de entrenamiento"
+                        />
                       </div>
                     </div>
                   </li>
-                  <li className="info-item">
-                    <span className="info-label">Umbral de anomalía</span>
-                    <div className="suffix-input">
-                      <input className="text-input sm" defaultValue="85" aria-label="Umbral de anomalía" />
-                      <span>%</span>
-                    </div>
-                  </li>
+                  {modelo?.hay_modelo && fprPct !== null && (
+                    <InfoRow
+                      label="FPR del modelo activo"
+                      value={`${fprPct.toFixed(1)} %` + (fprPct > 10 ? ' (no apto)' : '')}
+                    />
+                  )}
+                  {modelo?.hay_modelo && modelo.muestras_entrenamiento !== undefined && (
+                    <InfoRow label="Muestras de entrenamiento" value={modelo.muestras_entrenamiento} />
+                  )}
+                  {modelo?.hay_modelo && modelo.fecha_entrenamiento && (
+                    <InfoRow label="Fecha de entrenamiento" value={String(modelo.fecha_entrenamiento).slice(0, 19)} />
+                  )}
                   <li className="info-item">
                     <span className="info-label">Variables de entrenamiento</span>
-                    <button type="button" className="icon-btn" title="Ver variables">
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      title="Ver variables"
+                      onClick={() => setMostrarVariables((v) => !v)}
+                    >
                       <IconEye />
                     </button>
                   </li>
+                  {mostrarVariables && (
+                    <li className="info-item">
+                      <ul className="import-nodes" style={{ width: '100%' }}>
+                        {(modelo?.hay_modelo ? modelo.features : []).map((f) => (
+                          <li key={f} className="import-node">
+                            <span className="import-node-name">{f}</span>
+                          </li>
+                        ))}
+                        {(!modelo?.hay_modelo || !modelo.features || modelo.features.length === 0) && (
+                          <li className="import-node">
+                            <span className="import-node-detail">Sin variables registradas</span>
+                          </li>
+                        )}
+                      </ul>
+                    </li>
+                  )}
                 </ul>
+
+                {retrainResult && (
+                  <p className={`import-msg ${retrainResult.exito ? 'good' : 'import-error'}`}>
+                    {retrainResult.mensaje || (retrainResult.exito ? 'Reentrenamiento completado.' : 'El reentrenamiento falló.')}
+                  </p>
+                )}
+
+                <div className="card-foot">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={reentrenando}
+                    onClick={handleReentrenar}
+                  >
+                    <IconRefresh />
+                    {reentrenando ? 'Reentrenando…' : 'Reentrenar modelo'}
+                  </button>
+                </div>
               </article>
 
               <article className="card">
@@ -360,9 +535,12 @@ function Configuracion() {
         onSave={handleSaveUsuario}
         accessToken={accessToken}
       />
+      <RolesPermisosModal
+        isOpen={isRolesModalOpen}
+        onClose={() => setIsRolesModalOpen(false)}
+      />
     </div>
   )
 }
 
 export default Configuracion
-

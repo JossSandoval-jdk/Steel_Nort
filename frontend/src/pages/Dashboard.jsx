@@ -2,6 +2,7 @@ import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
 import { useSystemMetrics } from '../hooks/useSystemMetrics.js'
 import { useTelemetria } from '../hooks/useTelemetria.js'
+import { useAuth } from '../context/AuthContext.jsx'
 import {
   useDashboardHeatmap,
   useDashboardDisponibilidad,
@@ -216,14 +217,6 @@ function MapaAnomalias({ datos }) {
 
   const maxCant = Math.max(1, ...grid.flat())
 
-  const colorCell = (cant, baseColor) => {
-    if (cant === 0) return baseColor
-    const intensity = Math.min(cant / maxCant, 1)
-    if (intensity < 0.3) return baseColor
-    if (intensity < 0.7) return baseColor
-    return baseColor
-  }
-
   const filasCuadros = NIVELES_HEATMAP.map((a, row) => (
     <div key={a.sev} className="dash-mapa-fila">
       <span className="dash-mapa-etiqueta">{a.nivel}</span>
@@ -263,13 +256,16 @@ function MapaAnomalias({ datos }) {
 }
 
 function Dashboard() {
-  const { actual, historico } = useSystemMetrics(3000, 80)
-  const { conectado, ultimaMuestra, serie } = useTelemetria(80)
+  const { actual } = useSystemMetrics(3000, 80)
+  const { muestras, ultimaMuestra, serie } = useTelemetria(80)
   const { datos: heatmapDatos } = useDashboardHeatmap(60000)
   const { dias: dispDias, promedio: dispPromedio } = useDashboardDisponibilidad(300000)
-  const { total_hoy, alertas_activas } = useDashboardAnomaliasResumen(30000)
+  const { hora_actual_cant, alertas_activas } = useDashboardAnomaliasResumen(30000)
+  const { user } = useAuth()
 
-  const nodo = 'Servidor Negocio'
+  // Nodo real: el primero con muestras en el buffer; fallback al nombre por defecto.
+  const nodosTele = Object.keys(muestras)
+  const nodo = nodosTele.length > 0 ? nodosTele[0] : 'Servidor Negocio'
   const muestra = ultimaMuestra(nodo) || {}
   const serieNodo = serie(nodo, 80)
 
@@ -293,15 +289,15 @@ function Dashboard() {
     ? Math.round(durationData.reduce((a, b) => a + b, 0) / durationData.length)
     : 0
 
-  const tasaAnomalias = total_hoy > 0
-    ? `${(total_hoy / 60).toFixed(2)}/min`
-    : '0/min'
+  const tasaAnomalias = hora_actual_cant > 0
+    ? `${hora_actual_cant}/h`
+    : '0/h'
 
   return (
     <div className="layout">
       <Sidebar />
       <div className="layout-main">
-        <Topbar nombre="Nombre Usuario" cargo="Cargo" />
+        <Topbar nombre={user ? user.usu_nom : 'Nombre Usuario'} cargo={user ? user.usu_rol : 'Cargo'} />
         <main className="layout-content">
           <div className="dashboard">
             <div className="dash-top-row">
@@ -326,6 +322,7 @@ function Dashboard() {
                       <span className="dash-anom-sub">(Hora actual)</span>
                     </h3>
                     <span className="dash-anom-value">{tasaAnomalias}</span>
+                    <span className="dash-anom-sub">{alertas_activas} alertas activas</span>
                   </div>
                   <span className="dash-anom-icon">
                     <IconInfo />
@@ -347,7 +344,7 @@ function Dashboard() {
                         <BarraChart data={durationData.slice(-7)} />
                       </>
                     ) : (
-                      <p>0 ms – sin consultas</p>
+<p>0 ms - sin consultas</p>
                     )}
                   </div>
                 </div>
