@@ -16,6 +16,7 @@ registra:
     - si existe
     - tamaño en MB
     - cantidad de líneas
+    - procedencia (origen.json: contenedor_sql / legacy, motor, nodo)
 
 Salida:
     datasets/inventario/inventario_corridas.csv
@@ -78,6 +79,7 @@ def main():
     for corrida in corridas:
 
         dir_corrida = corridas_info[corrida]["ruta"]
+        origen = config.leer_origen(dir_corrida)
 
         for fuente in fuentes:
 
@@ -92,6 +94,9 @@ def main():
             registros.append({
                 "corrida": corrida,
                 "grupo": corridas_info[corrida]["grupo"],
+                "origen": origen.get("origen", config.TIPO_ORIGEN_LEGADO),
+                "motor": origen.get("motor", ""),
+                "nodo": origen.get("nodo", ""),
                 "fuente": fuente,
                 "existe": existe,
                 "tamano_mb": tamano_mb,

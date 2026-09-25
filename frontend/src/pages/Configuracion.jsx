@@ -198,7 +198,7 @@ function Configuracion() {
     return () => clearTimeout(primerTick)
   }, [accessToken, cargarUsuarios])
 
-  // Estado de sincronización (cadena VPS SQL + daemon).
+  // Estado de sincronización (cadena VPS SQL + logs del VPS).
   const cargarSinc = useCallback(async () => {
     if (!accessToken) return
     try {
@@ -261,7 +261,7 @@ function Configuracion() {
   }
 
   const sqlVps = sinc?.sql_vps || null
-  const daemon = sinc?.daemon || null
+  const logsVps = sinc?.logs_vps || null
   const nombre = user?.usu_nom || 'Nombre Usuario'
   const cargo = user?.usu_rol || 'Cargo'
   const fpr = modelo?.fpr_actual
@@ -360,27 +360,27 @@ function Configuracion() {
                 </div>
 
                 <div className="subhead">
-                  <h4 className="subhead-title">Daemon de telemetría</h4>
+                  <h4 className="subhead-title">Logs del VPS</h4>
                   <PillConexion
-                    conectado={daemon?.conectado}
-                    textoOk="En línea"
-                    textoOff="Sin datos"
+                    conectado={logsVps?.conectado}
+                    textoOk="En conexión"
+                    textoOff="Sin conexión"
                     textoNull="Sin verificar"
                   />
                 </div>
 
                 <ul className="info-list">
                   <InfoRow
-                    label="Nodos reportando"
-                    value={daemon?.nodos ? Object.keys(daemon.nodos).length : '-'}
+                    label="Logs reportando"
+                    value={logsVps?.detalle === 'logs_ok' ? 'errorlog de SQL Server' : 'Sin logs'}
                   />
                   <InfoRow
                     label="Detalle SQL"
                     value={sqlVps?.detalle || '—'}
                   />
                   <InfoRow
-                    label="Detalle daemon"
-                    value={daemon?.detalle || '—'}
+                    label="Detalle logs"
+                    value={logsVps?.detalle || '—'}
                   />
                 </ul>
 

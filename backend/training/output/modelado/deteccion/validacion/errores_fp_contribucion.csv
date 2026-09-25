@@ -1,0 +1,5 @@
+﻿run,inicio,T2,SPE,top1,top2,top3
+normal_larga_01,2026-09-23 11:33:50,8.13,93.03,cpu_usr,disk_write_per_sec,page_life_expectancy
+normal_larga_01,2026-09-23 11:33:55,7.57,103.69,cpu_usr,disk_write_per_sec,page_life_expectancy
+normal_prueba_01,2026-09-23 11:02:10,47.29,2302.02,total_reads,disk_write_per_sec,cpu_usr
+normal_prueba_01,2026-09-23 11:02:17,48.93,2286.85,total_reads,page_life_expectancy,api_latency_ms

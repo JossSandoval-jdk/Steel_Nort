@@ -25,11 +25,11 @@ from __future__ import annotations
 
 import logging
 import os
-import threading
 import time
 
 from app.database import SessionLocal
 from app.models.model_alerta import Alertas, CausasRaiz
+from app.services.monitor import MonitorPeriodico
 from app.services.nodos import obtener_o_crear_nodo
 from app.services.telemetria import buffer_telemetria
 from app.utils import utc_now
@@ -47,12 +47,11 @@ VPS_SQL_TIMEOUT = 5
 _TIPO_VPS = "conexion_vps_sql"
 _TIPO_DAEMON = "conexion_daemon"
 
-_stop = threading.Event()
-_thread: threading.Thread | None = None
-_lock = threading.Lock()
-
-# Estado en vivo del monitor (leido por el endpoint).
-estado_actual: dict = {}
+ESTADO_INICIAL = {
+    "sql_vps": {"conectado": None, "detalle": "sin_verificar"},
+    "logs_vps": {"conectado": None, "detalle": "sin_verificar"},
+    "daemon": {"conectado": None, "nodos": {}, "detalle": "sin_verificar"},
+}
 
 
 def _test_vps_sql() -> bool:
@@ -74,6 +73,26 @@ def _test_vps_sql() -> bool:
         return bool(ok)
     except Exception as exc:
         log.warning("VPS SQL inalcanzable: %s", exc)
+        return False
+
+
+def _test_logs_vps() -> bool:
+    """Lee el errorlog de SQL Server del VPS (fuente de logs del modelo)."""
+    try:
+        from app.collector.config import SQL_SERVER_CONN_STR
+        conn = pyodbc.connect(SQL_SERVER_CONN_STR, timeout=VPS_SQL_TIMEOUT, autocommit=True)
+        try:
+            cur = conn.cursor()
+            cur.execute("EXEC sp_readerrorlog 0")
+            ok = cur.fetchone() is not None
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+        return bool(ok)
+    except Exception as exc:
+        log.warning("VPS SQL errorlog inalcanzable: %s", exc)
         return False
 
 
@@ -151,6 +170,7 @@ def _monitorear() -> dict:
 
     # 1) VPS SQL (fuente de logs/metricas).
     vps_ok = _test_vps_sql()
+    logs_ok = _test_logs_vps() if vps_ok else False
 
     # 2) Daemon -> web (heartbeat por nodo).
     estados = buffer_telemetria.estados()
@@ -201,6 +221,10 @@ def _monitorear() -> dict:
             "conectado": vps_ok,
             "detalle": "ok" if vps_ok else "offline",
         },
+        "logs_vps": {
+            "conectado": logs_ok,
+            "detalle": "logs_ok" if logs_ok else "sin_logs",
+        },
         "daemon": {
             "conectado": daemon_ok,
             "nodos": nodos,
@@ -209,45 +233,20 @@ def _monitorear() -> dict:
     }
 
 
-def monitor_loop() -> None:
-    """Bucle del hilo: revisa los enlaces cada ``SINC_INTERVAL`` segundos."""
-    log.info("Monitor de sincronizacion iniciado (cada %ss)", SINC_INTERVAL)
-    while not _stop.is_set():
-        try:
-            resultado = _monitorear()
-            with _lock:
-                estado_actual.clear()
-                estado_actual.update(resultado)
-        except Exception:
-            log.exception("Fallo la pasada del monitor de sincronizacion")
-        _stop.wait(SINC_INTERVAL)
-    log.info("Monitor de sincronizacion detenido")
+monitor = MonitorPeriodico("sincronizacion", SINC_INTERVAL, _monitorear,
+                           estado_inicial=ESTADO_INICIAL)
 
 
 def start_monitor() -> None:
     """Arranca el hilo del monitor (idempotente)."""
-    global _thread
-    _stop.clear()
-    if _thread is None or not _thread.is_alive():
-        _thread = threading.Thread(
-            target=monitor_loop,
-            daemon=True,
-            name="sincronizacion-monitor",
-        )
-        _thread.start()
+    monitor.start()
 
 
 def stop_monitor() -> None:
     """Detiene el hilo del monitor."""
-    _stop.set()
+    monitor.stop()
 
 
 def estado() -> dict:
     """Devuelve el ultimo estado del monitor (para el endpoint)."""
-    with _lock:
-        if not estado_actual:
-            return {
-                "sql_vps": {"conectado": None, "detalle": "sin_verificar"},
-                "daemon": {"conectado": None, "nodos": {}, "detalle": "sin_verificar"},
-            }
-        return dict(estado_actual)
+    return monitor.estado()

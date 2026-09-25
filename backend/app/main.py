@@ -41,6 +41,7 @@ from app.routers import (  # noqa: E402
     auth,
     dashboard,
     dominio,
+    drift,
     metricas,
     reentrenamiento,
     roles,
@@ -49,6 +50,10 @@ from app.routers import (  # noqa: E402
 )
 from app.services.seed_roles import seed_roles_y_permisos  # noqa: E402
 from app.services.sincronizacion import start_monitor, stop_monitor  # noqa: E402
+from app.services.drift import (  # noqa: E402
+    start_drift_monitor,
+    stop_drift_monitor,
+)
 from app.startup import _reporte_arranque, nombre_bd_visible  # noqa: E402
 
 
@@ -90,7 +95,9 @@ async def lifespan(_app: FastAPI):
         db.close()
 
     start_monitor()
+    start_drift_monitor()
     yield
+    stop_drift_monitor()
     stop_monitor()
 
 
@@ -136,6 +143,7 @@ def crear_app() -> FastAPI:
     app.include_router(dashboard.router)
     app.include_router(anomalias.router)
     app.include_router(reentrenamiento.router)
+    app.include_router(drift.router)
 
     @app.get("/")
     def root() -> dict:

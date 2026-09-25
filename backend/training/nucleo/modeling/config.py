@@ -29,23 +29,61 @@ CORRIDAS_ENTRENAMIENTO = [
 ]
 
 # Corridas que NO son línea base sana aunque no estén en anomalias/.
-# Son capturas con la API COLGADA (api_status=0, latencia ~5007ms,
-# load1 ~9.5): el mismo patrón de fallo que queremos detectar. Si entran
-# al train, el modelo aprende que "el fallo es normal" y el FPR explota
-# (medido: 69.6% medio en q10). Se excluyen del entrenamiento.
-CORRIDAS_NO_BASE_SANA = [
+# Se excluyen del entrenamiento y de la referencia normal (01 y 02).
+#
+# Casos cubiertos (mediciones 2026-09-23, FPR leave-one-corrida-out):
+#   1. API COLGADA (api_status=0, latencia ~5007ms, load1 ~9.5): el mismo
+#      patrón de fallo a detectar. Si entran al train, el modelo aprende que
+#      "el fallo es normal" y el FPR explota (medido: 69.6% medio en q10
+#      antes de la Fase 1). -> carga1, carga2, carga4.
+#   2. Baselines antiguas de OTRO entorno de captura (10, 8, carga7,
+#      carga11, carga18, carga20): perfil distinto al entorno actual; su FPR
+#      leave-one-out es 64-100% y arrastran el FPR medio a 40.8% en q10.
+#   3. Capturas normales defectuosas: normal_baja_01 (FPR 76%) y
+#      normal_media_01 (FPR 20%). Re-capturar si se quieren recuperar.
+#
+# Extensible vía env STEELNORT_CORRIDAS_NO_SANA (lista csv adicional) para
+# poder probar distintas combinaciones sin tocar código.
+_CORRIDAS_NO_SANA_DEF = [
     "carga1",
     "carga2",
     "carga4",
+    "10",
+    "8",
+    "carga7",
+    "carga11",
+    "carga18",
+    "carga19",
+    "carga20",
+    "normal_baja_01",
+    "normal_media_01",
+    # Duplicados exactos (mismo fingerprint) de las excluidas cargax:
+    # 01_muestras los descarta por deduplicación, pero 02_correlacion NO
+    # deduplica, así que hay que excluirlos aquí para que la referencia
+    # normal (reglas/umbrales) no se contamine.
+    "run1",  # = carga1 (API colgada)
+    "run2",  # = carga2 (API colgada)
+    "run4",  # = carga4 (API colgada)
+    "run7",  # = carga7 (baseline antigua)
 ]
+
+_CORRIDAS_NO_SANA_EXTRA = os.getenv("STEELNORT_CORRIDAS_NO_SANA", "")
+
+CORRIDAS_NO_BASE_SANA = (
+    _CORRIDAS_NO_SANA_DEF
+    + [c.strip() for c in _CORRIDAS_NO_SANA_EXTRA.split(",") if c.strip()]
+)
 
 # ---------------------------------------------------------------------------
 # Poda del conjunto canónico de data_preparation (VARIABLES_PRINCIPALES).
 # El DATASET conserva las 22 columnas para diagnóstico, pero EL MODELO usa
-# SOLO estas 19 variables. Se excluyen por redundancia comprobada:
+# SOLO estas 17 variables. Se excluyen por redundancia comprobada:
 #   - cpu_idl          : complemento de cpu_usr (r=-0.78)
 #   - memory_used_mb   : complemento de memory_available_mb (r=-0.75)
 #   - duration_max_ms  : idéntica a duration_avg_ms (r=1.00)
+#   - long_queries     : 100% nula en todo el dataset integrado (el
+#   - long_transactions: collector aún no la captura); quedaban como
+#                        constante 0 (ruido sin señal) tras fillna(0).
 # ---------------------------------------------------------------------------
 VARIABLES_MODELO = [
     "cpu_usr",
@@ -60,14 +98,17 @@ VARIABLES_MODELO = [
     "active_sessions",
     "active_requests",
     "transactions_per_sec",
-    "long_queries",
-    "long_transactions",
     "duration_avg_ms",
     "cpu_time_sum_ms",
     "api_latency_ms",
     "api_status",
     "load1",
 ]
+
+# Objetivo máximo de tasa de falsa alarma media (FPR) sobre normal
+# nunca visto que se admite para dar por apto el modelo. Configurable vía
+# env STEELNORT_FPR_MAX. Medido con experimental/medir_discriminacion.py.
+FPR_MAX_OBJETIVO = float(os.getenv("STEELNORT_FPR_MAX", "0.10"))
 
 def _carpetas_con(raiz, archivo):
     """Subcarpetas de raiz que contienen 'archivo'."""
@@ -107,6 +148,22 @@ def corridas_anomalia(raiz=None):
 
     carpetas.sort(key=_mtime, reverse=True)
     return carpetas
+
+def corridas_entrenamiento(runs):
+    """Corridas de referencia normal (línea base sana) para entrenar.
+
+    Recibe la colección de corridas presentes en el dataset (``runs``)
+    y devuelve las que SÍ sirven de referencia normal:
+    excluye las corridas de anomalias (config.corridas_anomalia) y las
+    de CORRIDAS_NO_BASE_SANA (capturadas con la API colgada).
+
+    Fuente ÚNICA de verdad para el train: la usan 01_muestras.py y
+    02_correlacion.py para que las reglas/umbrales "normales" se calculen
+    EXACTAMENTE sobre las mismas corridas que entrena el modelo.
+    """
+    anom = set(corridas_anomalia())
+    no_sana = set(CORRIDAS_NO_BASE_SANA)
+    return sorted(r for r in set(runs) if r not in anom and r not in no_sana)
 
 def ruta_corrida(raiz, corrida):
     """Ruta de la carpeta de una corrida (busca en anomalias/, baseline/

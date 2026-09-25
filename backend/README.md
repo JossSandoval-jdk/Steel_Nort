@@ -11,6 +11,12 @@ esta disenado para escalar agregando nuevos routers y modelos.
 - SQL Server accesible (driver ODBC 17 o 18 instalado).
 - Conexion Windows (Trusted_Connection) o usuario/contra de SQL.
 
+> **Politica de entorno (2026):** el unico interpretador de referencia es
+> `.venv` (Python **3.12.7**). Se usa **tanto para el backend** (`run_backend.bat`)
+> **como para el pipeline de entrenamiento** en `training/nucleo/` (pandas 3.0.x,
+> numpy 2.5.x, scikit-learn 1.9.x). No ejecute los scripts de entrenamiento con
+> el Python del sistema (3.14) para preservar reproducibilidad.
+
 ## Instalacion
 
 ```bash
@@ -115,11 +121,28 @@ backend/
 │   ├── schemas/         # DTOs Pydantic (LoginRequest, TokenResponse...)
 │   └── routers/
 │       ├── auth.py      # /auth/login, /auth/me, /auth/logout
+├── ml/
+│   ├── artifacts/       # Artefactos ACTIVOS que usa el detector
+│   └── backups/         # Unico lugar de respaldos *.bak_old
+├── tools/               # Utilidades (ver abajo)
+├── training/            # Pipeline CRISP-DM (data_preparation + modeling)
 ├── tests/               # (por implementar)
 ├── requirements.txt
 ├── .env.example
 └── README.md
 ```
+
+## Herramientas de captura y validacion (`tools/`)
+
+| Script | Proposito |
+|--------|-----------|
+| `menu_pipeline.py` | Orquestador: captura normal (`paso_captura_normal`), anomalias, preparacion, modelado, despliegue y resultados. |
+| `generar_carga.py` | Genera carga OLTP de trabajo para las capturas. |
+| `inyectar_anomalias.py` | Inyecta anomalias en una captura en marcha. |
+| `simular_carga.py` | Validador end-to-end contra el endpoint real (/telemetria) para verificar que el detector clasifica bien. |
+| `run_scratch.py`, `run_long_scratch.py` | Capturas normales ad-hoc usando `menu_pipeline.paso_captura_normal` (baseline adicional). |
+
+Los run de comparacion/experimentos viven en `training/nucleo/modeling/experimental/`.
 
 ## Escalar
 

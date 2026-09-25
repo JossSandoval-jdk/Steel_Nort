@@ -18,7 +18,8 @@ y al terminar escribe el ground truth automatico:
     <corrida>/descripcion_simulacion.json (plan de la simulacion)
 
 Ese timeline es el que consume ``05_diagnostico_resultados.py`` para
-cruzar deteccion vs realidad.
+cruzar deteccion vs realidad. Ademas etiqueta la corrida como de
+``contenedor_sql`` (origen.json) para trazabilidad en el inventario.
 
 Uso:
     python tools/inyectar_anomalias.py --duracion 180 --faults lockwait,fault1,fault2,fault5,fault3 \
@@ -49,11 +50,19 @@ with suppress(Exception):
 BACKEND_ROOT = str(Path(__file__).resolve().parent.parent)
 if BACKEND_ROOT not in sys.path:
     sys.path.insert(0, BACKEND_ROOT)
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
 
 import pyodbc  # noqa: E402
 
 from app.collector.config import SQL_SERVER_CONN_STR  # noqa: E402
 import generar_carga  # noqa: E402  (reutiliza scratch y ops normales)
+from training.nucleo.data_preparation.config import (
+    MOTOR_SQL_PODMAN,
+    TIPO_ORIGEN_CONTENEDOR,
+    escribir_origen,
+)
 
 NOMBRE_SESION = "SteelNortCargaAnomalia"
 SCRATCH_ANOMALIA = "dbo.anomalia_scratch"
@@ -392,51 +401,17 @@ def construir_secuencia(duracion, faults):
     return secuencia
 
 
-def main():
-    ap = argparse.ArgumentParser(
-        description="Inyecta anomalias de rendimiento reales en el SQL de negocio"
-    )
-    ap.add_argument("--duracion", type=int, default=180, help="segundos totales")
-    ap.add_argument("--faults", default="lockwait,fault1,fault2,fault5,fault3",
-                    help="lista de fallos separada por comas (en orden)")
-    ap.add_argument("--corrida", default="carga5",
-                    help="nombre de la corrida para el ground truth")
-    ap.add_argument("--output-root", default=None,
-                    help="raiz donde se guardan las corridas "
-                         "(def: STEELNORT_OUTPUT_DIR o backend/training/output)")
-    ap.add_argument("--solo-setup", action="store_true",
-                    help="solo prepara anomalia_scratch y sale")
-    args = ap.parse_args()
-
-    faults = [f.strip().lower() for f in args.faults.split(",") if f.strip()]
-    for f in faults:
-        if f not in FASES:
-            log(f"ERROR: fault desconocido '{f}'. Validos: "
-                f"{', '.join(sorted(FASES))}")
-            sys.exit(2)
-
-    if args.output_root:
-        output_root = args.output_root
-    elif os.getenv("STEELNORT_OUTPUT_DIR"):
-        output_root = os.getenv("STEELNORT_OUTPUT_DIR")
-    else:
-        output_root = str(
-            Path(BACKEND_ROOT) / "training" / "output"
-        )
-
-    corrida_dir = os.path.join(output_root, args.corrida)
+def ejecutar_corrida(output_root, corrida, duracion, faults,
+                     tipo_origen=TIPO_ORIGEN_CONTENEDOR):
+    """Ejecuta UNA corrida de anomalias (secuencia normal/fault alternada),
+    escribe el ground truth (anomalias_timeline.csv), la descripción y la
+    etiqueta de procedencia (origen.json). Devuelve la ruta de la corrida."""
+    corrida_dir = os.path.join(output_root, corrida)
     os.makedirs(corrida_dir, exist_ok=True)
 
-    limpiar_sesiones()
-    _asegurar_scratch_anomalia()
+    secuencia = construir_secuencia(duracion, faults)
 
-    if args.solo_setup:
-        log("Setup anomalia_scratch completado.")
-        return
-
-    secuencia = construir_secuencia(args.duracion, faults)
-
-    log(f"Simulacion: {args.duracion}s, fallos={faults}, corrida={args.corrida}")
+    log(f"Simulacion: {duracion}s, fallos={faults}, corrida={corrida}")
     log(f"Secuencia (fases): {[(f, int(d)) for f, d in secuencia]}")
 
     timeline = []
@@ -477,13 +452,13 @@ def main():
     log(f"Ground truth escrito: {ruta_timeline}")
 
     descripcion = {
-        "corrida": args.corrida,
+        "corrida": corrida,
         "inicio": inicio_global.strftime("%Y-%m-%d %H:%M:%S"),
-        "duracion_total_s": args.duracion,
+        "duracion_total_s": duracion,
         "faults": faults,
         "secuencia": [{"fase": f, "segundos": int(d)} for f, d in secuencia],
         "timeline": timeline,
-        "motor": "SQL Server Podman (localhost:1434/SteelNort)",
+        "motor": MOTOR_SQL_PODMAN,
         "nota": "fases intercaladas normal/fault; el ground truth se expresa "
                 "en el reloj local del collector",
     }
@@ -492,6 +467,57 @@ def main():
         json.dump(descripcion, f, ensure_ascii=False, indent=2)
     log(f"Descripcion escrita: {ruta_desc}")
 
+    escribir_origen(corrida_dir, tipo_origen,
+                    motor=MOTOR_SQL_PODMAN,
+                    experiment_id=corrida,
+                    plan=descripcion["secuencia"])
+    log(f"Origen (etiqueta) escrita: {corrida_dir}")
+    return corrida_dir
+
+
+def main():
+    ap = argparse.ArgumentParser(
+        description="Inyecta anomalias de rendimiento reales en el SQL de negocio"
+    )
+    ap.add_argument("--duracion", type=int, default=180, help="segundos totales")
+    ap.add_argument("--faults", default="lockwait,fault1,fault2,fault5,fault3",
+                    help="lista de fallos separada por comas (en orden)")
+    ap.add_argument("--corrida", default="carga5",
+                    help="nombre de la corrida para el ground truth")
+    ap.add_argument("--output-root", default=None,
+                    help="raiz donde se guardan las corridas "
+                         "(def: STEELNORT_OUTPUT_DIR o backend/training/output)")
+    ap.add_argument("--tipo-origen", default=TIPO_ORIGEN_CONTENEDOR,
+                    help="etiqueta de procedencia en origen.json")
+    ap.add_argument("--solo-setup", action="store_true",
+                    help="solo prepara anomalia_scratch y sale")
+    args = ap.parse_args()
+
+    faults = [f.strip().lower() for f in args.faults.split(",") if f.strip()]
+    for f in faults:
+        if f not in FASES:
+            log(f"ERROR: fault desconocido '{f}'. Validos: "
+                f"{', '.join(sorted(FASES))}")
+            sys.exit(2)
+
+    if args.output_root:
+        output_root = args.output_root
+    elif os.getenv("STEELNORT_OUTPUT_DIR"):
+        output_root = os.getenv("STEELNORT_OUTPUT_DIR")
+    else:
+        output_root = str(
+            Path(BACKEND_ROOT) / "training" / "output"
+        )
+
+    limpiar_sesiones()
+    _asegurar_scratch_anomalia()
+
+    if args.solo_setup:
+        log("Setup anomalia_scratch completado.")
+        return
+
+    ejecutar_corrida(output_root, args.corrida, args.duracion, faults,
+                     tipo_origen=args.tipo_origen)
     limpiar_sesiones()
     log("Inyeccion completada. Los collectors debieron capturar la corrida.")
 

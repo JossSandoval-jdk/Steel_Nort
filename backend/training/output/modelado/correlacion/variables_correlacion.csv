@@ -1,7 +1,5 @@
 ﻿var_a,var_b,pearson,spearman
-cpu_usr,api_latency_ms,0.8662,0.819
-memory_used_mb,memory_available_mb,-0.8338,-0.9737
-total_writes,transactions_per_sec,0.9166,0.7341
-active_sessions,active_requests,0.8782,0.8758
-duration_avg_ms,duration_max_ms,1.0,0.9921
-api_latency_ms,api_status,-0.9803,-0.8428
+cpu_sys,cpu_idl,-0.9084,-0.9111
+memory_used_mb,memory_available_mb,-1.0,-1.0
+total_writes,transactions_per_sec,0.9195,0.8818
+active_sessions,active_requests,0.8946,0.8929

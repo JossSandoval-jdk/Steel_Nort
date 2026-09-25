@@ -1,0 +1,47 @@
+{
+  "normal::ruido_z005": {
+    "n": 83,
+    "flips": 81,
+    "tasa_flips": 0.9759
+  },
+  "normal::escala_x5_una_var": {
+    "n": 83,
+    "flips": 0,
+    "tasa_flips": 0.0
+  },
+  "normal::nan_una_var": {
+    "n": 83,
+    "flips": 0,
+    "tasa_flips": 0.0
+  },
+  "normal::delta_ruido": {
+    "delta_medio": -2.196,
+    "max_abs": 2.81,
+    "umbral_q01": -2.144584110802836
+  },
+  "falla::ruido_z005": {
+    "n": 108,
+    "flips": 0,
+    "tasa_flips": 0.0
+  },
+  "falla::escala_x5_una_var": {
+    "n": 108,
+    "flips": 0,
+    "tasa_flips": 0.0
+  },
+  "falla::nan_una_var": {
+    "n": 108,
+    "flips": 0,
+    "tasa_flips": 0.0
+  },
+  "falla::delta_ruido": {
+    "delta_medio": -1.743,
+    "max_abs": 2.341,
+    "umbral_q01": -2.144584110802836
+  },
+  "nan_referencia_normal": {
+    "score": "0.24808301434740124",
+    "umbral_q01": -2.144584110802836
+  },
+  "compat_features": "OK: 17 variables = VARIABLES_MODELO"
+}

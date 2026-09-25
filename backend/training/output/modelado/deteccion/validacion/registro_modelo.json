@@ -1,0 +1,63 @@
+{
+  "modelo": "ENSEMBLE_Z",
+  "fecha_validacion": "2026-09-25T09:27:33.890092",
+  "seed": 42,
+  "ventana": 10,
+  "features": [
+    "cpu_usr",
+    "cpu_sys",
+    "cpu_wai",
+    "memory_available_mb",
+    "page_life_expectancy",
+    "disk_read_per_sec",
+    "disk_write_per_sec",
+    "total_reads",
+    "total_writes",
+    "active_sessions",
+    "active_requests",
+    "transactions_per_sec",
+    "duration_avg_ms",
+    "cpu_time_sum_ms",
+    "api_latency_ms",
+    "api_status",
+    "load1"
+  ],
+  "hiperparametros": {
+    "iso": {
+      "contamination": "auto",
+      "n_estimators": 100,
+      "max_samples": "auto",
+      "max_features": 1.0
+    },
+    "copod": {
+      "contamination": 0.05
+    },
+    "scaler": "standard",
+    "n_train_windows": 230
+  },
+  "umbrales_ensamble_z": {
+    "q10": -1.1803875809736193,
+    "q05": -1.3568800960414211,
+    "q01": -2.144584110802836
+  },
+  "ens_stats": {
+    "mu_iso": 0.060774,
+    "sd_iso": 0.030416,
+    "mu_copod": -155.079815,
+    "sd_copod": 28.735199
+  },
+  "n_train_windows": 230,
+  "experimento": {
+    "train_norm": [
+      "normal_baja_02",
+      "normal_media_02",
+      "normal_alta_01"
+    ],
+    "test_norm": [
+      "normal_larga_01",
+      "normal_prueba_01"
+    ],
+    "test_fault": null
+  },
+  "artefacto": "validacion/modelo_candidato.joblib"
+}

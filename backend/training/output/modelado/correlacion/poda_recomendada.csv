@@ -1,6 +1,5 @@
 ﻿columna,motivo,media_abs_corr
-cpu_usr,correlación >= 0.85 con ['api_latency_ms'],0.3881
-active_sessions,correlación >= 0.85 con ['active_requests'],0.3681
-total_writes,correlación >= 0.85 con ['transactions_per_sec'],0.3251
-api_status,correlación >= 0.85 con ['api_latency_ms'],0.3128
-duration_avg_ms,correlación >= 0.85 con ['duration_max_ms'],0.1289
+cpu_sys,correlación >= 0.85 con ['cpu_idl'],0.3909
+memory_available_mb,correlación >= 0.85 con ['memory_used_mb'],0.3025
+transactions_per_sec,correlación >= 0.85 con ['total_writes'],0.3023
+active_sessions,correlación >= 0.85 con ['active_requests'],0.2133

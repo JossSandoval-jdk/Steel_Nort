@@ -254,7 +254,12 @@ def _stop_collectors(handles, grace=6):
 def _pegar_captura(dataset: str, corrida: str, root: Path,
                    grupo: str = "") -> Path:
     """Copia training/captures/<dataset>/*.log (y el timeline de anomalias
-    si existe) a <root>/[grupo]/<corrida>/."""
+    si existe) a <root>/[grupo]/<corrida>/ y etiqueta la procedencia."""
+    from training.nucleo.data_preparation.config import (
+        MOTOR_SQL_PODMAN,
+        TIPO_ORIGEN_CONTENEDOR,
+        escribir_origen,
+    )
     origen = CAPTURES_DIR / dataset
     destino = Path(root)
     if grupo:
@@ -269,6 +274,8 @@ def _pegar_captura(dataset: str, corrida: str, root: Path,
     if tl.is_file():
         shutil.copy2(tl, destino / "anomalias_timeline.csv")
         copiados += 1
+    escribir_origen(str(destino), TIPO_ORIGEN_CONTENEDOR,
+                    motor=MOTOR_SQL_PODMAN, experiment_id=corrida)
     ok(f"Captura {copiados} archivo(s) -> {destino}")
     return destino
 
@@ -287,7 +294,8 @@ def _reportar_corrida(dir_corrida: Path, nombre: str):
 # PASO 1: captura NORMAL
 # ----------------------------------------------------------------------
 
-def paso_captura_normal(cfg: dict, duracion=90, workers=10, corrida=None):
+def paso_captura_normal(cfg: dict, duracion=90, workers=10, corrida=None,
+                        retardo=0.02):
     root = Path(cfg["output_root"])
     if corrida is None:
         corrida = f"carga{len(listar_corridas(root)) + 1}"
@@ -301,10 +309,12 @@ def paso_captura_normal(cfg: dict, duracion=90, workers=10, corrida=None):
     handles = _start_collectors(dataset, log_base)
     try:
         time.sleep(4)
-        ok(f"Generando carga normal T-SQL ({duracion}s, {workers} workers)...")
+        ok(f"Generando carga normal T-SQL ({duracion}s, {workers} workers, "
+           f"retardo {retardo})...")
         run_proceso(
             [sys.executable, "-u", "tools/generar_carga.py",
-             "--duracion", str(duracion), "--workers", str(workers)],
+             "--duracion", str(duracion), "--workers", str(workers),
+             "--retardo", str(retardo)],
             prefijo="[CARGA-NORMAL] ",
         )
     finally:
@@ -348,6 +358,70 @@ def paso_captura_anomalias(cfg: dict, duracion=180,
     _reportar_corrida(dir_corrida, corrida)
     if (dir_corrida / "anomalias_timeline.csv").is_file():
         ok(f"Ground truth: {dir_corrida / 'anomalias_timeline.csv'}")
+    return True
+
+
+# ----------------------------------------------------------------------
+# FASE 2: captura batch (normales homogéneas + anomalias por plan)
+# ----------------------------------------------------------------------
+#
+# Plan de normales homogéneas: cargas PLANAS (workers fijos, retardo mínimo)
+# para que la línea base sana sea estable y no arrastre variabilidad falsa.
+# Los nombres siguen la convención normal_<perfil>_<nn> para que 01_muestras
+# los incluya automáticamente en el train (no están en CORRIDAS_NO_BASE_SANA).
+# No reutiliza nombres existentes (normal_baja_01/media_01 están descartadas;
+# baja_02/media_02 ya están en el train actual) para no pisar capturas buenas.
+PLAN_NORMALES_HOMOGENEAS = [
+    {"corrida": "normal_baja_03",  "duracion": 100, "workers": 3,  "retardo": 0.005},
+    {"corrida": "normal_media_03", "duracion": 100, "workers": 8,  "retardo": 0.005},
+    {"corrida": "normal_media_04", "duracion": 100, "workers": 8,  "retardo": 0.005},
+    {"corrida": "normal_alta_02",  "duracion": 100, "workers": 14, "retardo": 0.005},
+    {"corrida": "normal_larga_02", "duracion": 120, "workers": 10, "retardo": 0.005},
+]
+
+# Plan default de corridas de anomalias (un subset de fallos por corrida para
+# ampliar el set de test más alla de carga5). Cada corrida queda etiquetada
+# como contenedor_sql con su timeline en anomalias/<corrida>/.
+PLAN_ANOMALIAS_BATCH = [
+    {"corrida": "carga6",  "duracion": 180, "faults": "lockwait,fault1,fault2"},
+    {"corrida": "carga11", "duracion": 180, "faults": "fault5,fault3,lockwait"},
+    {"corrida": "carga12", "duracion": 200, "faults": "fault2,fault3,fault1"},
+]
+
+
+def paso_captura_normales_batch(cfg: dict, plan=None):
+    root = Path(cfg["output_root"])
+    paso(1, 7, "CAPTURA BATCH DE NORMALES HOMOGENEAS -> baseline/")
+    if not sql_podman_ok():
+        return False
+    plan = plan or PLAN_NORMALES_HOMOGENEAS
+    ok(f"Plan: {len(plan)} normales planas")
+    for i, item in enumerate(plan, 1):
+        info(f"[{i}/{len(plan)}] baseline/{item['corrida']} "
+             f"({item['duracion']}s, {item['workers']} workers)")
+        paso_captura_normal(
+            cfg, duracion=item["duracion"], workers=item["workers"],
+            corrida=item["corrida"], retardo=item.get("retardo", 0.005),
+        )
+    ok("Captura batch de normales finalizada.")
+    return True
+
+
+def paso_captura_anomalias_batch(cfg: dict, plan=None):
+    root = Path(cfg["output_root"])
+    paso(2, 7, "CAPTURA BATCH DE ANOMALIAS -> anomalias/")
+    if not sql_podman_ok():
+        return False
+    plan = plan or PLAN_ANOMALIAS_BATCH
+    ok(f"Plan: {len(plan)} corridas de anomalias")
+    for i, item in enumerate(plan, 1):
+        info(f"[{i}/{len(plan)}] anomalias/{item['corrida']} "
+             f"(fallos: {item['faults']})")
+        paso_captura_anomalias(
+            cfg, duracion=item["duracion"], faults=item["faults"],
+            corrida=item["corrida"],
+        )
+    ok("Captura batch de anomalias finalizada.")
     return True
 
 
@@ -438,6 +512,7 @@ def paso_despliegue(cfg: dict):
 
     pares = [
         (det_dir / "modelo_isolation_forest.joblib", ARTIFACTS_DIR, "modelo_isolation_forest.joblib"),
+        (det_dir / "modelo_copod.joblib", ARTIFACTS_DIR, "modelo_copod.joblib"),
         (det_dir / "scaler.joblib", ARTIFACTS_DIR, "scaler.joblib"),
         (cor_dir / "features_modelo.csv", ARTIFACTS_DIR, "features_modelo.csv"),
         (cor_dir / "reglas_umbrales.csv", ARTIFACTS_DIR, "reglas_umbrales.csv"),
@@ -589,7 +664,9 @@ MENU_TEXTO = """
 ║   STEELNORT — MENU COMPLETO DEL PIPELINE                     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║   1  Captura NORMAL        (colectores + carga T-SQL real)   ║
+║   A  Captura BATCH normal  (normales homogeneas por plan)    ║
 ║   2  Captura ANOMALIAS     (inyeccion de fallos + timeline)  ║
+║   B  Captura BATCH anomal. (varias corridas de fallos)       ║
 ║   3  Preparacion de datos  (00→04 → datasets CSV)            ║
 ║   4  Modelado/Reentrenar   (01→03 → modelo + FPR)            ║
 ║   5  Reglas + Diagnostico  (04→05 → informe_deteccion.json)  ║
@@ -620,6 +697,12 @@ def main():
     ap.add_argument("--todo", action="store_true", help="flujo completo sin preguntar")
     ap.add_argument("--solo-capturas", action="store_true",
                     help="con --todo: solo genera capturas normal+anomalias")
+    ap.add_argument("--solo-capturas-batch", action="store_true",
+                    help="con --todo: solo genera capturas BATCH normal+anomalias")
+    ap.add_argument("--plan-normales", default=None,
+                    help="JSON [{corrida,duracion,workers,retardo}] para batch")
+    ap.add_argument("--plan-faults", default=None,
+                    help="JSON [{corrida,duracion,faults}] para batch")
     ap.add_argument("--duracion-normal", type=int, default=90)
     ap.add_argument("--duracion-anom", type=int, default=180)
     ap.add_argument("--workers", type=int, default=10)
@@ -627,11 +710,25 @@ def main():
 
     cfg = cargar_config()
 
+    def _plan_custom(ruta, defs):
+        if not ruta:
+            return None
+        with open(ruta, encoding="utf-8") as f:
+            return json.loads(f.read())
+
     if args.todo:
         cmp = dict(cfg)
         cmp["duracion_normal"] = args.duracion_normal
         cmp["duracion_anomalias"] = args.duracion_anom
         cmp["workers"] = args.workers
+        if args.solo_capturas_batch:
+            if not preflight(cmp):
+                return 1
+            paso_captura_normales_batch(
+                cmp, plan=_plan_custom(args.plan_normales, PLAN_NORMALES_HOMOGENEAS))
+            paso_captura_anomalias_batch(
+                cmp, plan=_plan_custom(args.plan_faults, PLAN_ANOMALIAS_BATCH))
+            return 0
         return 0 if flujo_completo(cmp, solo_capturas=args.solo_capturas) else 1
 
     titulo("MENU DEL PIPELINE STEELNORT")
@@ -646,9 +743,13 @@ def main():
             if op == "1":
                 corrida = input("  Nombre corrida (Enter = auto): ").strip() or None
                 paso_captura_normal(cfg, corrida=corrida)
+            elif op.lower() == "a":
+                paso_captura_normales_batch(cfg)
             elif op == "2":
                 corrida = input("  Nombre corrida (Enter = carga5): ").strip() or "carga5"
                 paso_captura_anomalias(cfg, corrida=corrida)
+            elif op.lower() == "b":
+                paso_captura_anomalias_batch(cfg)
             elif op == "3":
                 paso_preparacion(cfg)
             elif op == "4":

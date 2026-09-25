@@ -75,6 +75,43 @@ def ruta_corrida(raiz, corrida):
             return str(p)
     return str(raiz / corrida)
 
+NOMBRE_ORIGEN = "origen.json"
+
+TIPO_ORIGEN_CONTENEDOR = "contenedor_sql"
+TIPO_ORIGEN_LEGADO = "legacy"
+
+MOTOR_SQL_PODMAN = "SQL Server Podman (localhost:1434/SteelNort)"
+
+def leer_origen(ruta_corrida):
+    """Metadatos de procedencia de una corrida (origen.json si existe).
+
+    Las corridas capturadas por las herramientas de Fase 2 escriben
+    ``origen.json`` con su etiqueta (p. ej. ``contenedor_sql``). Las
+    capturas históricas que no lo tienen se clasifican por defecto como
+    ``legacy``. Nunca lanza excepción: regresa un dict mínimo."""
+    origen = {"origen": TIPO_ORIGEN_LEGADO}
+    try:
+        import json as _json
+        p = Path(ruta_corrida) / NOMBRE_ORIGEN
+        if p.is_file():
+            with open(p, encoding="utf-8") as f:
+                origen.update(_json.load(f))
+    except Exception:
+        pass
+    return origen
+
+def escribir_origen(ruta_corrida, tipo=TIPO_ORIGEN_CONTENEDOR, **campos):
+    """Escribe origen.json con la etiqueta de procedencia de la corrida."""
+    import json as _json
+    ruta = Path(ruta_corrida)
+    ruta.mkdir(parents=True, exist_ok=True)
+    origen = {"origen": tipo}
+    origen.update(campos)
+    p = ruta / NOMBRE_ORIGEN
+    with open(p, "w", encoding="utf-8") as f:
+        _json.dump(origen, f, ensure_ascii=False, indent=2)
+    return str(p)
+
 def _subcarpetas_con_logs(carpeta):
     """Subcarpetas de 'carpeta' que contienen al menos un log de entrada."""
     if not os.path.isdir(carpeta):
@@ -765,6 +802,46 @@ el porcentaje.
 EXCLUIR_MEDICION_CORRUPTA = [
     "buffer_cache_hit_ratio",
 ]
+
+"""
+Winsorización: recorte de colas extremas POR CORRIDA (03_transformacion).
+
+Colapsa al percentil superior solo los picos aislados (p.ej.
+duration_max_ms con mínimos negativos -24ms o picos de 6.2e6 ms) que
+ensucian las tasas sin aportar señal. El recorte se calcula con el
+percentil 99.5 de la MISMA corrida, así una corrida corta casi no se
+modifica y las corridas sanas no se contagian entre sí.
+SIN label leakage: solo transforma valores, nunca etiqueta.
+"""
+
+COLUMNAS_WINSORIZAR = [
+    "duration_avg_ms",
+    "duration_max_ms",
+    "query_duration_avg_ms",
+    "query_duration_max_ms",
+    "cpu_time_sum_ms",
+    "disk_read_per_sec",
+    "disk_write_per_sec",
+    "total_reads",
+    "total_writes",
+    "load1",
+]
+
+# Percentil superior del recorte (por corrida). Límite inferior = 0 para
+# tasas/duraciones (no pueden ser negativas).
+WINSORIZAR_PCT = float(os.getenv("STEELNORT_WINSORIZAR_PCT", "0.995"))
+WINSORIZAR_ACTIVO = os.getenv("STEELNORT_WINSORIZAR", "1") == "1"
+
+"""
+Imputación de numéricos residuales (04_integracion):
+
+Antes se rellenaba TODO con 0, lo que convertía la primera muestra de cada
+tasa (NaN por delta/dt) en "0 actividad" falsa. Ahora se imputa con la
+MEDIANA de la propia corrida, y solo se cae a 0 si la corrida entera es
+NaN para esa columna.
+"""
+
+IMPUTAR_MEDIANA_CORRIDA = os.getenv("STEELNORT_IMPUTAR_MEDIANA", "1") == "1"
 
 """
 Conjunto canónico de 22 variables para el modelo de detección

@@ -17,7 +17,8 @@ Procesos principales:
     3. Agregación temporal de eventos de events.log.
     4. Agregación temporal de errores/advertencias de SQL Server.
     5. Cálculo de variables derivadas.
-    6. Generación de una tabla transformada por cada corrida.
+    6. Winsorización por corrida de colas extremas (duraciones/tasas).
+    7. Generación de una tabla transformada por cada corrida.
 
 IMPORTANTE:
     - No existen events_xe ni workload_stats.
@@ -714,6 +715,49 @@ def agregar_logs_sqlserver(dir_salida, timestamps):
 
     return out
 
+def winsorizar_corrida(wide):
+    """
+    Recorta las colas extremas de COLUMNAS_WINSORIZAR al percentil
+    WINSORIZAR_PCT de ESTA MISMA corrida, con límite inferior 0.
+
+    Solo limpia picos aislados (duraciones/tonelajes absurdos); una
+    corrida corta apenas se modifica porque su percentil es cercano al
+    máximo. Desactivable con STEELNORT_WINSORIZAR=0.
+    """
+    if not config.WINSORIZAR_ACTIVO:
+        return wide
+
+    out = wide.copy()
+
+    recortadas = []
+
+    for col in config.COLUMNAS_WINSORIZAR:
+
+        if col not in out.columns:
+            continue
+
+        s = pd.to_numeric(out[col], errors="coerce")
+
+        if s.notna().sum() < 2:
+            continue
+
+        hi = s.quantile(config.WINSORIZAR_PCT)
+
+        clip = s.clip(lower=0.0, upper=hi)
+
+        if not clip.equals(s):
+            recortadas.append(col)
+
+        out[col] = clip
+
+    if recortadas:
+        log(
+            f"   Winsorización p{config.WINSORIZAR_PCT:.1%} aplicada "
+            f"({len(recortadas)} cols): {recortadas}"
+        )
+
+    return out
+
 def transformar_corrida(corrida):
     """
     Transforma una corrida completa de manera independiente.
@@ -897,6 +941,8 @@ def transformar_corrida(corrida):
     wide = wide.sort_values(
         "timestamp"
     ).reset_index(drop=True)
+
+    wide = winsorizar_corrida(wide)
 
     ruta_transformado = os.path.join(
         dir_salida,

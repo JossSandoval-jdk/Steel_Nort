@@ -1,0 +1,142 @@
+{
+  "target_fpr": 0.0174,
+  "target_tpr": 0.95,
+  "n_fase1": 136,
+  "n_filas": 504,
+  "mejor_iso_q01": [
+    {
+      "contamination": 0.005,
+      "n_estimators": 300,
+      "max_samples": 64,
+      "max_features": 0.5,
+      "prep": "standard",
+      "subset": "17",
+      "iso_tpr": 1.0,
+      "iso_fpr": 0.0652,
+      "iso_f1": 0.9351
+    },
+    {
+      "contamination": 0.001,
+      "n_estimators": 300,
+      "max_samples": 64,
+      "max_features": 0.5,
+      "prep": "standard",
+      "subset": "17",
+      "iso_tpr": 1.0,
+      "iso_fpr": 0.0652,
+      "iso_f1": 0.9351
+    },
+    {
+      "contamination": 0.01,
+      "n_estimators": 300,
+      "max_samples": 64,
+      "max_features": 0.5,
+      "prep": "robust",
+      "subset": "17",
+      "iso_tpr": 1.0,
+      "iso_fpr": 0.0652,
+      "iso_f1": 0.9351
+    },
+    {
+      "contamination": 0.02,
+      "n_estimators": 300,
+      "max_samples": 64,
+      "max_features": 0.5,
+      "prep": "robust",
+      "subset": "17",
+      "iso_tpr": 1.0,
+      "iso_fpr": 0.0652,
+      "iso_f1": 0.9351
+    },
+    {
+      "contamination": 0.005,
+      "n_estimators": 300,
+      "max_samples": 64,
+      "max_features": 0.5,
+      "prep": "robust",
+      "subset": "17",
+      "iso_tpr": 1.0,
+      "iso_fpr": 0.0652,
+      "iso_f1": 0.9351
+    },
+    {
+      "contamination": 0.05,
+      "n_estimators": 300,
+      "max_samples": 64,
+      "max_features": 0.5,
+      "prep": "robust",
+      "subset": "17",
+      "iso_tpr": 1.0,
+      "iso_fpr": 0.0652,
+      "iso_f1": 0.9351
+    }
+  ],
+  "mejor_ens_q01": [
+    {
+      "contamination": 0.001,
+      "n_estimators": 100,
+      "max_samples": "auto",
+      "max_features": 0.7,
+      "prep": "standard",
+      "subset": "17",
+      "ens_tpr": 1.0,
+      "ens_fpr": 0.0087,
+      "ens_f1": 0.9908
+    },
+    {
+      "contamination": 0.001,
+      "n_estimators": 100,
+      "max_samples": 128,
+      "max_features": 0.7,
+      "prep": "standard",
+      "subset": "17",
+      "ens_tpr": 1.0,
+      "ens_fpr": 0.0087,
+      "ens_f1": 0.9908
+    },
+    {
+      "contamination": 0.005,
+      "n_estimators": 100,
+      "max_samples": 128,
+      "max_features": 0.7,
+      "prep": "standard",
+      "subset": "17",
+      "ens_tpr": 1.0,
+      "ens_fpr": 0.0087,
+      "ens_f1": 0.9908
+    },
+    {
+      "contamination": 0.005,
+      "n_estimators": 100,
+      "max_samples": "auto",
+      "max_features": 0.7,
+      "prep": "standard",
+      "subset": "17",
+      "ens_tpr": 1.0,
+      "ens_fpr": 0.0087,
+      "ens_f1": 0.9908
+    },
+    {
+      "contamination": 0.02,
+      "n_estimators": 100,
+      "max_samples": 128,
+      "max_features": 0.7,
+      "prep": "standard",
+      "subset": "17",
+      "ens_tpr": 1.0,
+      "ens_fpr": 0.0087,
+      "ens_f1": 0.9908
+    },
+    {
+      "contamination": 0.02,
+      "n_estimators": 100,
+      "max_samples": "auto",
+      "max_features": 0.7,
+      "prep": "standard",
+      "subset": "17",
+      "ens_tpr": 1.0,
+      "ens_fpr": 0.0087,
+      "ens_f1": 0.9908
+    }
+  ]
+}

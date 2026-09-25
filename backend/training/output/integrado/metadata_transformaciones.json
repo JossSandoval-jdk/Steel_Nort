@@ -199,6 +199,62 @@
       ]
     },
     {
+      "run_name": "normal_alta_01",
+      "filas": 56,
+      "rango": [
+        "2026-09-23 11:25:29",
+        "2026-09-23 11:30:34"
+      ]
+    },
+    {
+      "run_name": "normal_baja_01",
+      "filas": 60,
+      "rango": [
+        "2026-09-23 11:04:37",
+        "2026-09-23 11:09:45"
+      ]
+    },
+    {
+      "run_name": "normal_baja_02",
+      "filas": 60,
+      "rango": [
+        "2026-09-23 11:09:47",
+        "2026-09-23 11:14:56"
+      ]
+    },
+    {
+      "run_name": "normal_larga_01",
+      "filas": 82,
+      "rango": [
+        "2026-09-23 11:30:39",
+        "2026-09-23 11:37:49"
+      ]
+    },
+    {
+      "run_name": "normal_media_01",
+      "filas": 49,
+      "rango": [
+        "2026-09-23 11:14:58",
+        "2026-09-23 11:20:07"
+      ]
+    },
+    {
+      "run_name": "normal_media_02",
+      "filas": 58,
+      "rango": [
+        "2026-09-23 11:20:18",
+        "2026-09-23 11:25:23"
+      ]
+    },
+    {
+      "run_name": "normal_prueba_01",
+      "filas": 19,
+      "rango": [
+        "2026-09-23 11:02:10",
+        "2026-09-23 11:03:46"
+      ]
+    },
+    {
       "run_name": "run1",
       "filas": 62,
       "rango": [
@@ -247,8 +303,8 @@
       ]
     }
   ],
-  "total_corridas": 20,
-  "total_filas": 1512,
+  "total_corridas": 27,
+  "total_filas": 1896,
   "nota_independencia": "Cada corrida representa una carga/captura independiente. Las corridas se integran únicamente mediante concatenación, conservando run_name y experiment_id para identificar su procedencia.",
   "nota_etiquetado": "Durante la preparación de datos no se asigna la columna is_anomaly ni se clasifican las corridas como normales o anómalas. La detección de anomalías corresponde a la fase de Modelado.",
   "nota_tasas": "total_reads y total_writes se transforman a tasas mediante delta/dt. Las variables page_reads_per_sec, page_writes_per_sec, rollbacks_per_sec, batch_requests_per_sec y sql_compilations_per_sec no se vuelven a diferenciar en esta etapa porque corresponden a valores entregados por el collector."

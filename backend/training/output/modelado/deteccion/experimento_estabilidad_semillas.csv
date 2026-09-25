@@ -1,6 +1,0 @@
-﻿odelo,Determinista,Media alertas (q10),Std,Min,Max,Rango (Max-Min)
-IsolationForest,No,23.00,0.0000,23,23,0
-LOF,Sí,23.00,0.0000,23,23,0
-OCSVM,Sí,23.00,0.0000,23,23,0
-EllipticEnvelope,Sí,23.00,0.0000,23,23,0
-COPOD,Sí,23.00,0.0000,23,23,0

@@ -44,7 +44,7 @@ def _registrar_modelo_desplegado(db: Session) -> ModelosML:
         mdl_nom=f"isolation_forest_{ts}",
         mdl_tipo="isolation_forest",
         mdl_umbral_pct=Decimal("85.00"),
-        mdl_vars=",".join(det._features21),
+        mdl_vars=",".join(det._features_modelo),
         mdl_hparms=json.dumps({
             "contamination": "auto",
             "random_state": 42,

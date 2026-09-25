@@ -222,7 +222,10 @@ def construir_dataset_principales(df):
 
     Limpieza:
         1. Se descartan variables principales 100% vacías.
-        2. Los NaN residuales se rellenan con 0.
+        2. Los NaN residuales se imputan con la MEDIANA de la propia
+           corrida (si la corrida es 100% NaN en esa columna, se cae a 0).
+           Antes se rellenaba con 0, lo que convertía la primera muestra
+           de cada tasa (NaN por delta/dt) en "0 actividad" falsa.
     """
 
     columnas = [
@@ -278,17 +281,27 @@ def construir_dataset_principales(df):
 
     for col in principales_ok:
         df_final[col] = (
-            df_final.groupby("run_name", group_keys=False)[col]
-            .apply(lambda s: s.ffill())
+            df_final.groupby("run_name")[col].transform("ffill")
         )
 
     numericas = df_final.select_dtypes(
         include="number"
     ).columns
 
-    df_final[numericas] = (
-        df_final[numericas].fillna(0)
-    )
+    if config.IMPUTAR_MEDIANA_CORRIDA:
+        for col in numericas:
+            mediana_corrida = (
+                df_final.groupby("run_name", group_keys=False)[col]
+                .transform("median")
+            )
+            df_final[col] = df_final[col].fillna(mediana_corrida)
+        log(
+            f"Imputación numérica por MEDIANA por corrida "
+            f"({len(numericas)} cols)"
+        )
+
+    # Fallback final: columnas 100% NaN en alguna corrida quedan en 0.
+    df_final[numericas] = df_final[numericas].fillna(0)
 
     return df_final
 

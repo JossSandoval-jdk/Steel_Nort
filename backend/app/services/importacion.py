@@ -193,8 +193,8 @@ def importar_csv(texto: str, nodo_default: str = "", ip: str = "0.0.0.0",
     if not reader.fieldnames:
         return {"exito": False, "mensaje": "CSV vacio o sin encabezados."}
 
-    # Columnas de las 21 variables que el detector usa.
-    features = get_detector()._features21
+    # Columnas de las variables del modelo que el detector usa.
+    features = get_detector()._features_modelo
 
     detalle: list[dict] = []
     for fila in reader:

@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "respuestas": [
+    {
+      "indice": 9,
+      "es_anomalia": true,
+      "score": -11.4695,
+      "umbral": -2.1446,
+      "features": {
+        "cpu_usr": 2.0616332300296385,
+        "cpu_sys": -3.5881256144730265,
+        "cpu_wai": 0.0,
+        "memory_available_mb": -1.5343623372658715,
+        "page_life_expectancy": 10.004338542439339,
+        "disk_read_per_sec": 0.026716603555294996,
+        "disk_write_per_sec": -0.7011703088216641,
+        "total_reads": -0.045815010217371145,
+        "total_writes": -1.709120530386054,
+        "active_sessions": 1.5166521555591228,
+        "active_requests": -2.3078599521592382,
+        "transactions_per_sec": -1.9335032055767523,
+        "duration_avg_ms": 0.0,
+        "cpu_time_sum_ms": 0.0,
+        "api_latency_ms": -11.867734046894645,
+        "api_status": 403.0,
+        "load1": -1.2672365838139628
+      }
+    }
+  ]
+}

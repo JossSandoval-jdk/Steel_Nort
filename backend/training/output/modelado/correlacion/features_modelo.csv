@@ -11,8 +11,6 @@ total_writes
 active_sessions
 active_requests
 transactions_per_sec
-long_queries
-long_transactions
 duration_avg_ms
 cpu_time_sum_ms
 api_latency_ms

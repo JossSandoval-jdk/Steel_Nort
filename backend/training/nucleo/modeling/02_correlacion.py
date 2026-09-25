@@ -2,17 +2,16 @@
 02_correlacion.py
 =================
 
-Análisis de correlación combinado con la selección de variables
-principales (fase de "reglas de motor / alertas"):
+Análisis de correlación + selección de variables y reglas de referencia
+normal para el motor de alertas:
 
-    1. Calcula matrices Pearson y Spearman sobre las corridas de
-       ENTRENAMIENTO (referencia normal).
-    2. Reporta pares con correlación >= UMBRAL_CORRELACION.
-    4. Poda automática de redundancias (diagnóstico): recomienda qué
-       descartar y VALIDA que coincida con VARIABLES_MODELO.
-    5. Calcula VIF de las variables del modelo (colinealidad remanente).
-    6. Genera reglas de referencia normal (p90/p95/p99) por variable
-       para el motor de alertas.
+    1. Matrices Pearson y Spearman sobre las CORRIDAS DE ENTRENAMIENTO
+       (referencia normal).
+    2. Pares con |correlación| >= UMBRAL_CORRELACION.
+    3. Poda automática de redundancias (recomendación) que valida la
+       lista VARIABLES_MODELO de config.
+    4. VIF de las variables del modelo (colinealidad remanente).
+    5. Reglas de referencia normal (p90/p95/p99) por variable.
 
 Salidas (en <OUTPUT>/modelado/correlacion/):
     variables_correlacion.csv
@@ -20,6 +19,7 @@ Salidas (en <OUTPUT>/modelado/correlacion/):
     poda_recomendada.csv
     vif_variables.csv
     reglas_umbrales.csv
+    corridas_referencia_normal.csv
 """
 
 import os
@@ -30,57 +30,37 @@ import pandas as pd
 import config
 import util_normalizacion
 
+
 def log(msg):
     print(f"[CORRELACION] {msg}", flush=True)
 
+
 def reporte_pares(corr_pearson, corr_spearman, umbral):
-    """
-    Lista los pares de variables con correlación >= umbral.
-    """
-
+    """Pares (arriba de la diagonal) con |correlación| >= umbral."""
     vars_ = list(corr_pearson.columns)
-
-    filas = []
-
-    for i in range(len(vars_)):
-
-        for j in range(i + 1, len(vars_)):
-
-            a = vars_[i]
-            b = vars_[j]
-
-            rp = corr_pearson.loc[a, b]
-            rs = corr_spearman.loc[a, b]
-
-            if abs(rp) >= umbral or abs(rs) >= umbral:
-
-                filas.append({
-                    "var_a": a,
-                    "var_b": b,
-                    "pearson": round(rp, 4),
-                    "spearman": round(rs, 4),
-                })
-
+    filas = [
+        {"var_a": a, "var_b": b,
+         "pearson": round(corr_pearson.loc[a, b], 4),
+         "spearman": round(corr_spearman.loc[a, b], 4)}
+        for i, a in enumerate(vars_)
+        for j, b in enumerate(vars_)
+        if j > i
+        and (abs(corr_pearson.loc[a, b]) >= umbral
+             or abs(corr_spearman.loc[a, b]) >= umbral)
+    ]
     return pd.DataFrame(filas)
 
-def podar_redundantes(corr_pearson, umbral):
-    """
-    Poda iterativa por correlación: mientras exista un par con
-    |r| >= umbral elimina la variable con mayor correlación promedio
-    con el resto. Devuelve (mantenidas_auto, descartadas).
-    """
-    vars_ = set(corr_pearson.columns)
 
+def podar_redundantes(corr_pearson, umbral):
+    """Poda iterativa: mientras exista un par con |r| >= umbral, elimina
+    la variable con mayor correlación promedio con el resto.
+    Devuelve (mantenidas_auto, descartadas)."""
+    activas = list(corr_pearson.columns)
     descartadas = []
 
     while True:
-
-        activas = sorted(vars_)
-
         sub = corr_pearson.loc[activas, activas]
-
         mat = sub.to_numpy().astype(float)
-
         np.fill_diagonal(mat, 0.0)
 
         pares = [
@@ -89,262 +69,115 @@ def podar_redundantes(corr_pearson, umbral):
             for j, b in enumerate(activas)
             if j > i and abs(sub.loc[a, b]) >= umbral
         ]
-
         if not pares:
             break
 
-        media_abs = {
-            a: float(np.nanmean(np.abs(mat[i])))
-            for i, a in enumerate(activas)
-        }
-
-        involucradas = sorted({
-            c
-            for p in pares
-            for c in (p[0], p[1])
-        })
-
-        peor = max(
-            involucradas,
-            key=lambda c: (media_abs[c], c)
-        )
+        media_abs = {a: float(np.nanmean(np.abs(mat[i])))
+                     for i, a in enumerate(activas)}
+        involucradas = sorted({c for p in pares for c in (p[0], p[1])})
+        peor = max(involucradas, key=lambda c: (media_abs[c], c))
 
         descartadas.append({
             "columna": peor,
-            "motivo": (
-                f"correlación >= {umbral} con "
-                f"{[p[1] if p[0] == peor else p[0] for p in pares if peor in (p[0], p[1])]}"
-            ),
+            "motivo": (f"correlación >= {umbral} con "
+                       f"{[p[1] if p[0] == peor else p[0]
+                            for p in pares if peor in (p[0], p[1])]}"),
             "media_abs_corr": round(media_abs[peor], 4),
         })
+        activas.remove(peor)
 
-        vars_.discard(peor)
+    return sorted(activas), descartadas
 
-    return sorted(vars_), descartadas
 
 def vif(df):
-    """
-    Variance Inflation Factor por variable mediante regresión
-    lineal múltiple con intercepto (1 / (1 - R^2)). Valores > 10
-    indican colinealidad fuerte con el resto del conjunto.
-    """
-
+    """VIF por variable: 1 / (1 - R²) regresando la variable contra el
+    resto (con intercepto). >10 = colinealidad fuerte."""
     cols = list(df.columns)
-
     n, p = df.shape
-
-    resultado = {}
-
     if p <= 1:
         return {c: 1.0 for c in cols}
 
     Xn = df.to_numpy().astype(float)
-
+    resultado = {}
     for k, objetivo in enumerate(cols):
-
         y = Xn[:, k]
-
-        X_otros = np.column_stack(
-            [Xn[:, j] for j in range(p) if j != k]
-        )
-
-        X_otros_const = np.column_stack(
-            [np.ones(n), X_otros]
-        )
-
-        beta, *_ = np.linalg.lstsq(
-            X_otros_const, y, rcond=None
-        )
-
-        y_pred = X_otros_const @ beta
-
-        ss_res = float(np.sum((y - y_pred) ** 2))
-
+        X_otros = np.column_stack([Xn[:, j] for j in range(p) if j != k])
+        X_otros = np.column_stack([np.ones(n), X_otros])
+        beta, *_ = np.linalg.lstsq(X_otros, y, rcond=None)
+        ss_res = float(np.sum((y - X_otros @ beta) ** 2))
         ss_tot = float(np.sum((y - y.mean()) ** 2))
-
         r2 = 1.0 - (ss_res / ss_tot if ss_tot else 0.0)
-
-        resultado[objetivo] = round(
-            1.0 / (1.0 - r2)
-            if r2 < 1.0
-            else np.inf,
-            2
-        )
-
+        resultado[objetivo] = round(1.0 / (1.0 - r2) if r2 < 1.0 else np.inf, 2)
     return resultado
 
+
+def mostrar(titulo, df=None, texto=None):
+    print(f"\n=== {titulo} ===")
+    print(df.to_string(index=False) if df is not None else texto)
+
+
 def main():
-
     if not os.path.exists(config.DATASET_PRINCIPALES):
-
-        log(
-            f"Falta el dataset: {config.DATASET_PRINCIPALES}."
-        )
-
+        log(f"Falta el dataset: {config.DATASET_PRINCIPALES}.")
         return
 
-    datos = pd.read_csv(
-        config.DATASET_PRINCIPALES,
-        encoding="utf-8-sig"
-    )
+    datos = pd.read_csv(config.DATASET_PRINCIPALES, encoding="utf-8-sig")
+    features = [c for c in datos.columns if c not in config.COLUMNAS_CONTEXTO]
 
-    features = [
-        c
-        for c in datos.columns
-        if c not in config.COLUMNAS_CONTEXTO
-    ]
-
-    train = datos.copy()
-
+    corridas_sanas = config.corridas_entrenamiento(datos["run_name"])
+    train = datos[datos["run_name"].isin(corridas_sanas)].copy()
     if config.NORMALIZACION_RELATIVA:
+        train = util_normalizacion.transformar_relativo(train, features)
 
-        train = util_normalizacion.transformar_relativo(
-            train, features
-        )
-
-        log(
-            "Normalización RELATIVA por corrida aplicada "
-            "(baseline interno por corrida)"
-        )
-
-    df_num = train[features].apply(
-        pd.to_numeric,
-        errors="coerce"
-    ).fillna(0)
-
-    log(
-        f"Muestras de entrenamiento para correlación: {len(df_num)}"
-    )
+    df_num = train[features].apply(pd.to_numeric,
+                                   errors="coerce").fillna(0)
+    log(f"Referencia NORMAL ({len(train)} filas): {corridas_sanas}")
 
     corr_pearson = df_num.corr(method="pearson")
-
     corr_spearman = df_num.corr(method="spearman")
 
-    df_pares = reporte_pares(
-        corr_pearson,
-        corr_spearman,
-        config.UMBRAL_CORRELACION
-    )
-
+    df_pares = reporte_pares(corr_pearson, corr_spearman,
+                             config.UMBRAL_CORRELACION)
     os.makedirs(config.DIR_CORRELACION, exist_ok=True)
 
-    ruta_pares = os.path.join(
-        config.DIR_CORRELACION,
-        "variables_correlacion.csv"
-    )
-
-    df_pares.to_csv(
-        ruta_pares,
-        index=False,
-        encoding="utf-8-sig"
-    )
-
-    log(
-        f"Pares con |correlación| >= {config.UMBRAL_CORRELACION}: "
-        f"{len(df_pares)}"
-    )
-
-    log(f"Reporte en: {ruta_pares}")
+    ruta = lambda nombre: os.path.join(config.DIR_CORRELACION, nombre)
+    df_pares.to_csv(ruta("variables_correlacion.csv"),
+                    index=False, encoding="utf-8-sig")
+    log(f"Pares con |correlación| >= {config.UMBRAL_CORRELACION}: "
+        f"{len(df_pares)}")
 
     mantenidas = [c for c in config.VARIABLES_MODELO if c in features]
-
-    log(
-        f"Variables del modelo: {len(mantenidas)} / {len(features)} "
-        "(poda de redundancias cpu_idl/memory_used_mb/duration_max_ms aplicada)"
-    )
-
-    ruta_mant = os.path.join(
-        config.DIR_CORRELACION,
-        "features_modelo.csv"
-    )
-
-    pd.DataFrame(
-        [{"columna": c} for c in mantenidas]
-    ).to_csv(ruta_mant, index=False, encoding="utf-8-sig")
-
-    log(f"Features de modelo en: {ruta_mant}")
+    log(f"Variables del modelo: {len(mantenidas)} / {len(features)}")
+    pd.DataFrame([{"columna": c} for c in mantenidas]).to_csv(
+        ruta("features_modelo.csv"), index=False, encoding="utf-8-sig")
 
     mantenidas_auto, descartadas_auto = podar_redundantes(
-        corr_pearson,
-        config.UMBRAL_CORRELACION
-    )
-
-    ruta_poda = os.path.join(
-        config.DIR_CORRELACION,
-        "poda_recomendada.csv"
-    )
-
+        corr_pearson, config.UMBRAL_CORRELACION)
     if descartadas_auto:
-
         pd.DataFrame(descartadas_auto).to_csv(
-            ruta_poda,
-            index=False,
-            encoding="utf-8-sig"
-        )
+            ruta("poda_recomendada.csv"), index=False, encoding="utf-8-sig")
 
-    descartadas_auto_nombres = {
-    d["columna"] for d in descartadas_auto
-}
-
-    descartadas_config = [
-        c for c in features
-        if c not in mantenidas
-    ]
-
-    conflictos = sorted(
-        descartadas_auto_nombres & set(mantenidas)
-    )
-
-    sugerencias = sorted(
-        descartadas_auto_nombres - set(descartadas_config)
-    )
-
+    auto = {d["columna"] for d in descartadas_auto}
+    conflictos = sorted(auto & set(mantenidas))
+    sugerencias = sorted(auto - set(features) - set(mantenidas))
     if conflictos:
-
-        log(
-            f"VALIDACIÓN: la poda automática descartaría variables que "
-            f"VARIABLES_MODELO conserva -> {conflictos}. Revisar."
-        )
-
+        log(f"VALIDACIÓN: la poda automática descartaría variables que "
+            f"VARIABLES_MODELO conserva -> {conflictos}. Revisar.")
     if sugerencias:
-
-        log(
-            f"VALIDACIÓN: la poda automática sugiere descartar también -> "
-            f"{sugerencias} (no están en VARIABLES_MODELO)."
-        )
-
+        log(f"VALIDACIÓN: la poda automática sugiere descartar también -> "
+            f"{sugerencias}")
     if not conflictos and not sugerencias:
-
-        log(
-            "VALIDACIÓN OK: la poda automática coincide con "
-            "VARIABLES_MODELO."
-        )
+        log("VALIDACIÓN OK: la poda automática coincide con VARIABLES_MODELO.")
 
     vifs = vif(df_num[mantenidas])
-
     df_vif = pd.DataFrame(
         [{"columna": c, "vif": vifs[c]} for c in mantenidas]
     ).sort_values("vif", ascending=False)
-
-    ruta_vif = os.path.join(
-        config.DIR_CORRELACION,
-        "vif_variables.csv"
-    )
-
-    df_vif.to_csv(
-        ruta_vif,
-        index=False,
-        encoding="utf-8-sig"
-    )
-
+    df_vif.to_csv(ruta("vif_variables.csv"),
+                  index=False, encoding="utf-8-sig")
     colineales = df_vif.loc[df_vif["vif"] > 10, "columna"].tolist()
-
     if colineales:
-
-        log(
-            f"Colinealidad alta (VIF>10) en: {colineales}. Son variables que "
-            "se pisan entre sí; evaluar si aportan o conviene fusionarlas."
-        )
+        log(f"Colinealidad alta (VIF>10): {colineales}")
 
     df_reglas = pd.DataFrame({
         "columna": mantenidas,
@@ -352,61 +185,21 @@ def main():
         "p95": np.percentile(df_num[mantenidas], 95, axis=0),
         "p99": np.percentile(df_num[mantenidas], 99, axis=0),
     })
+    df_reglas.to_csv(ruta("reglas_umbrales.csv"),
+                     index=False, encoding="utf-8-sig")
 
-    ruta_reglas = os.path.join(
-        config.DIR_CORRELACION,
-        "reglas_umbrales.csv"
-    )
+    pd.DataFrame([{"run_name": c} for c in corridas_sanas]).to_csv(
+        ruta("corridas_referencia_normal.csv"),
+        index=False, encoding="utf-8-sig")
 
-    df_reglas.to_csv(
-        ruta_reglas,
-        index=False,
-        encoding="utf-8-sig"
-    )
+    mostrar("PARES CORRELACIONADOS", df_pares if len(df_pares) else None,
+            f"No hay pares con |correlación| >= {config.UMBRAL_CORRELACION}")
+    mostrar("VARIABLES MANTENIDAS (VIF)", df_vif)
+    mostrar("PODA AUTOMÁTICA (RECOMENDACIÓN)",
+            pd.DataFrame(descartadas_auto) if descartadas_auto else None,
+            f"No hay variables descartables (|r| < {config.UMBRAL_CORRELACION})")
+    mostrar("REGLAS (REFERENCIA NORMAL)", df_reglas)
 
-    log(f"Reglas de umbral (referencia normal) en: {ruta_reglas}")
-
-    print("\n=== PARES CORRELACIONADOS ===")
-
-    if df_pares.empty:
-
-        print(
-            f"No hay pares con |correlación| >= "
-            f"{config.UMBRAL_CORRELACION}"
-        )
-
-    else:
-
-        print(
-            df_pares.to_string(index=False)
-        )
-
-    print("\n=== VARIABLES MANTENIDAS (VIF) ===")
-
-    print(
-        df_vif.to_string(index=False)
-    )
-
-    print("\n=== PODA AUTOMÁTICA (RECOMENDACIÓN) ===")
-
-    if descartadas_auto:
-
-        print(
-            pd.DataFrame(descartadas_auto).to_string(index=False)
-        )
-
-    else:
-
-        print(
-            f"No hay variables que la poda automática descartaría "
-            f"(|r| < {config.UMBRAL_CORRELACION})."
-        )
-
-    print("\n=== REGLAS (REFERENCIA NORMAL) ===")
-
-    print(
-        df_reglas.to_string(index=False)
-    )
 
 if __name__ == "__main__":
     main()

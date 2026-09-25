@@ -253,6 +253,20 @@ def reentrenar(dias: int = DIAS_DEFAULT, force: bool = False) -> dict:
             return result
         result["pasos_completados"].append("03_deteccion")
 
+        # 7b. Componente COPOD del ensamble (soft: si falla se continua
+        # sin el y el detector cae a IsolationForest solo).
+        script_copod = os.path.join(modeling_dir, "experimental", "03.4_deteccion_copod.py")
+        copod_ok = False
+        if os.path.exists(script_copod):
+            ok2, out2 = _correr_script(script_copod, modeling_dir, env)
+            if ok2:
+                copod_ok = os.path.exists(deteccion_dir / "modelo_copod.joblib")
+                result["pasos_completados"].append("03.4_copod")
+            else:
+                log.warning("03.4 COPOD falló (se continua sin ensamble): %s", out2[-300:])
+        else:
+            log.warning("Script COPOD no encontrado; detector quedará en ISO solo.")
+
         # 8. Verificar que se generaron los artefactos
         nuevos_artefactos = {
             "modelo": deteccion_dir / "modelo_isolation_forest.joblib",
@@ -260,6 +274,8 @@ def reentrenar(dias: int = DIAS_DEFAULT, force: bool = False) -> dict:
             "features": correlacion_dir / "features_modelo.csv",
             "umbrales": correlacion_dir / "reglas_umbrales.csv",
         }
+        if copod_ok:
+            nuevos_artefactos["copod"] = deteccion_dir / "modelo_copod.joblib"
 
         for nombre, ruta in nuevos_artefactos.items():
             if not ruta.exists():
@@ -345,6 +361,11 @@ def reentrenar(dias: int = DIAS_DEFAULT, force: bool = False) -> dict:
         shutil.copy2(nuevos_artefactos["scaler"], ML_ARTIFACTS_DIR / "scaler.joblib")
         shutil.copy2(nuevos_artefactos["features"], ML_ARTIFACTS_DIR / "features_modelo.csv")
         shutil.copy2(nuevos_artefactos["umbrales"], ML_ARTIFACTS_DIR / "reglas_umbrales.csv")
+        if copod_ok:
+            if (ML_ARTIFACTS_DIR / "modelo_copod.joblib").exists():
+                shutil.copy2(ML_ARTIFACTS_DIR / "modelo_copod.joblib",
+                             ML_BACKUP_DIR / f"{ts}_modelo_copod.joblib")
+            shutil.copy2(nuevos_artefactos["copod"], ML_ARTIFACTS_DIR / "modelo_copod.joblib")
 
         result["modelo_nuevo"] = str(ML_ARTIFACTS_DIR / "modelo_isolation_forest.joblib")
 
@@ -362,12 +383,13 @@ def reentrenar(dias: int = DIAS_DEFAULT, force: bool = False) -> dict:
             features_str = ",".join(features_nuevos)
             nuevo_mdl = ModelosML(
                 mdl_nom=f"IsolationForest_retrain_{ts}",
-                mdl_tipo="isolation_forest",
+                mdl_tipo="ensemble_z" if copod_ok else "isolation_forest",
                 mdl_umbral_pct=85.00,
                 mdl_vars=features_str,
                 mdl_hparms=json.dumps({
                     "contamination": "auto",
                     "random_state": 42,
+                    "modo": "ensemble_z" if copod_ok else "isolation_forest",
                     "fpr_q01": fpr_nuevo,
                     "fpr_anterior": fpr_actual,
                     "muestras_entrenamiento": result["muestras_usadas"],

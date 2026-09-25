@@ -2154,6 +2154,1131 @@
 2026-09-11 08:02:39.450,spid23s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,carga7
 2026-09-11 08:03:22.000,spid78,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,carga7
 2026-09-11 08:03:22.050,spid78,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,carga7
+2026-09-23 15:58:49.950,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,normal_alta_01
+2026-09-23 15:58:49.960,Server,UTC adjustment: 0:00,INFO,normal_alta_01
+2026-09-23 15:58:49.960,Server,(c) Microsoft Corporation.,INFO,normal_alta_01
+2026-09-23 15:58:49.960,Server,All rights reserved.,INFO,normal_alta_01
+2026-09-23 15:58:49.970,Server,Server process ID is 452.,INFO,normal_alta_01
+2026-09-23 15:58:49.970,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,normal_alta_01
+2026-09-23 15:58:49.970,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,normal_alta_01
+2026-09-23 15:58:50.000,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,normal_alta_01
+2026-09-23 15:58:50.010,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,normal_alta_01
+2026-09-23 15:58:50.010,Server,"Detected 3916 MB of RAM, 2861 MB of available memory, 2861 MB of available page file. This is an informational message; no user action is required.",INFO,normal_alta_01
+2026-09-23 15:58:50.020,Server,Using conventional memory in the memory manager.,INFO,normal_alta_01
+2026-09-23 15:58:50.020,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,normal_alta_01
+2026-09-23 15:58:50.030,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,normal_alta_01
+2026-09-23 15:58:50.040,Server,Page exclusion bitmap is enabled.,INFO,normal_alta_01
+2026-09-23 15:58:50.120,Server,Buffer pool extension is not supported on Linux platform.,INFO,normal_alta_01
+2026-09-23 15:58:50.130,Server,Buffer Pool: Allocating 4194304 bytes for 449648 hashPages.,INFO,normal_alta_01
+2026-09-23 15:58:50.430,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,normal_alta_01
+2026-09-23 15:58:51.320,Server,Installing Client TLS certificates to the store.,INFO,normal_alta_01
+2026-09-23 15:58:51.340,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,normal_alta_01
+2026-09-23 15:58:51.450,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,normal_alta_01
+2026-09-23 15:58:51.500,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,normal_alta_01
+2026-09-23 15:58:51.530,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,normal_alta_01
+2026-09-23 15:58:51.540,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,normal_alta_01
+2026-09-23 15:58:51.570,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 15:58:51.630,Server,In-Memory OLTP initialized on lowend machine.,INFO,normal_alta_01
+2026-09-23 15:58:51.680,Server,CLR version v4.0.30319 loaded.,INFO,normal_alta_01
+2026-09-23 15:58:51.770,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,normal_alta_01
+2026-09-23 15:58:51.770,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,normal_alta_01
+2026-09-23 15:58:51.790,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,normal_alta_01
+2026-09-23 15:58:51.800,Server,clwb is selected for pmem flush operation.,INFO,normal_alta_01
+2026-09-23 15:58:51.810,Server,Software Usage Metrics is disabled.,INFO,normal_alta_01
+2026-09-23 15:58:51.830,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_alta_01
+2026-09-23 15:58:51.840,spid24s,Starting up database 'master'.,STARTUP,normal_alta_01
+2026-09-23 15:58:52.010,spid24s,39 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 15:58:52.040,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 15:58:52.040,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,normal_alta_01
+2026-09-23 15:58:52.320,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_alta_01
+2026-09-23 15:58:52.320,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_alta_01
+2026-09-23 15:58:52.320,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,normal_alta_01
+2026-09-23 15:58:52.320,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,normal_alta_01
+2026-09-23 15:58:52.340,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 15:58:52.350,Server,Common language runtime (CLR) functionality initialized.,INFO,normal_alta_01
+2026-09-23 15:58:52.380,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_alta_01
+2026-09-23 15:58:52.390,spid26s,Starting up database 'model'.,STARTUP,normal_alta_01
+2026-09-23 15:58:52.480,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,normal_alta_01
+2026-09-23 15:58:52.480,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,normal_alta_01
+2026-09-23 15:58:52.510,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,normal_alta_01
+2026-09-23 15:58:52.600,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,normal_alta_01
+2026-09-23 15:58:52.610,Server,External governance manager initialized,INFO,normal_alta_01
+2026-09-23 15:58:52.630,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,normal_alta_01
+2026-09-23 15:58:52.660,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,normal_alta_01
+2026-09-23 15:58:52.700,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,normal_alta_01
+2026-09-23 15:58:52.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,normal_alta_01
+2026-09-23 15:58:52.750,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,normal_alta_01
+2026-09-23 15:58:52.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,normal_alta_01
+2026-09-23 15:58:52.790,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,normal_alta_01
+2026-09-23 15:58:52.820,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,normal_alta_01
+2026-09-23 15:58:52.850,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,normal_alta_01
+2026-09-23 15:58:52.880,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,normal_alta_01
+2026-09-23 15:58:52.900,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,normal_alta_01
+2026-09-23 15:58:52.930,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,normal_alta_01
+2026-09-23 15:58:52.950,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,normal_alta_01
+2026-09-23 15:58:53.040,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,normal_alta_01
+2026-09-23 15:58:53.070,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,normal_alta_01
+2026-09-23 15:58:53.110,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,normal_alta_01
+2026-09-23 15:58:53.130,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,normal_alta_01
+2026-09-23 15:58:53.150,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,normal_alta_01
+2026-09-23 15:58:53.170,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,normal_alta_01
+2026-09-23 15:58:53.200,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,normal_alta_01
+2026-09-23 15:58:53.230,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,normal_alta_01
+2026-09-23 15:58:53.280,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,normal_alta_01
+2026-09-23 15:58:53.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,normal_alta_01
+2026-09-23 15:58:53.340,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,normal_alta_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,normal_alta_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,normal_alta_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,normal_alta_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,normal_alta_01
+2026-09-23 15:58:53.360,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,normal_alta_01
+2026-09-23 15:58:53.360,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,normal_alta_01
+2026-09-23 15:58:53.370,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,normal_alta_01
+2026-09-23 15:58:53.370,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,normal_alta_01
+2026-09-23 15:58:53.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,normal_alta_01
+2026-09-23 15:58:53.400,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,normal_alta_01
+2026-09-23 15:58:53.430,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,normal_alta_01
+2026-09-23 15:58:53.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,normal_alta_01
+2026-09-23 15:58:53.640,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_alta_01
+2026-09-23 15:58:53.640,spid24s,Starting up database 'model_msdb'.,STARTUP,normal_alta_01
+2026-09-23 15:58:53.830,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,normal_alta_01
+2026-09-23 15:58:53.830,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,normal_alta_01
+2026-09-23 15:58:53.870,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,normal_alta_01
+2026-09-23 15:58:53.970,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,normal_alta_01
+2026-09-23 15:58:54.010,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,normal_alta_01
+2026-09-23 15:58:54.090,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,normal_alta_01
+2026-09-23 15:58:54.140,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,normal_alta_01
+2026-09-23 15:58:54.190,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,normal_alta_01
+2026-09-23 15:58:54.220,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,normal_alta_01
+2026-09-23 15:58:54.260,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,normal_alta_01
+2026-09-23 15:58:54.290,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,normal_alta_01
+2026-09-23 15:58:54.350,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,normal_alta_01
+2026-09-23 15:58:54.380,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,normal_alta_01
+2026-09-23 15:58:54.410,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,normal_alta_01
+2026-09-23 15:58:54.450,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,normal_alta_01
+2026-09-23 15:58:54.480,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,normal_alta_01
+2026-09-23 15:58:54.510,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,normal_alta_01
+2026-09-23 15:58:54.630,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,normal_alta_01
+2026-09-23 15:58:54.660,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,normal_alta_01
+2026-09-23 15:58:54.740,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,normal_alta_01
+2026-09-23 15:58:54.770,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,normal_alta_01
+2026-09-23 15:58:54.810,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,normal_alta_01
+2026-09-23 15:58:54.840,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,normal_alta_01
+2026-09-23 15:58:54.870,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,normal_alta_01
+2026-09-23 15:58:54.890,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,normal_alta_01
+2026-09-23 15:58:54.940,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,normal_alta_01
+2026-09-23 15:58:54.980,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,normal_alta_01
+2026-09-23 15:58:55.030,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,normal_alta_01
+2026-09-23 15:58:55.060,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,normal_alta_01
+2026-09-23 15:58:55.090,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,normal_alta_01
+2026-09-23 15:58:55.170,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,normal_alta_01
+2026-09-23 15:58:55.310,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,normal_alta_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization initialized,INFO,normal_alta_01
+2026-09-23 15:58:55.320,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,normal_alta_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization manager initialized,INFO,normal_alta_01
+2026-09-23 15:58:55.330,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,normal_alta_01
+2026-09-23 15:58:55.520,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,normal_alta_01
+2026-09-23 15:58:55.550,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 15:58:55.600,spid26s,Clearing tempdb database.,INFO,normal_alta_01
+2026-09-23 15:58:55.600,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,normal_alta_01
+2026-09-23 15:58:55.600,spid58s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_alta_01
+2026-09-23 15:58:55.600,spid57s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_alta_01
+2026-09-23 15:58:55.610,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 15:58:55.610,spid58s,Starting up database 'SteelNort'.,STARTUP,normal_alta_01
+2026-09-23 15:58:55.620,spid57s,Starting up database 'msdb'.,STARTUP,normal_alta_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,normal_alta_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,normal_alta_01
+2026-09-23 15:58:55.770,spid58s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,normal_alta_01
+2026-09-23 15:58:55.800,spid24s,Recovery is writing a checkpoint in database 'msdb' (4). This is an informational message only. No user action is required.,STARTUP,normal_alta_01
+2026-09-23 15:58:56.820,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,normal_alta_01
+2026-09-23 15:58:56.850,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_alta_01
+2026-09-23 15:58:56.850,spid26s,Starting up database 'tempdb'.,STARTUP,normal_alta_01
+2026-09-23 15:58:59.140,spid26s,The tempdb database has 8 data file(s).,INFO,normal_alta_01
+2026-09-23 15:58:59.200,spid34s,The Service Broker endpoint is in disabled or stopped state.,INFO,normal_alta_01
+2026-09-23 15:58:59.200,spid34s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,normal_alta_01
+2026-09-23 15:58:59.240,spid34s,Service Broker manager has started.,STARTUP,normal_alta_01
+2026-09-23 15:59:03.070,spid58s,Recovery of database 'SteelNort' (5) is 3% complete (approximately 189 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,normal_alta_01
+2026-09-23 15:59:03.640,spid58s,48723 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 15:59:03.720,spid58s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 15:59:03.720,spid58s,"Recovery completed for database SteelNort (database ID 5) in 8 second(s) (analysis 7235 ms, redo 571 ms, undo 43 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,normal_alta_01
+2026-09-23 15:59:03.730,spid58s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,normal_alta_01
+2026-09-23 15:59:03.770,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,normal_alta_01
+2026-09-23 15:59:07.450,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_alta_01
+2026-09-23 15:59:07.450,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_alta_01
+2026-09-23 15:59:12.690,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_alta_01
+2026-09-23 15:59:12.690,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_alta_01
+2026-09-23 15:59:22.740,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_alta_01
+2026-09-23 15:59:22.740,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_alta_01
+2026-09-23 15:59:42.840,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_alta_01
+2026-09-23 15:59:42.840,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_alta_01
+2026-09-23 16:02:09.940,spid73,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 16:02:10.020,spid73,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,normal_alta_01
+2026-09-23 16:05:50.040,spid63,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_alta_01
+2026-09-23 16:05:50.090,spid63,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,normal_alta_01
+2026-09-23 15:58:49.950,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,normal_baja_01
+2026-09-23 15:58:49.960,Server,UTC adjustment: 0:00,INFO,normal_baja_01
+2026-09-23 15:58:49.960,Server,(c) Microsoft Corporation.,INFO,normal_baja_01
+2026-09-23 15:58:49.960,Server,All rights reserved.,INFO,normal_baja_01
+2026-09-23 15:58:49.970,Server,Server process ID is 452.,INFO,normal_baja_01
+2026-09-23 15:58:49.970,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,normal_baja_01
+2026-09-23 15:58:49.970,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,normal_baja_01
+2026-09-23 15:58:50.000,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,normal_baja_01
+2026-09-23 15:58:50.010,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,normal_baja_01
+2026-09-23 15:58:50.010,Server,"Detected 3916 MB of RAM, 2861 MB of available memory, 2861 MB of available page file. This is an informational message; no user action is required.",INFO,normal_baja_01
+2026-09-23 15:58:50.020,Server,Using conventional memory in the memory manager.,INFO,normal_baja_01
+2026-09-23 15:58:50.020,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,normal_baja_01
+2026-09-23 15:58:50.030,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,normal_baja_01
+2026-09-23 15:58:50.040,Server,Page exclusion bitmap is enabled.,INFO,normal_baja_01
+2026-09-23 15:58:50.120,Server,Buffer pool extension is not supported on Linux platform.,INFO,normal_baja_01
+2026-09-23 15:58:50.130,Server,Buffer Pool: Allocating 4194304 bytes for 449648 hashPages.,INFO,normal_baja_01
+2026-09-23 15:58:50.430,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,normal_baja_01
+2026-09-23 15:58:51.320,Server,Installing Client TLS certificates to the store.,INFO,normal_baja_01
+2026-09-23 15:58:51.340,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,normal_baja_01
+2026-09-23 15:58:51.450,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,normal_baja_01
+2026-09-23 15:58:51.500,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,normal_baja_01
+2026-09-23 15:58:51.530,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,normal_baja_01
+2026-09-23 15:58:51.540,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,normal_baja_01
+2026-09-23 15:58:51.570,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 15:58:51.630,Server,In-Memory OLTP initialized on lowend machine.,INFO,normal_baja_01
+2026-09-23 15:58:51.680,Server,CLR version v4.0.30319 loaded.,INFO,normal_baja_01
+2026-09-23 15:58:51.770,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,normal_baja_01
+2026-09-23 15:58:51.770,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,normal_baja_01
+2026-09-23 15:58:51.790,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,normal_baja_01
+2026-09-23 15:58:51.800,Server,clwb is selected for pmem flush operation.,INFO,normal_baja_01
+2026-09-23 15:58:51.810,Server,Software Usage Metrics is disabled.,INFO,normal_baja_01
+2026-09-23 15:58:51.830,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_01
+2026-09-23 15:58:51.840,spid24s,Starting up database 'master'.,STARTUP,normal_baja_01
+2026-09-23 15:58:52.010,spid24s,39 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 15:58:52.040,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 15:58:52.040,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,normal_baja_01
+2026-09-23 15:58:52.320,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_01
+2026-09-23 15:58:52.320,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_01
+2026-09-23 15:58:52.320,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,normal_baja_01
+2026-09-23 15:58:52.320,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,normal_baja_01
+2026-09-23 15:58:52.340,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 15:58:52.350,Server,Common language runtime (CLR) functionality initialized.,INFO,normal_baja_01
+2026-09-23 15:58:52.380,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_01
+2026-09-23 15:58:52.390,spid26s,Starting up database 'model'.,STARTUP,normal_baja_01
+2026-09-23 15:58:52.480,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,normal_baja_01
+2026-09-23 15:58:52.480,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,normal_baja_01
+2026-09-23 15:58:52.510,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,normal_baja_01
+2026-09-23 15:58:52.600,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,normal_baja_01
+2026-09-23 15:58:52.610,Server,External governance manager initialized,INFO,normal_baja_01
+2026-09-23 15:58:52.630,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,normal_baja_01
+2026-09-23 15:58:52.660,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,normal_baja_01
+2026-09-23 15:58:52.700,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,normal_baja_01
+2026-09-23 15:58:52.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,normal_baja_01
+2026-09-23 15:58:52.750,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,normal_baja_01
+2026-09-23 15:58:52.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,normal_baja_01
+2026-09-23 15:58:52.790,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,normal_baja_01
+2026-09-23 15:58:52.820,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,normal_baja_01
+2026-09-23 15:58:52.850,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,normal_baja_01
+2026-09-23 15:58:52.880,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,normal_baja_01
+2026-09-23 15:58:52.900,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,normal_baja_01
+2026-09-23 15:58:52.930,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,normal_baja_01
+2026-09-23 15:58:52.950,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,normal_baja_01
+2026-09-23 15:58:53.040,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,normal_baja_01
+2026-09-23 15:58:53.070,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,normal_baja_01
+2026-09-23 15:58:53.110,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,normal_baja_01
+2026-09-23 15:58:53.130,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,normal_baja_01
+2026-09-23 15:58:53.150,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,normal_baja_01
+2026-09-23 15:58:53.170,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,normal_baja_01
+2026-09-23 15:58:53.200,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,normal_baja_01
+2026-09-23 15:58:53.230,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,normal_baja_01
+2026-09-23 15:58:53.280,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,normal_baja_01
+2026-09-23 15:58:53.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,normal_baja_01
+2026-09-23 15:58:53.340,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,normal_baja_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,normal_baja_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,normal_baja_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,normal_baja_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,normal_baja_01
+2026-09-23 15:58:53.360,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,normal_baja_01
+2026-09-23 15:58:53.360,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,normal_baja_01
+2026-09-23 15:58:53.370,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,normal_baja_01
+2026-09-23 15:58:53.370,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,normal_baja_01
+2026-09-23 15:58:53.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,normal_baja_01
+2026-09-23 15:58:53.400,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,normal_baja_01
+2026-09-23 15:58:53.430,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,normal_baja_01
+2026-09-23 15:58:53.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,normal_baja_01
+2026-09-23 15:58:53.640,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_01
+2026-09-23 15:58:53.640,spid24s,Starting up database 'model_msdb'.,STARTUP,normal_baja_01
+2026-09-23 15:58:53.830,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,normal_baja_01
+2026-09-23 15:58:53.830,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,normal_baja_01
+2026-09-23 15:58:53.870,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,normal_baja_01
+2026-09-23 15:58:53.970,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,normal_baja_01
+2026-09-23 15:58:54.010,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,normal_baja_01
+2026-09-23 15:58:54.090,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,normal_baja_01
+2026-09-23 15:58:54.140,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,normal_baja_01
+2026-09-23 15:58:54.190,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,normal_baja_01
+2026-09-23 15:58:54.220,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,normal_baja_01
+2026-09-23 15:58:54.260,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,normal_baja_01
+2026-09-23 15:58:54.290,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,normal_baja_01
+2026-09-23 15:58:54.350,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,normal_baja_01
+2026-09-23 15:58:54.380,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,normal_baja_01
+2026-09-23 15:58:54.410,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,normal_baja_01
+2026-09-23 15:58:54.450,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,normal_baja_01
+2026-09-23 15:58:54.480,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,normal_baja_01
+2026-09-23 15:58:54.510,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,normal_baja_01
+2026-09-23 15:58:54.630,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,normal_baja_01
+2026-09-23 15:58:54.660,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,normal_baja_01
+2026-09-23 15:58:54.740,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,normal_baja_01
+2026-09-23 15:58:54.770,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,normal_baja_01
+2026-09-23 15:58:54.810,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,normal_baja_01
+2026-09-23 15:58:54.840,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,normal_baja_01
+2026-09-23 15:58:54.870,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,normal_baja_01
+2026-09-23 15:58:54.890,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,normal_baja_01
+2026-09-23 15:58:54.940,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,normal_baja_01
+2026-09-23 15:58:54.980,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,normal_baja_01
+2026-09-23 15:58:55.030,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,normal_baja_01
+2026-09-23 15:58:55.060,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,normal_baja_01
+2026-09-23 15:58:55.090,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,normal_baja_01
+2026-09-23 15:58:55.170,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,normal_baja_01
+2026-09-23 15:58:55.310,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,normal_baja_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization initialized,INFO,normal_baja_01
+2026-09-23 15:58:55.320,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,normal_baja_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization manager initialized,INFO,normal_baja_01
+2026-09-23 15:58:55.330,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,normal_baja_01
+2026-09-23 15:58:55.520,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,normal_baja_01
+2026-09-23 15:58:55.550,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 15:58:55.600,spid26s,Clearing tempdb database.,INFO,normal_baja_01
+2026-09-23 15:58:55.600,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,normal_baja_01
+2026-09-23 15:58:55.600,spid58s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_01
+2026-09-23 15:58:55.600,spid57s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_01
+2026-09-23 15:58:55.610,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 15:58:55.610,spid58s,Starting up database 'SteelNort'.,STARTUP,normal_baja_01
+2026-09-23 15:58:55.620,spid57s,Starting up database 'msdb'.,STARTUP,normal_baja_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,normal_baja_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,normal_baja_01
+2026-09-23 15:58:55.770,spid58s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,normal_baja_01
+2026-09-23 15:58:55.800,spid24s,Recovery is writing a checkpoint in database 'msdb' (4). This is an informational message only. No user action is required.,STARTUP,normal_baja_01
+2026-09-23 15:58:56.820,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,normal_baja_01
+2026-09-23 15:58:56.850,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_01
+2026-09-23 15:58:56.850,spid26s,Starting up database 'tempdb'.,STARTUP,normal_baja_01
+2026-09-23 15:58:59.140,spid26s,The tempdb database has 8 data file(s).,INFO,normal_baja_01
+2026-09-23 15:58:59.200,spid34s,The Service Broker endpoint is in disabled or stopped state.,INFO,normal_baja_01
+2026-09-23 15:58:59.200,spid34s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,normal_baja_01
+2026-09-23 15:58:59.240,spid34s,Service Broker manager has started.,STARTUP,normal_baja_01
+2026-09-23 15:59:03.070,spid58s,Recovery of database 'SteelNort' (5) is 3% complete (approximately 189 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,normal_baja_01
+2026-09-23 15:59:03.640,spid58s,48723 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 15:59:03.720,spid58s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 15:59:03.720,spid58s,"Recovery completed for database SteelNort (database ID 5) in 8 second(s) (analysis 7235 ms, redo 571 ms, undo 43 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,normal_baja_01
+2026-09-23 15:59:03.730,spid58s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,normal_baja_01
+2026-09-23 15:59:03.770,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,normal_baja_01
+2026-09-23 15:59:07.450,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_baja_01
+2026-09-23 15:59:07.450,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_baja_01
+2026-09-23 15:59:12.690,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_baja_01
+2026-09-23 15:59:12.690,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_baja_01
+2026-09-23 15:59:22.740,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_baja_01
+2026-09-23 15:59:22.740,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_baja_01
+2026-09-23 15:59:42.840,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_baja_01
+2026-09-23 15:59:42.840,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_baja_01
+2026-09-23 16:02:09.940,spid73,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 16:02:10.020,spid73,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,normal_baja_01
+2026-09-23 16:05:50.040,spid63,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_baja_01
+2026-09-23 16:05:50.090,spid63,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,normal_baja_01
+2026-09-23 15:58:49.950,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,normal_baja_02
+2026-09-23 15:58:49.960,Server,UTC adjustment: 0:00,INFO,normal_baja_02
+2026-09-23 15:58:49.960,Server,(c) Microsoft Corporation.,INFO,normal_baja_02
+2026-09-23 15:58:49.960,Server,All rights reserved.,INFO,normal_baja_02
+2026-09-23 15:58:49.970,Server,Server process ID is 452.,INFO,normal_baja_02
+2026-09-23 15:58:49.970,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,normal_baja_02
+2026-09-23 15:58:49.970,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,normal_baja_02
+2026-09-23 15:58:50.000,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,normal_baja_02
+2026-09-23 15:58:50.010,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,normal_baja_02
+2026-09-23 15:58:50.010,Server,"Detected 3916 MB of RAM, 2861 MB of available memory, 2861 MB of available page file. This is an informational message; no user action is required.",INFO,normal_baja_02
+2026-09-23 15:58:50.020,Server,Using conventional memory in the memory manager.,INFO,normal_baja_02
+2026-09-23 15:58:50.020,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,normal_baja_02
+2026-09-23 15:58:50.030,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,normal_baja_02
+2026-09-23 15:58:50.040,Server,Page exclusion bitmap is enabled.,INFO,normal_baja_02
+2026-09-23 15:58:50.120,Server,Buffer pool extension is not supported on Linux platform.,INFO,normal_baja_02
+2026-09-23 15:58:50.130,Server,Buffer Pool: Allocating 4194304 bytes for 449648 hashPages.,INFO,normal_baja_02
+2026-09-23 15:58:50.430,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,normal_baja_02
+2026-09-23 15:58:51.320,Server,Installing Client TLS certificates to the store.,INFO,normal_baja_02
+2026-09-23 15:58:51.340,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,normal_baja_02
+2026-09-23 15:58:51.450,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,normal_baja_02
+2026-09-23 15:58:51.500,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,normal_baja_02
+2026-09-23 15:58:51.530,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,normal_baja_02
+2026-09-23 15:58:51.540,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,normal_baja_02
+2026-09-23 15:58:51.570,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 15:58:51.630,Server,In-Memory OLTP initialized on lowend machine.,INFO,normal_baja_02
+2026-09-23 15:58:51.680,Server,CLR version v4.0.30319 loaded.,INFO,normal_baja_02
+2026-09-23 15:58:51.770,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,normal_baja_02
+2026-09-23 15:58:51.770,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,normal_baja_02
+2026-09-23 15:58:51.790,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,normal_baja_02
+2026-09-23 15:58:51.800,Server,clwb is selected for pmem flush operation.,INFO,normal_baja_02
+2026-09-23 15:58:51.810,Server,Software Usage Metrics is disabled.,INFO,normal_baja_02
+2026-09-23 15:58:51.830,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_02
+2026-09-23 15:58:51.840,spid24s,Starting up database 'master'.,STARTUP,normal_baja_02
+2026-09-23 15:58:52.010,spid24s,39 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 15:58:52.040,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 15:58:52.040,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,normal_baja_02
+2026-09-23 15:58:52.320,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_02
+2026-09-23 15:58:52.320,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_02
+2026-09-23 15:58:52.320,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,normal_baja_02
+2026-09-23 15:58:52.320,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,normal_baja_02
+2026-09-23 15:58:52.340,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 15:58:52.350,Server,Common language runtime (CLR) functionality initialized.,INFO,normal_baja_02
+2026-09-23 15:58:52.380,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_02
+2026-09-23 15:58:52.390,spid26s,Starting up database 'model'.,STARTUP,normal_baja_02
+2026-09-23 15:58:52.480,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,normal_baja_02
+2026-09-23 15:58:52.480,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,normal_baja_02
+2026-09-23 15:58:52.510,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,normal_baja_02
+2026-09-23 15:58:52.600,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,normal_baja_02
+2026-09-23 15:58:52.610,Server,External governance manager initialized,INFO,normal_baja_02
+2026-09-23 15:58:52.630,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,normal_baja_02
+2026-09-23 15:58:52.660,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,normal_baja_02
+2026-09-23 15:58:52.700,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,normal_baja_02
+2026-09-23 15:58:52.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,normal_baja_02
+2026-09-23 15:58:52.750,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,normal_baja_02
+2026-09-23 15:58:52.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,normal_baja_02
+2026-09-23 15:58:52.790,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,normal_baja_02
+2026-09-23 15:58:52.820,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,normal_baja_02
+2026-09-23 15:58:52.850,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,normal_baja_02
+2026-09-23 15:58:52.880,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,normal_baja_02
+2026-09-23 15:58:52.900,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,normal_baja_02
+2026-09-23 15:58:52.930,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,normal_baja_02
+2026-09-23 15:58:52.950,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,normal_baja_02
+2026-09-23 15:58:53.040,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,normal_baja_02
+2026-09-23 15:58:53.070,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,normal_baja_02
+2026-09-23 15:58:53.110,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,normal_baja_02
+2026-09-23 15:58:53.130,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,normal_baja_02
+2026-09-23 15:58:53.150,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,normal_baja_02
+2026-09-23 15:58:53.170,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,normal_baja_02
+2026-09-23 15:58:53.200,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,normal_baja_02
+2026-09-23 15:58:53.230,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,normal_baja_02
+2026-09-23 15:58:53.280,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,normal_baja_02
+2026-09-23 15:58:53.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,normal_baja_02
+2026-09-23 15:58:53.340,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,normal_baja_02
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,normal_baja_02
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,normal_baja_02
+2026-09-23 15:58:53.350,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,normal_baja_02
+2026-09-23 15:58:53.350,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,normal_baja_02
+2026-09-23 15:58:53.360,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,normal_baja_02
+2026-09-23 15:58:53.360,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,normal_baja_02
+2026-09-23 15:58:53.370,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,normal_baja_02
+2026-09-23 15:58:53.370,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,normal_baja_02
+2026-09-23 15:58:53.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,normal_baja_02
+2026-09-23 15:58:53.400,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,normal_baja_02
+2026-09-23 15:58:53.430,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,normal_baja_02
+2026-09-23 15:58:53.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,normal_baja_02
+2026-09-23 15:58:53.640,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_02
+2026-09-23 15:58:53.640,spid24s,Starting up database 'model_msdb'.,STARTUP,normal_baja_02
+2026-09-23 15:58:53.830,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,normal_baja_02
+2026-09-23 15:58:53.830,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,normal_baja_02
+2026-09-23 15:58:53.870,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,normal_baja_02
+2026-09-23 15:58:53.970,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,normal_baja_02
+2026-09-23 15:58:54.010,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,normal_baja_02
+2026-09-23 15:58:54.090,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,normal_baja_02
+2026-09-23 15:58:54.140,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,normal_baja_02
+2026-09-23 15:58:54.190,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,normal_baja_02
+2026-09-23 15:58:54.220,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,normal_baja_02
+2026-09-23 15:58:54.260,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,normal_baja_02
+2026-09-23 15:58:54.290,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,normal_baja_02
+2026-09-23 15:58:54.350,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,normal_baja_02
+2026-09-23 15:58:54.380,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,normal_baja_02
+2026-09-23 15:58:54.410,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,normal_baja_02
+2026-09-23 15:58:54.450,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,normal_baja_02
+2026-09-23 15:58:54.480,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,normal_baja_02
+2026-09-23 15:58:54.510,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,normal_baja_02
+2026-09-23 15:58:54.630,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,normal_baja_02
+2026-09-23 15:58:54.660,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,normal_baja_02
+2026-09-23 15:58:54.740,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,normal_baja_02
+2026-09-23 15:58:54.770,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,normal_baja_02
+2026-09-23 15:58:54.810,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,normal_baja_02
+2026-09-23 15:58:54.840,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,normal_baja_02
+2026-09-23 15:58:54.870,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,normal_baja_02
+2026-09-23 15:58:54.890,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,normal_baja_02
+2026-09-23 15:58:54.940,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,normal_baja_02
+2026-09-23 15:58:54.980,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,normal_baja_02
+2026-09-23 15:58:55.030,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,normal_baja_02
+2026-09-23 15:58:55.060,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,normal_baja_02
+2026-09-23 15:58:55.090,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,normal_baja_02
+2026-09-23 15:58:55.170,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,normal_baja_02
+2026-09-23 15:58:55.310,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,normal_baja_02
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization initialized,INFO,normal_baja_02
+2026-09-23 15:58:55.320,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,normal_baja_02
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization manager initialized,INFO,normal_baja_02
+2026-09-23 15:58:55.330,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,normal_baja_02
+2026-09-23 15:58:55.520,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,normal_baja_02
+2026-09-23 15:58:55.550,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 15:58:55.600,spid26s,Clearing tempdb database.,INFO,normal_baja_02
+2026-09-23 15:58:55.600,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,normal_baja_02
+2026-09-23 15:58:55.600,spid58s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_02
+2026-09-23 15:58:55.600,spid57s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_02
+2026-09-23 15:58:55.610,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 15:58:55.610,spid58s,Starting up database 'SteelNort'.,STARTUP,normal_baja_02
+2026-09-23 15:58:55.620,spid57s,Starting up database 'msdb'.,STARTUP,normal_baja_02
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,normal_baja_02
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,normal_baja_02
+2026-09-23 15:58:55.770,spid58s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,normal_baja_02
+2026-09-23 15:58:55.800,spid24s,Recovery is writing a checkpoint in database 'msdb' (4). This is an informational message only. No user action is required.,STARTUP,normal_baja_02
+2026-09-23 15:58:56.820,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,normal_baja_02
+2026-09-23 15:58:56.850,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_baja_02
+2026-09-23 15:58:56.850,spid26s,Starting up database 'tempdb'.,STARTUP,normal_baja_02
+2026-09-23 15:58:59.140,spid26s,The tempdb database has 8 data file(s).,INFO,normal_baja_02
+2026-09-23 15:58:59.200,spid34s,The Service Broker endpoint is in disabled or stopped state.,INFO,normal_baja_02
+2026-09-23 15:58:59.200,spid34s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,normal_baja_02
+2026-09-23 15:58:59.240,spid34s,Service Broker manager has started.,STARTUP,normal_baja_02
+2026-09-23 15:59:03.070,spid58s,Recovery of database 'SteelNort' (5) is 3% complete (approximately 189 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,normal_baja_02
+2026-09-23 15:59:03.640,spid58s,48723 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 15:59:03.720,spid58s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 15:59:03.720,spid58s,"Recovery completed for database SteelNort (database ID 5) in 8 second(s) (analysis 7235 ms, redo 571 ms, undo 43 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,normal_baja_02
+2026-09-23 15:59:03.730,spid58s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,normal_baja_02
+2026-09-23 15:59:03.770,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,normal_baja_02
+2026-09-23 15:59:07.450,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_baja_02
+2026-09-23 15:59:07.450,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_baja_02
+2026-09-23 15:59:12.690,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_baja_02
+2026-09-23 15:59:12.690,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_baja_02
+2026-09-23 15:59:22.740,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_baja_02
+2026-09-23 15:59:22.740,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_baja_02
+2026-09-23 15:59:42.840,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_baja_02
+2026-09-23 15:59:42.840,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_baja_02
+2026-09-23 16:02:09.940,spid73,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 16:02:10.020,spid73,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,normal_baja_02
+2026-09-23 16:05:50.040,spid63,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_baja_02
+2026-09-23 16:05:50.090,spid63,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,normal_baja_02
+2026-09-23 15:58:49.950,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,normal_larga_01
+2026-09-23 15:58:49.960,Server,UTC adjustment: 0:00,INFO,normal_larga_01
+2026-09-23 15:58:49.960,Server,(c) Microsoft Corporation.,INFO,normal_larga_01
+2026-09-23 15:58:49.960,Server,All rights reserved.,INFO,normal_larga_01
+2026-09-23 15:58:49.970,Server,Server process ID is 452.,INFO,normal_larga_01
+2026-09-23 15:58:49.970,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,normal_larga_01
+2026-09-23 15:58:49.970,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,normal_larga_01
+2026-09-23 15:58:50.000,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,normal_larga_01
+2026-09-23 15:58:50.010,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,normal_larga_01
+2026-09-23 15:58:50.010,Server,"Detected 3916 MB of RAM, 2861 MB of available memory, 2861 MB of available page file. This is an informational message; no user action is required.",INFO,normal_larga_01
+2026-09-23 15:58:50.020,Server,Using conventional memory in the memory manager.,INFO,normal_larga_01
+2026-09-23 15:58:50.020,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,normal_larga_01
+2026-09-23 15:58:50.030,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,normal_larga_01
+2026-09-23 15:58:50.040,Server,Page exclusion bitmap is enabled.,INFO,normal_larga_01
+2026-09-23 15:58:50.120,Server,Buffer pool extension is not supported on Linux platform.,INFO,normal_larga_01
+2026-09-23 15:58:50.130,Server,Buffer Pool: Allocating 4194304 bytes for 449648 hashPages.,INFO,normal_larga_01
+2026-09-23 15:58:50.430,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,normal_larga_01
+2026-09-23 15:58:51.320,Server,Installing Client TLS certificates to the store.,INFO,normal_larga_01
+2026-09-23 15:58:51.340,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,normal_larga_01
+2026-09-23 15:58:51.450,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,normal_larga_01
+2026-09-23 15:58:51.500,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,normal_larga_01
+2026-09-23 15:58:51.530,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,normal_larga_01
+2026-09-23 15:58:51.540,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,normal_larga_01
+2026-09-23 15:58:51.570,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 15:58:51.630,Server,In-Memory OLTP initialized on lowend machine.,INFO,normal_larga_01
+2026-09-23 15:58:51.680,Server,CLR version v4.0.30319 loaded.,INFO,normal_larga_01
+2026-09-23 15:58:51.770,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,normal_larga_01
+2026-09-23 15:58:51.770,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,normal_larga_01
+2026-09-23 15:58:51.790,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,normal_larga_01
+2026-09-23 15:58:51.800,Server,clwb is selected for pmem flush operation.,INFO,normal_larga_01
+2026-09-23 15:58:51.810,Server,Software Usage Metrics is disabled.,INFO,normal_larga_01
+2026-09-23 15:58:51.830,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_larga_01
+2026-09-23 15:58:51.840,spid24s,Starting up database 'master'.,STARTUP,normal_larga_01
+2026-09-23 15:58:52.010,spid24s,39 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 15:58:52.040,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 15:58:52.040,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,normal_larga_01
+2026-09-23 15:58:52.320,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_larga_01
+2026-09-23 15:58:52.320,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_larga_01
+2026-09-23 15:58:52.320,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,normal_larga_01
+2026-09-23 15:58:52.320,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,normal_larga_01
+2026-09-23 15:58:52.340,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 15:58:52.350,Server,Common language runtime (CLR) functionality initialized.,INFO,normal_larga_01
+2026-09-23 15:58:52.380,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_larga_01
+2026-09-23 15:58:52.390,spid26s,Starting up database 'model'.,STARTUP,normal_larga_01
+2026-09-23 15:58:52.480,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,normal_larga_01
+2026-09-23 15:58:52.480,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,normal_larga_01
+2026-09-23 15:58:52.510,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,normal_larga_01
+2026-09-23 15:58:52.600,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,normal_larga_01
+2026-09-23 15:58:52.610,Server,External governance manager initialized,INFO,normal_larga_01
+2026-09-23 15:58:52.630,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,normal_larga_01
+2026-09-23 15:58:52.660,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,normal_larga_01
+2026-09-23 15:58:52.700,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,normal_larga_01
+2026-09-23 15:58:52.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,normal_larga_01
+2026-09-23 15:58:52.750,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,normal_larga_01
+2026-09-23 15:58:52.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,normal_larga_01
+2026-09-23 15:58:52.790,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,normal_larga_01
+2026-09-23 15:58:52.820,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,normal_larga_01
+2026-09-23 15:58:52.850,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,normal_larga_01
+2026-09-23 15:58:52.880,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,normal_larga_01
+2026-09-23 15:58:52.900,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,normal_larga_01
+2026-09-23 15:58:52.930,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,normal_larga_01
+2026-09-23 15:58:52.950,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,normal_larga_01
+2026-09-23 15:58:53.040,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,normal_larga_01
+2026-09-23 15:58:53.070,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,normal_larga_01
+2026-09-23 15:58:53.110,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,normal_larga_01
+2026-09-23 15:58:53.130,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,normal_larga_01
+2026-09-23 15:58:53.150,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,normal_larga_01
+2026-09-23 15:58:53.170,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,normal_larga_01
+2026-09-23 15:58:53.200,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,normal_larga_01
+2026-09-23 15:58:53.230,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,normal_larga_01
+2026-09-23 15:58:53.280,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,normal_larga_01
+2026-09-23 15:58:53.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,normal_larga_01
+2026-09-23 15:58:53.340,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,normal_larga_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,normal_larga_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,normal_larga_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,normal_larga_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,normal_larga_01
+2026-09-23 15:58:53.360,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,normal_larga_01
+2026-09-23 15:58:53.360,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,normal_larga_01
+2026-09-23 15:58:53.370,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,normal_larga_01
+2026-09-23 15:58:53.370,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,normal_larga_01
+2026-09-23 15:58:53.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,normal_larga_01
+2026-09-23 15:58:53.400,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,normal_larga_01
+2026-09-23 15:58:53.430,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,normal_larga_01
+2026-09-23 15:58:53.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,normal_larga_01
+2026-09-23 15:58:53.640,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_larga_01
+2026-09-23 15:58:53.640,spid24s,Starting up database 'model_msdb'.,STARTUP,normal_larga_01
+2026-09-23 15:58:53.830,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,normal_larga_01
+2026-09-23 15:58:53.830,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,normal_larga_01
+2026-09-23 15:58:53.870,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,normal_larga_01
+2026-09-23 15:58:53.970,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,normal_larga_01
+2026-09-23 15:58:54.010,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,normal_larga_01
+2026-09-23 15:58:54.090,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,normal_larga_01
+2026-09-23 15:58:54.140,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,normal_larga_01
+2026-09-23 15:58:54.190,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,normal_larga_01
+2026-09-23 15:58:54.220,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,normal_larga_01
+2026-09-23 15:58:54.260,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,normal_larga_01
+2026-09-23 15:58:54.290,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,normal_larga_01
+2026-09-23 15:58:54.350,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,normal_larga_01
+2026-09-23 15:58:54.380,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,normal_larga_01
+2026-09-23 15:58:54.410,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,normal_larga_01
+2026-09-23 15:58:54.450,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,normal_larga_01
+2026-09-23 15:58:54.480,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,normal_larga_01
+2026-09-23 15:58:54.510,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,normal_larga_01
+2026-09-23 15:58:54.630,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,normal_larga_01
+2026-09-23 15:58:54.660,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,normal_larga_01
+2026-09-23 15:58:54.740,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,normal_larga_01
+2026-09-23 15:58:54.770,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,normal_larga_01
+2026-09-23 15:58:54.810,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,normal_larga_01
+2026-09-23 15:58:54.840,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,normal_larga_01
+2026-09-23 15:58:54.870,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,normal_larga_01
+2026-09-23 15:58:54.890,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,normal_larga_01
+2026-09-23 15:58:54.940,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,normal_larga_01
+2026-09-23 15:58:54.980,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,normal_larga_01
+2026-09-23 15:58:55.030,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,normal_larga_01
+2026-09-23 15:58:55.060,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,normal_larga_01
+2026-09-23 15:58:55.090,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,normal_larga_01
+2026-09-23 15:58:55.170,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,normal_larga_01
+2026-09-23 15:58:55.310,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,normal_larga_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization initialized,INFO,normal_larga_01
+2026-09-23 15:58:55.320,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,normal_larga_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization manager initialized,INFO,normal_larga_01
+2026-09-23 15:58:55.330,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,normal_larga_01
+2026-09-23 15:58:55.520,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,normal_larga_01
+2026-09-23 15:58:55.550,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 15:58:55.600,spid26s,Clearing tempdb database.,INFO,normal_larga_01
+2026-09-23 15:58:55.600,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,normal_larga_01
+2026-09-23 15:58:55.600,spid58s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_larga_01
+2026-09-23 15:58:55.600,spid57s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_larga_01
+2026-09-23 15:58:55.610,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 15:58:55.610,spid58s,Starting up database 'SteelNort'.,STARTUP,normal_larga_01
+2026-09-23 15:58:55.620,spid57s,Starting up database 'msdb'.,STARTUP,normal_larga_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,normal_larga_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,normal_larga_01
+2026-09-23 15:58:55.770,spid58s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,normal_larga_01
+2026-09-23 15:58:55.800,spid24s,Recovery is writing a checkpoint in database 'msdb' (4). This is an informational message only. No user action is required.,STARTUP,normal_larga_01
+2026-09-23 15:58:56.820,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,normal_larga_01
+2026-09-23 15:58:56.850,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_larga_01
+2026-09-23 15:58:56.850,spid26s,Starting up database 'tempdb'.,STARTUP,normal_larga_01
+2026-09-23 15:58:59.140,spid26s,The tempdb database has 8 data file(s).,INFO,normal_larga_01
+2026-09-23 15:58:59.200,spid34s,The Service Broker endpoint is in disabled or stopped state.,INFO,normal_larga_01
+2026-09-23 15:58:59.200,spid34s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,normal_larga_01
+2026-09-23 15:58:59.240,spid34s,Service Broker manager has started.,STARTUP,normal_larga_01
+2026-09-23 15:59:03.070,spid58s,Recovery of database 'SteelNort' (5) is 3% complete (approximately 189 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,normal_larga_01
+2026-09-23 15:59:03.640,spid58s,48723 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 15:59:03.720,spid58s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 15:59:03.720,spid58s,"Recovery completed for database SteelNort (database ID 5) in 8 second(s) (analysis 7235 ms, redo 571 ms, undo 43 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,normal_larga_01
+2026-09-23 15:59:03.730,spid58s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,normal_larga_01
+2026-09-23 15:59:03.770,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,normal_larga_01
+2026-09-23 15:59:07.450,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_larga_01
+2026-09-23 15:59:07.450,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_larga_01
+2026-09-23 15:59:12.690,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_larga_01
+2026-09-23 15:59:12.690,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_larga_01
+2026-09-23 15:59:22.740,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_larga_01
+2026-09-23 15:59:22.740,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_larga_01
+2026-09-23 15:59:42.840,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_larga_01
+2026-09-23 15:59:42.840,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_larga_01
+2026-09-23 16:02:09.940,spid73,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 16:02:10.020,spid73,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,normal_larga_01
+2026-09-23 16:05:50.040,spid63,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_larga_01
+2026-09-23 16:05:50.090,spid63,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,normal_larga_01
+2026-09-23 15:58:49.950,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,normal_media_01
+2026-09-23 15:58:49.960,Server,UTC adjustment: 0:00,INFO,normal_media_01
+2026-09-23 15:58:49.960,Server,(c) Microsoft Corporation.,INFO,normal_media_01
+2026-09-23 15:58:49.960,Server,All rights reserved.,INFO,normal_media_01
+2026-09-23 15:58:49.970,Server,Server process ID is 452.,INFO,normal_media_01
+2026-09-23 15:58:49.970,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,normal_media_01
+2026-09-23 15:58:49.970,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,normal_media_01
+2026-09-23 15:58:50.000,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,normal_media_01
+2026-09-23 15:58:50.010,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,normal_media_01
+2026-09-23 15:58:50.010,Server,"Detected 3916 MB of RAM, 2861 MB of available memory, 2861 MB of available page file. This is an informational message; no user action is required.",INFO,normal_media_01
+2026-09-23 15:58:50.020,Server,Using conventional memory in the memory manager.,INFO,normal_media_01
+2026-09-23 15:58:50.020,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,normal_media_01
+2026-09-23 15:58:50.030,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,normal_media_01
+2026-09-23 15:58:50.040,Server,Page exclusion bitmap is enabled.,INFO,normal_media_01
+2026-09-23 15:58:50.120,Server,Buffer pool extension is not supported on Linux platform.,INFO,normal_media_01
+2026-09-23 15:58:50.130,Server,Buffer Pool: Allocating 4194304 bytes for 449648 hashPages.,INFO,normal_media_01
+2026-09-23 15:58:50.430,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,normal_media_01
+2026-09-23 15:58:51.320,Server,Installing Client TLS certificates to the store.,INFO,normal_media_01
+2026-09-23 15:58:51.340,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,normal_media_01
+2026-09-23 15:58:51.450,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,normal_media_01
+2026-09-23 15:58:51.500,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,normal_media_01
+2026-09-23 15:58:51.530,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,normal_media_01
+2026-09-23 15:58:51.540,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,normal_media_01
+2026-09-23 15:58:51.570,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 15:58:51.630,Server,In-Memory OLTP initialized on lowend machine.,INFO,normal_media_01
+2026-09-23 15:58:51.680,Server,CLR version v4.0.30319 loaded.,INFO,normal_media_01
+2026-09-23 15:58:51.770,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,normal_media_01
+2026-09-23 15:58:51.770,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,normal_media_01
+2026-09-23 15:58:51.790,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,normal_media_01
+2026-09-23 15:58:51.800,Server,clwb is selected for pmem flush operation.,INFO,normal_media_01
+2026-09-23 15:58:51.810,Server,Software Usage Metrics is disabled.,INFO,normal_media_01
+2026-09-23 15:58:51.830,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_01
+2026-09-23 15:58:51.840,spid24s,Starting up database 'master'.,STARTUP,normal_media_01
+2026-09-23 15:58:52.010,spid24s,39 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 15:58:52.040,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 15:58:52.040,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,normal_media_01
+2026-09-23 15:58:52.320,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_01
+2026-09-23 15:58:52.320,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_01
+2026-09-23 15:58:52.320,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,normal_media_01
+2026-09-23 15:58:52.320,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,normal_media_01
+2026-09-23 15:58:52.340,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 15:58:52.350,Server,Common language runtime (CLR) functionality initialized.,INFO,normal_media_01
+2026-09-23 15:58:52.380,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_01
+2026-09-23 15:58:52.390,spid26s,Starting up database 'model'.,STARTUP,normal_media_01
+2026-09-23 15:58:52.480,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,normal_media_01
+2026-09-23 15:58:52.480,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,normal_media_01
+2026-09-23 15:58:52.510,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,normal_media_01
+2026-09-23 15:58:52.600,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,normal_media_01
+2026-09-23 15:58:52.610,Server,External governance manager initialized,INFO,normal_media_01
+2026-09-23 15:58:52.630,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,normal_media_01
+2026-09-23 15:58:52.660,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,normal_media_01
+2026-09-23 15:58:52.700,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,normal_media_01
+2026-09-23 15:58:52.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,normal_media_01
+2026-09-23 15:58:52.750,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,normal_media_01
+2026-09-23 15:58:52.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,normal_media_01
+2026-09-23 15:58:52.790,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,normal_media_01
+2026-09-23 15:58:52.820,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,normal_media_01
+2026-09-23 15:58:52.850,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,normal_media_01
+2026-09-23 15:58:52.880,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,normal_media_01
+2026-09-23 15:58:52.900,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,normal_media_01
+2026-09-23 15:58:52.930,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,normal_media_01
+2026-09-23 15:58:52.950,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,normal_media_01
+2026-09-23 15:58:53.040,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,normal_media_01
+2026-09-23 15:58:53.070,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,normal_media_01
+2026-09-23 15:58:53.110,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,normal_media_01
+2026-09-23 15:58:53.130,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,normal_media_01
+2026-09-23 15:58:53.150,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,normal_media_01
+2026-09-23 15:58:53.170,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,normal_media_01
+2026-09-23 15:58:53.200,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,normal_media_01
+2026-09-23 15:58:53.230,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,normal_media_01
+2026-09-23 15:58:53.280,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,normal_media_01
+2026-09-23 15:58:53.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,normal_media_01
+2026-09-23 15:58:53.340,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,normal_media_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,normal_media_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,normal_media_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,normal_media_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,normal_media_01
+2026-09-23 15:58:53.360,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,normal_media_01
+2026-09-23 15:58:53.360,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,normal_media_01
+2026-09-23 15:58:53.370,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,normal_media_01
+2026-09-23 15:58:53.370,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,normal_media_01
+2026-09-23 15:58:53.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,normal_media_01
+2026-09-23 15:58:53.400,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,normal_media_01
+2026-09-23 15:58:53.430,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,normal_media_01
+2026-09-23 15:58:53.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,normal_media_01
+2026-09-23 15:58:53.640,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_01
+2026-09-23 15:58:53.640,spid24s,Starting up database 'model_msdb'.,STARTUP,normal_media_01
+2026-09-23 15:58:53.830,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,normal_media_01
+2026-09-23 15:58:53.830,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,normal_media_01
+2026-09-23 15:58:53.870,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,normal_media_01
+2026-09-23 15:58:53.970,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,normal_media_01
+2026-09-23 15:58:54.010,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,normal_media_01
+2026-09-23 15:58:54.090,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,normal_media_01
+2026-09-23 15:58:54.140,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,normal_media_01
+2026-09-23 15:58:54.190,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,normal_media_01
+2026-09-23 15:58:54.220,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,normal_media_01
+2026-09-23 15:58:54.260,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,normal_media_01
+2026-09-23 15:58:54.290,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,normal_media_01
+2026-09-23 15:58:54.350,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,normal_media_01
+2026-09-23 15:58:54.380,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,normal_media_01
+2026-09-23 15:58:54.410,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,normal_media_01
+2026-09-23 15:58:54.450,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,normal_media_01
+2026-09-23 15:58:54.480,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,normal_media_01
+2026-09-23 15:58:54.510,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,normal_media_01
+2026-09-23 15:58:54.630,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,normal_media_01
+2026-09-23 15:58:54.660,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,normal_media_01
+2026-09-23 15:58:54.740,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,normal_media_01
+2026-09-23 15:58:54.770,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,normal_media_01
+2026-09-23 15:58:54.810,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,normal_media_01
+2026-09-23 15:58:54.840,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,normal_media_01
+2026-09-23 15:58:54.870,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,normal_media_01
+2026-09-23 15:58:54.890,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,normal_media_01
+2026-09-23 15:58:54.940,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,normal_media_01
+2026-09-23 15:58:54.980,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,normal_media_01
+2026-09-23 15:58:55.030,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,normal_media_01
+2026-09-23 15:58:55.060,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,normal_media_01
+2026-09-23 15:58:55.090,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,normal_media_01
+2026-09-23 15:58:55.170,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,normal_media_01
+2026-09-23 15:58:55.310,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,normal_media_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization initialized,INFO,normal_media_01
+2026-09-23 15:58:55.320,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,normal_media_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization manager initialized,INFO,normal_media_01
+2026-09-23 15:58:55.330,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,normal_media_01
+2026-09-23 15:58:55.520,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,normal_media_01
+2026-09-23 15:58:55.550,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 15:58:55.600,spid26s,Clearing tempdb database.,INFO,normal_media_01
+2026-09-23 15:58:55.600,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,normal_media_01
+2026-09-23 15:58:55.600,spid58s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_01
+2026-09-23 15:58:55.600,spid57s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_01
+2026-09-23 15:58:55.610,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 15:58:55.610,spid58s,Starting up database 'SteelNort'.,STARTUP,normal_media_01
+2026-09-23 15:58:55.620,spid57s,Starting up database 'msdb'.,STARTUP,normal_media_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,normal_media_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,normal_media_01
+2026-09-23 15:58:55.770,spid58s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,normal_media_01
+2026-09-23 15:58:55.800,spid24s,Recovery is writing a checkpoint in database 'msdb' (4). This is an informational message only. No user action is required.,STARTUP,normal_media_01
+2026-09-23 15:58:56.820,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,normal_media_01
+2026-09-23 15:58:56.850,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_01
+2026-09-23 15:58:56.850,spid26s,Starting up database 'tempdb'.,STARTUP,normal_media_01
+2026-09-23 15:58:59.140,spid26s,The tempdb database has 8 data file(s).,INFO,normal_media_01
+2026-09-23 15:58:59.200,spid34s,The Service Broker endpoint is in disabled or stopped state.,INFO,normal_media_01
+2026-09-23 15:58:59.200,spid34s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,normal_media_01
+2026-09-23 15:58:59.240,spid34s,Service Broker manager has started.,STARTUP,normal_media_01
+2026-09-23 15:59:03.070,spid58s,Recovery of database 'SteelNort' (5) is 3% complete (approximately 189 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,normal_media_01
+2026-09-23 15:59:03.640,spid58s,48723 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 15:59:03.720,spid58s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 15:59:03.720,spid58s,"Recovery completed for database SteelNort (database ID 5) in 8 second(s) (analysis 7235 ms, redo 571 ms, undo 43 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,normal_media_01
+2026-09-23 15:59:03.730,spid58s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,normal_media_01
+2026-09-23 15:59:03.770,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,normal_media_01
+2026-09-23 15:59:07.450,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_media_01
+2026-09-23 15:59:07.450,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_media_01
+2026-09-23 15:59:12.690,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_media_01
+2026-09-23 15:59:12.690,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_media_01
+2026-09-23 15:59:22.740,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_media_01
+2026-09-23 15:59:22.740,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_media_01
+2026-09-23 15:59:42.840,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_media_01
+2026-09-23 15:59:42.840,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_media_01
+2026-09-23 16:02:09.940,spid73,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 16:02:10.020,spid73,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,normal_media_01
+2026-09-23 16:05:50.040,spid63,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_media_01
+2026-09-23 16:05:50.090,spid63,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,normal_media_01
+2026-09-23 15:58:49.950,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,normal_media_02
+2026-09-23 15:58:49.960,Server,UTC adjustment: 0:00,INFO,normal_media_02
+2026-09-23 15:58:49.960,Server,(c) Microsoft Corporation.,INFO,normal_media_02
+2026-09-23 15:58:49.960,Server,All rights reserved.,INFO,normal_media_02
+2026-09-23 15:58:49.970,Server,Server process ID is 452.,INFO,normal_media_02
+2026-09-23 15:58:49.970,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,normal_media_02
+2026-09-23 15:58:49.970,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,normal_media_02
+2026-09-23 15:58:50.000,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,normal_media_02
+2026-09-23 15:58:50.010,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,normal_media_02
+2026-09-23 15:58:50.010,Server,"Detected 3916 MB of RAM, 2861 MB of available memory, 2861 MB of available page file. This is an informational message; no user action is required.",INFO,normal_media_02
+2026-09-23 15:58:50.020,Server,Using conventional memory in the memory manager.,INFO,normal_media_02
+2026-09-23 15:58:50.020,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,normal_media_02
+2026-09-23 15:58:50.030,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,normal_media_02
+2026-09-23 15:58:50.040,Server,Page exclusion bitmap is enabled.,INFO,normal_media_02
+2026-09-23 15:58:50.120,Server,Buffer pool extension is not supported on Linux platform.,INFO,normal_media_02
+2026-09-23 15:58:50.130,Server,Buffer Pool: Allocating 4194304 bytes for 449648 hashPages.,INFO,normal_media_02
+2026-09-23 15:58:50.430,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,normal_media_02
+2026-09-23 15:58:51.320,Server,Installing Client TLS certificates to the store.,INFO,normal_media_02
+2026-09-23 15:58:51.340,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,normal_media_02
+2026-09-23 15:58:51.450,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,normal_media_02
+2026-09-23 15:58:51.500,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,normal_media_02
+2026-09-23 15:58:51.530,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,normal_media_02
+2026-09-23 15:58:51.540,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,normal_media_02
+2026-09-23 15:58:51.570,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 15:58:51.630,Server,In-Memory OLTP initialized on lowend machine.,INFO,normal_media_02
+2026-09-23 15:58:51.680,Server,CLR version v4.0.30319 loaded.,INFO,normal_media_02
+2026-09-23 15:58:51.770,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,normal_media_02
+2026-09-23 15:58:51.770,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,normal_media_02
+2026-09-23 15:58:51.790,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,normal_media_02
+2026-09-23 15:58:51.800,Server,clwb is selected for pmem flush operation.,INFO,normal_media_02
+2026-09-23 15:58:51.810,Server,Software Usage Metrics is disabled.,INFO,normal_media_02
+2026-09-23 15:58:51.830,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_02
+2026-09-23 15:58:51.840,spid24s,Starting up database 'master'.,STARTUP,normal_media_02
+2026-09-23 15:58:52.010,spid24s,39 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 15:58:52.040,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 15:58:52.040,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,normal_media_02
+2026-09-23 15:58:52.320,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_02
+2026-09-23 15:58:52.320,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_02
+2026-09-23 15:58:52.320,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,normal_media_02
+2026-09-23 15:58:52.320,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,normal_media_02
+2026-09-23 15:58:52.340,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 15:58:52.350,Server,Common language runtime (CLR) functionality initialized.,INFO,normal_media_02
+2026-09-23 15:58:52.380,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_02
+2026-09-23 15:58:52.390,spid26s,Starting up database 'model'.,STARTUP,normal_media_02
+2026-09-23 15:58:52.480,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,normal_media_02
+2026-09-23 15:58:52.480,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,normal_media_02
+2026-09-23 15:58:52.510,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,normal_media_02
+2026-09-23 15:58:52.600,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,normal_media_02
+2026-09-23 15:58:52.610,Server,External governance manager initialized,INFO,normal_media_02
+2026-09-23 15:58:52.630,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,normal_media_02
+2026-09-23 15:58:52.660,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,normal_media_02
+2026-09-23 15:58:52.700,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,normal_media_02
+2026-09-23 15:58:52.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,normal_media_02
+2026-09-23 15:58:52.750,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,normal_media_02
+2026-09-23 15:58:52.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,normal_media_02
+2026-09-23 15:58:52.790,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,normal_media_02
+2026-09-23 15:58:52.820,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,normal_media_02
+2026-09-23 15:58:52.850,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,normal_media_02
+2026-09-23 15:58:52.880,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,normal_media_02
+2026-09-23 15:58:52.900,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,normal_media_02
+2026-09-23 15:58:52.930,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,normal_media_02
+2026-09-23 15:58:52.950,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,normal_media_02
+2026-09-23 15:58:53.040,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,normal_media_02
+2026-09-23 15:58:53.070,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,normal_media_02
+2026-09-23 15:58:53.110,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,normal_media_02
+2026-09-23 15:58:53.130,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,normal_media_02
+2026-09-23 15:58:53.150,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,normal_media_02
+2026-09-23 15:58:53.170,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,normal_media_02
+2026-09-23 15:58:53.200,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,normal_media_02
+2026-09-23 15:58:53.230,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,normal_media_02
+2026-09-23 15:58:53.280,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,normal_media_02
+2026-09-23 15:58:53.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,normal_media_02
+2026-09-23 15:58:53.340,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,normal_media_02
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,normal_media_02
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,normal_media_02
+2026-09-23 15:58:53.350,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,normal_media_02
+2026-09-23 15:58:53.350,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,normal_media_02
+2026-09-23 15:58:53.360,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,normal_media_02
+2026-09-23 15:58:53.360,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,normal_media_02
+2026-09-23 15:58:53.370,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,normal_media_02
+2026-09-23 15:58:53.370,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,normal_media_02
+2026-09-23 15:58:53.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,normal_media_02
+2026-09-23 15:58:53.400,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,normal_media_02
+2026-09-23 15:58:53.430,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,normal_media_02
+2026-09-23 15:58:53.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,normal_media_02
+2026-09-23 15:58:53.640,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_02
+2026-09-23 15:58:53.640,spid24s,Starting up database 'model_msdb'.,STARTUP,normal_media_02
+2026-09-23 15:58:53.830,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,normal_media_02
+2026-09-23 15:58:53.830,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,normal_media_02
+2026-09-23 15:58:53.870,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,normal_media_02
+2026-09-23 15:58:53.970,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,normal_media_02
+2026-09-23 15:58:54.010,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,normal_media_02
+2026-09-23 15:58:54.090,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,normal_media_02
+2026-09-23 15:58:54.140,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,normal_media_02
+2026-09-23 15:58:54.190,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,normal_media_02
+2026-09-23 15:58:54.220,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,normal_media_02
+2026-09-23 15:58:54.260,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,normal_media_02
+2026-09-23 15:58:54.290,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,normal_media_02
+2026-09-23 15:58:54.350,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,normal_media_02
+2026-09-23 15:58:54.380,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,normal_media_02
+2026-09-23 15:58:54.410,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,normal_media_02
+2026-09-23 15:58:54.450,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,normal_media_02
+2026-09-23 15:58:54.480,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,normal_media_02
+2026-09-23 15:58:54.510,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,normal_media_02
+2026-09-23 15:58:54.630,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,normal_media_02
+2026-09-23 15:58:54.660,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,normal_media_02
+2026-09-23 15:58:54.740,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,normal_media_02
+2026-09-23 15:58:54.770,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,normal_media_02
+2026-09-23 15:58:54.810,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,normal_media_02
+2026-09-23 15:58:54.840,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,normal_media_02
+2026-09-23 15:58:54.870,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,normal_media_02
+2026-09-23 15:58:54.890,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,normal_media_02
+2026-09-23 15:58:54.940,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,normal_media_02
+2026-09-23 15:58:54.980,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,normal_media_02
+2026-09-23 15:58:55.030,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,normal_media_02
+2026-09-23 15:58:55.060,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,normal_media_02
+2026-09-23 15:58:55.090,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,normal_media_02
+2026-09-23 15:58:55.170,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,normal_media_02
+2026-09-23 15:58:55.310,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,normal_media_02
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization initialized,INFO,normal_media_02
+2026-09-23 15:58:55.320,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,normal_media_02
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization manager initialized,INFO,normal_media_02
+2026-09-23 15:58:55.330,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,normal_media_02
+2026-09-23 15:58:55.520,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,normal_media_02
+2026-09-23 15:58:55.550,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 15:58:55.600,spid26s,Clearing tempdb database.,INFO,normal_media_02
+2026-09-23 15:58:55.600,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,normal_media_02
+2026-09-23 15:58:55.600,spid58s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_02
+2026-09-23 15:58:55.600,spid57s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_02
+2026-09-23 15:58:55.610,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 15:58:55.610,spid58s,Starting up database 'SteelNort'.,STARTUP,normal_media_02
+2026-09-23 15:58:55.620,spid57s,Starting up database 'msdb'.,STARTUP,normal_media_02
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,normal_media_02
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,normal_media_02
+2026-09-23 15:58:55.770,spid58s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,normal_media_02
+2026-09-23 15:58:55.800,spid24s,Recovery is writing a checkpoint in database 'msdb' (4). This is an informational message only. No user action is required.,STARTUP,normal_media_02
+2026-09-23 15:58:56.820,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,normal_media_02
+2026-09-23 15:58:56.850,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_media_02
+2026-09-23 15:58:56.850,spid26s,Starting up database 'tempdb'.,STARTUP,normal_media_02
+2026-09-23 15:58:59.140,spid26s,The tempdb database has 8 data file(s).,INFO,normal_media_02
+2026-09-23 15:58:59.200,spid34s,The Service Broker endpoint is in disabled or stopped state.,INFO,normal_media_02
+2026-09-23 15:58:59.200,spid34s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,normal_media_02
+2026-09-23 15:58:59.240,spid34s,Service Broker manager has started.,STARTUP,normal_media_02
+2026-09-23 15:59:03.070,spid58s,Recovery of database 'SteelNort' (5) is 3% complete (approximately 189 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,normal_media_02
+2026-09-23 15:59:03.640,spid58s,48723 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 15:59:03.720,spid58s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 15:59:03.720,spid58s,"Recovery completed for database SteelNort (database ID 5) in 8 second(s) (analysis 7235 ms, redo 571 ms, undo 43 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,normal_media_02
+2026-09-23 15:59:03.730,spid58s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,normal_media_02
+2026-09-23 15:59:03.770,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,normal_media_02
+2026-09-23 15:59:07.450,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_media_02
+2026-09-23 15:59:07.450,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_media_02
+2026-09-23 15:59:12.690,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_media_02
+2026-09-23 15:59:12.690,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_media_02
+2026-09-23 15:59:22.740,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_media_02
+2026-09-23 15:59:22.740,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_media_02
+2026-09-23 15:59:42.840,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_media_02
+2026-09-23 15:59:42.840,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_media_02
+2026-09-23 16:02:09.940,spid73,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 16:02:10.020,spid73,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,normal_media_02
+2026-09-23 16:05:50.040,spid63,Attempting to load library 'xplog70.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_media_02
+2026-09-23 16:05:50.090,spid63,Using 'xplog70.dll' version '2022.160.4265' to execute extended stored procedure 'xp_msver'. This is an informational message only; no user action is required.,INFO,normal_media_02
+2026-09-23 15:58:49.950,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,normal_prueba_01
+2026-09-23 15:58:49.960,Server,UTC adjustment: 0:00,INFO,normal_prueba_01
+2026-09-23 15:58:49.960,Server,(c) Microsoft Corporation.,INFO,normal_prueba_01
+2026-09-23 15:58:49.960,Server,All rights reserved.,INFO,normal_prueba_01
+2026-09-23 15:58:49.970,Server,Server process ID is 452.,INFO,normal_prueba_01
+2026-09-23 15:58:49.970,Server,Logging SQL Server messages in file '/var/opt/mssql/log/errorlog'.,ERROR,normal_prueba_01
+2026-09-23 15:58:49.970,Server,Registry startup parameters: -d /var/opt/mssql/data/master.mdf -l /var/opt/mssql/data/mastlog.ldf -e /var/opt/mssql/log/errorlog,ERROR,normal_prueba_01
+2026-09-23 15:58:50.000,Server,"SQL Server detected 1 sockets with 3 cores per socket and 6 logical processors per socket, 6 total logical processors; using 6 logical processors based on SQL Server licensing. This is an informational message; no user action is required.",INFO,normal_prueba_01
+2026-09-23 15:58:50.010,Server,SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.,STARTUP,normal_prueba_01
+2026-09-23 15:58:50.010,Server,"Detected 3916 MB of RAM, 2861 MB of available memory, 2861 MB of available page file. This is an informational message; no user action is required.",INFO,normal_prueba_01
+2026-09-23 15:58:50.020,Server,Using conventional memory in the memory manager.,INFO,normal_prueba_01
+2026-09-23 15:58:50.020,Server,Detected pause instruction latency: 140 cycles.,PERFORMANCE,normal_prueba_01
+2026-09-23 15:58:50.030,Server,"SQL Server detected the following NUMA node configuration (NUMA Node number 0, Processor Group number 0, CPU Mask 0x000000000000003f).",CONFIGURATION,normal_prueba_01
+2026-09-23 15:58:50.040,Server,Page exclusion bitmap is enabled.,INFO,normal_prueba_01
+2026-09-23 15:58:50.120,Server,Buffer pool extension is not supported on Linux platform.,INFO,normal_prueba_01
+2026-09-23 15:58:50.130,Server,Buffer Pool: Allocating 4194304 bytes for 449648 hashPages.,INFO,normal_prueba_01
+2026-09-23 15:58:50.430,Server,Buffer pool extension is already disabled. No action is necessary.,INFO,normal_prueba_01
+2026-09-23 15:58:51.320,Server,Installing Client TLS certificates to the store.,INFO,normal_prueba_01
+2026-09-23 15:58:51.340,Server,CPU vectorization level(s) detected: SSE SSE2 SSE3 SSSE3 SSE41 SSE42 AVX AVX2 POPCNT BMI1 BMI2 AVX512 (F CD BW DQ VL IFMA VBMI VBMI2 VNNI BITALG VPOQCNTDQ VP2INTERSECT),INFO,normal_prueba_01
+2026-09-23 15:58:51.450,Server,Successfully initialized the TLS configuration. Allowed TLS protocol versions are ['1.0 1.1 1.2']. Allowed TLS ciphers are ['ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!DHE-RSA-AES256-GCM-SHA384:!DHE-RSA-AES128-GCM-SHA256:!DHE-RSA-AES256-SHA:!DHE-RSA-AES128-SHA'].,CONFIGURATION,normal_prueba_01
+2026-09-23 15:58:51.500,Server,"Query Store settings initialized with enabled = 1,",CONFIGURATION,normal_prueba_01
+2026-09-23 15:58:51.530,Server,The maximum number of dedicated administrator connections for this instance is '1',INFO,normal_prueba_01
+2026-09-23 15:58:51.540,Server,Node configuration: node 0: CPU mask: 0x000000000000003f:0 Active CPU mask: 0x000000000000003f:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.,CONFIGURATION,normal_prueba_01
+2026-09-23 15:58:51.570,Server,Using dynamic lock allocation. Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node. This is an informational message only. No user action is required.,INFO,normal_prueba_01
+2026-09-23 15:58:51.630,Server,In-Memory OLTP initialized on lowend machine.,INFO,normal_prueba_01
+2026-09-23 15:58:51.680,Server,CLR version v4.0.30319 loaded.,INFO,normal_prueba_01
+2026-09-23 15:58:51.770,Server,[INFO] Created Extended Events session 'hkenginexesession',INFO,normal_prueba_01
+2026-09-23 15:58:51.770,Server,Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.,PERFORMANCE,normal_prueba_01
+2026-09-23 15:58:51.790,Server,Total Log Writer threads: 2. This is an informational message; no user action is required.,INFO,normal_prueba_01
+2026-09-23 15:58:51.800,Server,clwb is selected for pmem flush operation.,INFO,normal_prueba_01
+2026-09-23 15:58:51.810,Server,Software Usage Metrics is disabled.,INFO,normal_prueba_01
+2026-09-23 15:58:51.830,spid24s,"[1]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_prueba_01
+2026-09-23 15:58:51.840,spid24s,Starting up database 'master'.,STARTUP,normal_prueba_01
+2026-09-23 15:58:52.010,spid24s,39 transactions rolled forward in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_prueba_01
+2026-09-23 15:58:52.040,spid24s,0 transactions rolled back in database 'master' (1:0). This is an informational message only. No user action is required.,INFO,normal_prueba_01
+2026-09-23 15:58:52.040,spid24s,Recovery is writing a checkpoint in database 'master' (1). This is an informational message only. No user action is required.,STARTUP,normal_prueba_01
+2026-09-23 15:58:52.320,spid24s,"[32762]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_prueba_01
+2026-09-23 15:58:52.320,spid26s,"[32767]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_prueba_01
+2026-09-23 15:58:52.320,spid24s,Starting up database 'model_replicatedmaster'.,STARTUP,normal_prueba_01
+2026-09-23 15:58:52.320,spid26s,Starting up database 'mssqlsystemresource'.,STARTUP,normal_prueba_01
+2026-09-23 15:58:52.340,spid26s,The resource database build version is 16.00.4265. This is an informational message only. No user action is required.,INFO,normal_prueba_01
+2026-09-23 15:58:52.350,Server,Common language runtime (CLR) functionality initialized.,INFO,normal_prueba_01
+2026-09-23 15:58:52.380,spid26s,"[3]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_prueba_01
+2026-09-23 15:58:52.390,spid26s,Starting up database 'model'.,STARTUP,normal_prueba_01
+2026-09-23 15:58:52.480,spid24s,Converting database 'model_replicatedmaster' from version 927 to the current version 957.,INFO,normal_prueba_01
+2026-09-23 15:58:52.480,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 927 to version 928.,INFO,normal_prueba_01
+2026-09-23 15:58:52.510,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 928 to version 929.,INFO,normal_prueba_01
+2026-09-23 15:58:52.600,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 929 to version 930.,INFO,normal_prueba_01
+2026-09-23 15:58:52.610,Server,External governance manager initialized,INFO,normal_prueba_01
+2026-09-23 15:58:52.630,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 930 to version 931.,INFO,normal_prueba_01
+2026-09-23 15:58:52.660,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 931 to version 932.,INFO,normal_prueba_01
+2026-09-23 15:58:52.700,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 932 to version 933.,INFO,normal_prueba_01
+2026-09-23 15:58:52.720,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 933 to version 934.,INFO,normal_prueba_01
+2026-09-23 15:58:52.750,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 934 to version 935.,INFO,normal_prueba_01
+2026-09-23 15:58:52.770,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 935 to version 936.,INFO,normal_prueba_01
+2026-09-23 15:58:52.790,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 936 to version 937.,INFO,normal_prueba_01
+2026-09-23 15:58:52.820,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 937 to version 938.,INFO,normal_prueba_01
+2026-09-23 15:58:52.850,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 938 to version 939.,INFO,normal_prueba_01
+2026-09-23 15:58:52.880,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 939 to version 940.,INFO,normal_prueba_01
+2026-09-23 15:58:52.900,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 940 to version 941.,INFO,normal_prueba_01
+2026-09-23 15:58:52.930,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 941 to version 942.,INFO,normal_prueba_01
+2026-09-23 15:58:52.950,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 942 to version 943.,INFO,normal_prueba_01
+2026-09-23 15:58:53.040,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 943 to version 944.,INFO,normal_prueba_01
+2026-09-23 15:58:53.070,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 944 to version 945.,INFO,normal_prueba_01
+2026-09-23 15:58:53.110,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 945 to version 946.,INFO,normal_prueba_01
+2026-09-23 15:58:53.130,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 946 to version 947.,INFO,normal_prueba_01
+2026-09-23 15:58:53.150,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 947 to version 948.,INFO,normal_prueba_01
+2026-09-23 15:58:53.170,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 948 to version 949.,INFO,normal_prueba_01
+2026-09-23 15:58:53.200,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 949 to version 950.,INFO,normal_prueba_01
+2026-09-23 15:58:53.230,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 950 to version 951.,INFO,normal_prueba_01
+2026-09-23 15:58:53.280,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 951 to version 952.,INFO,normal_prueba_01
+2026-09-23 15:58:53.300,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 952 to version 953.,INFO,normal_prueba_01
+2026-09-23 15:58:53.340,spid33s,A self-generated certificate was successfully loaded for encryption.,INFO,normal_prueba_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv6> 1433] accept sockets 1.,INFO,normal_prueba_01
+2026-09-23 15:58:53.340,spid33s,Server is listening on [ 'any' <ipv4> 1433] accept sockets 1.,INFO,normal_prueba_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ ::1 <ipv6> 1434] accept sockets 1.,INFO,normal_prueba_01
+2026-09-23 15:58:53.350,Server,Server is listening on [ 127.0.0.1 <ipv4> 1434] accept sockets 1.,INFO,normal_prueba_01
+2026-09-23 15:58:53.360,Server,Dedicated admin connection support was established for listening locally on port 1434.,INFO,normal_prueba_01
+2026-09-23 15:58:53.360,spid33s,Server is listening on [ ::1 <ipv6> 1431] accept sockets 1.,INFO,normal_prueba_01
+2026-09-23 15:58:53.370,spid33s,Server is listening on [ 127.0.0.1 <ipv4> 1431] accept sockets 1.,INFO,normal_prueba_01
+2026-09-23 15:58:53.370,spid33s,SQL Server is now ready for client connections. This is an informational message; no user action is required.,STARTUP,normal_prueba_01
+2026-09-23 15:58:53.380,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 953 to version 954.,INFO,normal_prueba_01
+2026-09-23 15:58:53.400,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 954 to version 955.,INFO,normal_prueba_01
+2026-09-23 15:58:53.430,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 955 to version 956.,INFO,normal_prueba_01
+2026-09-23 15:58:53.490,spid24s,Database 'model_replicatedmaster' running the upgrade step from version 956 to version 957.,INFO,normal_prueba_01
+2026-09-23 15:58:53.640,spid24s,"[32761]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_prueba_01
+2026-09-23 15:58:53.640,spid24s,Starting up database 'model_msdb'.,STARTUP,normal_prueba_01
+2026-09-23 15:58:53.830,spid24s,Converting database 'model_msdb' from version 927 to the current version 957.,INFO,normal_prueba_01
+2026-09-23 15:58:53.830,spid24s,Database 'model_msdb' running the upgrade step from version 927 to version 928.,INFO,normal_prueba_01
+2026-09-23 15:58:53.870,spid24s,Database 'model_msdb' running the upgrade step from version 928 to version 929.,INFO,normal_prueba_01
+2026-09-23 15:58:53.970,spid24s,Database 'model_msdb' running the upgrade step from version 929 to version 930.,INFO,normal_prueba_01
+2026-09-23 15:58:54.010,spid24s,Database 'model_msdb' running the upgrade step from version 930 to version 931.,INFO,normal_prueba_01
+2026-09-23 15:58:54.090,spid24s,Database 'model_msdb' running the upgrade step from version 931 to version 932.,INFO,normal_prueba_01
+2026-09-23 15:58:54.140,spid24s,Database 'model_msdb' running the upgrade step from version 932 to version 933.,INFO,normal_prueba_01
+2026-09-23 15:58:54.190,spid24s,Database 'model_msdb' running the upgrade step from version 933 to version 934.,INFO,normal_prueba_01
+2026-09-23 15:58:54.220,spid24s,Database 'model_msdb' running the upgrade step from version 934 to version 935.,INFO,normal_prueba_01
+2026-09-23 15:58:54.260,spid24s,Database 'model_msdb' running the upgrade step from version 935 to version 936.,INFO,normal_prueba_01
+2026-09-23 15:58:54.290,spid24s,Database 'model_msdb' running the upgrade step from version 936 to version 937.,INFO,normal_prueba_01
+2026-09-23 15:58:54.350,spid24s,Database 'model_msdb' running the upgrade step from version 937 to version 938.,INFO,normal_prueba_01
+2026-09-23 15:58:54.380,spid24s,Database 'model_msdb' running the upgrade step from version 938 to version 939.,INFO,normal_prueba_01
+2026-09-23 15:58:54.410,spid24s,Database 'model_msdb' running the upgrade step from version 939 to version 940.,INFO,normal_prueba_01
+2026-09-23 15:58:54.450,spid24s,Database 'model_msdb' running the upgrade step from version 940 to version 941.,INFO,normal_prueba_01
+2026-09-23 15:58:54.480,spid24s,Database 'model_msdb' running the upgrade step from version 941 to version 942.,INFO,normal_prueba_01
+2026-09-23 15:58:54.510,spid24s,Database 'model_msdb' running the upgrade step from version 942 to version 943.,INFO,normal_prueba_01
+2026-09-23 15:58:54.630,spid24s,Database 'model_msdb' running the upgrade step from version 943 to version 944.,INFO,normal_prueba_01
+2026-09-23 15:58:54.660,spid24s,Database 'model_msdb' running the upgrade step from version 944 to version 945.,INFO,normal_prueba_01
+2026-09-23 15:58:54.740,spid24s,Database 'model_msdb' running the upgrade step from version 945 to version 946.,INFO,normal_prueba_01
+2026-09-23 15:58:54.770,spid24s,Database 'model_msdb' running the upgrade step from version 946 to version 947.,INFO,normal_prueba_01
+2026-09-23 15:58:54.810,spid24s,Database 'model_msdb' running the upgrade step from version 947 to version 948.,INFO,normal_prueba_01
+2026-09-23 15:58:54.840,spid24s,Database 'model_msdb' running the upgrade step from version 948 to version 949.,INFO,normal_prueba_01
+2026-09-23 15:58:54.870,spid24s,Database 'model_msdb' running the upgrade step from version 949 to version 950.,INFO,normal_prueba_01
+2026-09-23 15:58:54.890,spid24s,Database 'model_msdb' running the upgrade step from version 950 to version 951.,INFO,normal_prueba_01
+2026-09-23 15:58:54.940,spid24s,Database 'model_msdb' running the upgrade step from version 951 to version 952.,INFO,normal_prueba_01
+2026-09-23 15:58:54.980,spid24s,Database 'model_msdb' running the upgrade step from version 952 to version 953.,INFO,normal_prueba_01
+2026-09-23 15:58:55.030,spid24s,Database 'model_msdb' running the upgrade step from version 953 to version 954.,INFO,normal_prueba_01
+2026-09-23 15:58:55.060,spid24s,Database 'model_msdb' running the upgrade step from version 954 to version 955.,INFO,normal_prueba_01
+2026-09-23 15:58:55.090,spid24s,Database 'model_msdb' running the upgrade step from version 955 to version 956.,INFO,normal_prueba_01
+2026-09-23 15:58:55.170,spid24s,Database 'model_msdb' running the upgrade step from version 956 to version 957.,INFO,normal_prueba_01
+2026-09-23 15:58:55.310,spid24s,Resource governor reconfiguration succeeded.,CONFIGURATION,normal_prueba_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization initialized,INFO,normal_prueba_01
+2026-09-23 15:58:55.320,spid24s,SQL Server Audit is starting the audits. This is an informational message. No user action is required.,STARTUP,normal_prueba_01
+2026-09-23 15:58:55.320,spid38s,Attribute synchronization manager initialized,INFO,normal_prueba_01
+2026-09-23 15:58:55.330,spid24s,SQL Server Audit has started the audits. This is an informational message. No user action is required.,STARTUP,normal_prueba_01
+2026-09-23 15:58:55.520,spid24s,"SQL Trace ID 1 was started by login ""sa"".",STARTUP,normal_prueba_01
+2026-09-23 15:58:55.550,spid24s,Server name is 'fadf03e4e65e'. This is an informational message only. No user action is required.,INFO,normal_prueba_01
+2026-09-23 15:58:55.600,spid26s,Clearing tempdb database.,INFO,normal_prueba_01
+2026-09-23 15:58:55.600,spid60s,Always On: The availability replica manager is starting. This is an informational message only. No user action is required.,STARTUP,normal_prueba_01
+2026-09-23 15:58:55.600,spid58s,"[5]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_prueba_01
+2026-09-23 15:58:55.600,spid57s,"[4]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_prueba_01
+2026-09-23 15:58:55.610,spid60s,Always On: The availability replica manager is waiting for the instance of SQL Server to allow client connections. This is an informational message only. No user action is required.,INFO,normal_prueba_01
+2026-09-23 15:58:55.610,spid58s,Starting up database 'SteelNort'.,STARTUP,normal_prueba_01
+2026-09-23 15:58:55.620,spid57s,Starting up database 'msdb'.,STARTUP,normal_prueba_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries called for database ID: [5],INFO,normal_prueba_01
+2026-09-23 15:58:55.620,spid58s,RemoveStaleDbEntries: Cleanup of stale DB entries skipped because master db is not memory optimized. DbId: 5.,INFO,normal_prueba_01
+2026-09-23 15:58:55.770,spid58s,Parallel redo is started for database 'SteelNort' with worker pool size [3].,STARTUP,normal_prueba_01
+2026-09-23 15:58:55.800,spid24s,Recovery is writing a checkpoint in database 'msdb' (4). This is an informational message only. No user action is required.,STARTUP,normal_prueba_01
+2026-09-23 15:58:56.820,spid23s,Using 'dbghelp.dll' version '4.0.5',INFO,normal_prueba_01
+2026-09-23 15:58:56.850,spid26s,"[2]. Feature Status: PVS: 0. CTR: 0. ConcurrentPFSUpdate: 1. ConcurrentGAMUpdate: 1. ConcurrentSGAMUpdate: 1, CleanupUnderUserTransaction: 0. TranLevelPVS: 0",INFO,normal_prueba_01
+2026-09-23 15:58:56.850,spid26s,Starting up database 'tempdb'.,STARTUP,normal_prueba_01
+2026-09-23 15:58:59.140,spid26s,The tempdb database has 8 data file(s).,INFO,normal_prueba_01
+2026-09-23 15:58:59.200,spid34s,The Service Broker endpoint is in disabled or stopped state.,INFO,normal_prueba_01
+2026-09-23 15:58:59.200,spid34s,The Database Mirroring endpoint is in disabled or stopped state.,INFO,normal_prueba_01
+2026-09-23 15:58:59.240,spid34s,Service Broker manager has started.,STARTUP,normal_prueba_01
+2026-09-23 15:59:03.070,spid58s,Recovery of database 'SteelNort' (5) is 3% complete (approximately 189 seconds remain). Phase 2 of 3. This is an informational message only. No user action is required.,STARTUP,normal_prueba_01
+2026-09-23 15:59:03.640,spid58s,48723 transactions rolled forward in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_prueba_01
+2026-09-23 15:59:03.720,spid58s,0 transactions rolled back in database 'SteelNort' (5:0). This is an informational message only. No user action is required.,INFO,normal_prueba_01
+2026-09-23 15:59:03.720,spid58s,"Recovery completed for database SteelNort (database ID 5) in 8 second(s) (analysis 7235 ms, redo 571 ms, undo 43 ms [system undo 0 ms, regular undo 0 ms].) ADR-enabled=0, Is primary=1, OL-Enabled=0. This is an informational message only. No user action is required.",STARTUP,normal_prueba_01
+2026-09-23 15:59:03.730,spid58s,Parallel redo is shutdown for database 'SteelNort' with worker pool size [3].,INFO,normal_prueba_01
+2026-09-23 15:59:03.770,spid24s,Recovery is complete. This is an informational message only. No user action is required.,STARTUP,normal_prueba_01
+2026-09-23 15:59:07.450,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_prueba_01
+2026-09-23 15:59:07.450,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_prueba_01
+2026-09-23 15:59:12.690,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_prueba_01
+2026-09-23 15:59:12.690,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_prueba_01
+2026-09-23 15:59:22.740,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_prueba_01
+2026-09-23 15:59:22.740,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_prueba_01
+2026-09-23 15:59:42.840,Logon,"Error: 18456, Severity: 14, State: 8.",ERROR,normal_prueba_01
+2026-09-23 15:59:42.840,Logon,Login failed for user 'sa'. Reason: Password did not match that for the login provided. [CLIENT: 10.89.3.2],INFO,normal_prueba_01
+2026-09-23 16:02:09.940,spid73,Attempting to load library 'xpstar.dll' into memory. This is an informational message only. No user action is required.,INFO,normal_prueba_01
+2026-09-23 16:02:10.020,spid73,Using 'xpstar.dll' version '2022.160.4265' to execute extended stored procedure 'xp_readerrorlog'. This is an informational message only; no user action is required.,ERROR,normal_prueba_01
 2026-09-04 04:50:51.540,Server,Microsoft SQL Server 2022 (RTM-CU26) (KB5093420) - 16.0.4265.3 (X64) Jul 7 2026 14:37:25 Copyright (C) 2022 Microsoft Corporation Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>,INFO,run1
 2026-09-04 04:50:51.540,Server,UTC adjustment: 0:00,INFO,run1
 2026-09-04 04:50:51.540,Server,(c) Microsoft Corporation.,INFO,run1
