@@ -53,12 +53,14 @@ class SistemaSample(TypedDict):
 
 def get_cpu() -> CpuSample:
     """Devuelve el uso de CPU global y por nucleo (porcentajes)."""
-    # partition(): fuerza a psutil a medir durante una pequena ventana
-    # para obtener un porcentaje representativo en la primera llamada.
+    # Una sola medicion por ventana corta; el total es el promedio de los
+    # nucleos. Usar cpu_percent(interval=None) aparte devolvia el delta de
+    # la llamada anterior (ventana ~0.1s y primera llamada = 0.0), que no
+    # coincidia con el promedio de los cores.
     nucleos_percent = psutil.cpu_percent(interval=0.1, percpu=True)
-    total = psutil.cpu_percent(interval=None)
+    total = round(sum(nucleos_percent) / len(nucleos_percent), 1) if nucleos_percent else 0.0
     return {
-        "total": round(total, 1),
+        "total": total,
         "nucleos": [
             {"id": i, "percent": round(p, 1)} for i, p in enumerate(nucleos_percent)
         ],

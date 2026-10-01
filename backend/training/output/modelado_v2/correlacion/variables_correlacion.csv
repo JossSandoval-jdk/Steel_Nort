@@ -1,0 +1,11 @@
+﻿var_a,var_b,pearson,spearman
+active_requests,active_sessions,0.8854,0.8854
+cpu_idl,cpu_sys,-0.9293,-0.9506
+load1,load5,0.8176,0.8551
+load15,load5,0.9835,0.9869
+long_queries,long_transactions,0.9664,0.9325
+memory_available_mb,memory_percent,-0.9999,-0.9996
+memory_available_mb,memory_used_mb,-1.0,-1.0
+memory_percent,memory_used_mb,0.9999,0.9996
+net_recv_per_sec,net_send_per_sec,0.9431,0.9384
+total_writes,transactions_per_sec,0.8991,0.8104

@@ -1,102 +1,69 @@
-"""
-00_inventario.py
-================
-
-Paso 0 de la preparación de datos (CRISP-DM):
-inventario de corridas y fuentes.
-
-Recorre OUTPUT_BASE_DIR, identifica cada corrida (subcarpeta)
-y, para cada fuente de captura:
-
-    - metrics.log
-    - events.log
-    - sqlserver_logs.log
-
-registra:
-    - si existe
-    - tamaño en MB
-    - cantidad de líneas
-    - procedencia (origen.json: contenedor_sql / legacy, motor, nodo)
-
-Salida:
-    datasets/inventario/inventario_corridas.csv
-"""
-
 import os
+import subprocess
 from pathlib import Path
 
 import pandas as pd
 
 import config
+import utils
+
 
 def log(msg):
     print(f"[INVENTARIO] {msg}", flush=True)
 
+
+def contar_lineas(ruta):
+    """Cuenta líneas con wc -l; si falla, lee en binario."""
+    try:
+        return int(subprocess.check_output(["wc", "-l", str(ruta)]).split()[0])
+    except Exception:
+        with open(ruta, "rb") as f:
+            return sum(1 for _ in f)
+
+
 def obtener_info_archivo(ruta):
-    """
-    Retorna el tamaño en MB y la cantidad de líneas de un archivo,
-    manejando excepciones de manera robusta.
-    """
     try:
         ruta_p = Path(ruta)
         tamano_mb = round(ruta_p.stat().st_size / (1024 * 1024), 4)
-        with open(ruta_p, encoding=config.ENCODING, errors="replace") as f:
-            lineas = sum(1 for _ in f)
-        return tamano_mb, lineas
+        return tamano_mb, contar_lineas(ruta_p)
     except Exception as e:
         log(f"Advertencia al leer {ruta}: {e}")
         return 0.0, 0
 
-def main():
 
+def main():
     if not os.path.isdir(config.OUTPUT_BASE_DIR):
-        log(
-            f"Directorio de datos no encontrado: "
-            f"{config.OUTPUT_BASE_DIR}"
-        )
+        log(f"Directorio no encontrado: {config.OUTPUT_BASE_DIR}")
         return
 
-    corridas_info = config.descubrir_corridas()
-    corridas = sorted(corridas_info)
+    corridas_info = utils.descubrir_corridas()
 
-    log(
-        f"Corridas encontradas ({len(corridas)}): "
-        f"{corridas}"
+    # Baseline primero, luego anomalías
+    corridas = sorted(
+        corridas_info,
+        key=lambda c: (corridas_info[c]["grupo"] != "baseline", c),
     )
+    log(f"Corridas encontradas ({len(corridas)}): {corridas}")
 
     if not corridas:
-        log("No se encontraron corridas/cargas.")
+        log("No se encontraron corridas.")
         return
 
-    fuentes = [
-        config.NOMBRE_METRICAS,
-        config.NOMBRE_EVENTS,
-        config.NOMBRE_SQLSERVER_LOGS,
-    ]
-
     registros = []
-
     for corrida in corridas:
-
         dir_corrida = corridas_info[corrida]["ruta"]
-        origen = config.leer_origen(dir_corrida)
+        grupo = corridas_info[corrida]["grupo"]
+        origen = utils.leer_origen(dir_corrida, grupo=grupo)
 
-        for fuente in fuentes:
-
-            ruta = os.path.join(
-                dir_corrida,
-                fuente
-            )
-
+        for fuente in config.ARCHIVOS_ENTRADA:
+            ruta = os.path.join(dir_corrida, fuente)
             existe = os.path.isfile(ruta)
             tamano_mb, lineas = obtener_info_archivo(ruta) if existe else (0.0, 0)
 
             registros.append({
                 "corrida": corrida,
-                "grupo": corridas_info[corrida]["grupo"],
-                "origen": origen.get("origen", config.TIPO_ORIGEN_LEGADO),
-                "motor": origen.get("motor", ""),
-                "nodo": origen.get("nodo", ""),
+                "grupo": grupo,
+                "es_carga_normal": origen.get("es_carga_normal"),
                 "fuente": fuente,
                 "existe": existe,
                 "tamano_mb": tamano_mb,
@@ -104,43 +71,18 @@ def main():
             })
 
     df = pd.DataFrame(registros)
-
-    os.makedirs(
-        config.DIR_INVENTARIO,
-        exist_ok=True
-    )
-
-    ruta_salida = os.path.join(
-        config.DIR_INVENTARIO,
-        config.ARCHIVO_INVENTARIO
-    )
-
-    df.to_csv(
-        ruta_salida,
-        index=False,
-        encoding="utf-8-sig"
-    )
-
-    log(
-        f"Inventario guardado en: "
-        f"{ruta_salida}"
-    )
+    os.makedirs(config.DIR_INVENTARIO, exist_ok=True)
+    ruta_salida = os.path.join(config.DIR_INVENTARIO, config.ARCHIVO_INVENTARIO)
+    df.to_csv(ruta_salida, index=False, encoding="utf-8-sig")
+    log(f"Inventario guardado en: {ruta_salida}")
 
     print("\n=== RESUMEN INVENTARIO ===")
-
     piv = df.pivot_table(
-        index="corrida",
-        columns="fuente",
-        values="existe",
-        aggfunc="first"
+        index="corrida", columns="fuente", values="existe", aggfunc="first"
     )
-
     print(piv.to_string())
+    print(f"\nTotal registros (corridas x fuentes): {len(df)}")
 
-    print(
-        f"\nTotal registros "
-        f"(corridas x fuentes): {len(df)}"
-    )
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,588 @@
+// ============================================================
+// SteelNort — Esquema DBML (pegar en dbdiagram.io)
+//
+// REGLA DE CODIGOS: todo estado, severidad, nivel o metrica es
+// char(1). No queda ningun varchar con texto de enumeracion.
+//
+//   usu_est ......... A = activo | I = inactivo
+//   rol_est ......... A = activo | I = inactivo
+//   per_est ......... A = activo | I = inactivo
+//   rp_est .......... A = activo | I = inactivo
+//   ses_est ......... A = activa | C = cerrada | E = expirada
+//   ssq_est ......... A = activa | C = cerrada
+//   mdl_est ......... A = en produccion | C = candidato | I = archivado
+//   alt_est ......... A = abierta | R = en revision | S = resuelta
+//                  | F = falso positivo
+//   alt_sev ......... C = critica | A = alta | M = media | B = baja
+//   cra_nivel ....... R = root | W = warn | L = leaf
+//   ren_disparo ..... D = deriva | F = exceso de falsos positivos
+//                  | P = programado | M = manual
+//   drv_est ......... E = estable | A = alerta | D = deriva
+//   drv_metrica ..... P = PSI | K = KS
+//   lgs_niv ......... I = info | W = warning | E = error
+//   ren_est ......... P = pendiente | E = entrenando | V = validado
+//                  | A = aprobado | R = rechazado | X = error
+//   rep_est ......... P = pendiente | E = en curso | O = ok | X = error
+//   prd_zona ........ N = normal | V = vigilancia | A = anomalia
+//   hma_sev ......... N = normal | B = alerta baja | A = alerta alta
+//
+// ============================================================================
+//  LA PODA
+//  223 columnas antes -> 193 despues. 33 eliminadas, 3 agregadas.
+//  Cada corte tiene una razon comprobada en el repo.
+// ============================================================================
+//
+//  1) AUDITORIA — 15 columnas (reg_usu / eli_usu / fec_eli en 5 tablas)
+//
+//     SE CONSERVA COMPLETA en 7 tablas: usuario, rol, permiso,
+//     rol_permiso, modelos_ml, reentrenamiento y configuracion_sistema.
+//
+//     El criterio es "¿esta tabla se borra logicamente?". En esas 7 la
+//     respuesta es si, y hace falta saber quien y cuando:
+//       - ACCESO: se da de baja gente; un usuario eliminado no se
+//         borra, y sus permisos heredados hay que poder auditar.
+//       - modelos_ml: un modelo se archiva (mdl_est='I'), y hay que
+//         saber que version estaba en produccion y cuando.
+//       - reentrenamiento: un ciclo aprobado o rechazado DEBE quedar
+//         firmado. ren_usu_sol / ren_usu_apr solo cubren los casos con
+//         usuario; los reentrenamientos automaticos por deriva no
+//         tendrian rastro.
+//       - configuracion_sistema: es lo unico que se puede "dar de
+//         baja" deshabilitando un parametro, y no tiene _est.
+//
+//     SE ELIMINA de las 5 restantes, porque alli no hay baja logica
+//     posible: ya existe un estado que la cubre.
+//       - sesiones       -> ses_est = 'C' cerrada / 'E' expirada
+//       - instancias     -> ins_est = 'I' (cambio de nodo o baja)
+//       - alertas        -> alt_est = 'S' resuelta / 'F' falso positivo
+//       - causas_raiz    -> 1:N de alertas, muere con la alerta
+//       - heatmap        -> agregado de 24 h; se recalcula, no se
+//                           borra fila a fila
+//     Razon adicional: nadie consulta "los registros dados de baja" en
+//     monitoreo, y son 2 o 3 filas por tabla. Se conserva fec_reg en
+//     las 21 tablas: es cuando se escribio la fila, y eso no se
+//     deduce de nada.
+//
+//  2) SIN USO O CONSTANTE — 5 columnas
+//     Se busca el simbolo en todo el repo (.py / .ts / .tsx):
+//
+//       ses_usr_agt .... se guardaba (auth.py:154) pero no se leia
+//                        en ningun lado: ni la API lo devolvia con
+//                        sentido ni el frontend lo pintaba
+//       prd_expl ....... el codigo escribia SIEMPRE la misma cadena
+//                        constante: "Ventana de muestras por debajo
+//                        del umbral q del baseline normal."
+//                        La explicacion real son las filas de
+//                        alerta_variable (T2 / SPE por variable)
+//       cra_tono ....... los 3 call-sites del repo escribian
+//                        literalmente "rojo" (anomalias.py:146,158
+//                        y sincronizacion.py:136). Era un color de
+//                        UI guardado en la base
+//       eve_writes ..... logical_writes es ~0 en read committed
+//       wks_prd ........ foto agregada por intervalo, no una ventana
+//                        evaluada; era el unico *_prd sin indice
+//
+//  3) DUPLICADOS — 10 columnas
+//
+//       mdl_ent_ini .... ningun .py los escribe ni los lee, y
+//       mdl_ent_fin .... ademas estan duplicados en reentrenamiento
+//       mdl_n_train .... ren_dat_ini, ren_dat_fin y ren_n_train
+//       mdl_tpr ........
+//       mdl_fpr ........
+//       mdl_f1 .........
+//       rep_cod ....... (rep_ren, rep_orden) ya es unico y es lo que
+//                        se consulta siempre
+//
+//  4) DERIVABLES — 8 columnas
+//     Se calculan con un CASE sobre datos que ya estan en la fila:
+//
+//       ren_fec_ini/fin ... MIN/MAX de reentrenamiento_paso.rep_fec_*
+//       ren_n_test ........ cabe en el rep_detalle del paso
+//                          validacion_holdout, que ya existe
+//                          justamente para escribir ahi
+//       ren_ruta_copia .... ML_BACKUP_DIR/{ts}_*, y ts sale de
+//                          ren_fec_sol
+//       cfg_cod .......... cfg_clave ya era unica y es la clave natural
+//       cfg_desc ......... documentacion; pertenece al codigo
+//
+//  4) AGREGADAS — 3 columnas
+//     ssq_host, ssq_prog en sesiones_sql, e ins_fec_alta en
+//     instancias. Ver el comentario de cada tabla.
+//
+//  ============================================================================
+//  LO QUE NO SE PUDO PODAR, Y POR QUE
+// ============================================================================
+//  - prd_zona y prd_es_anom se parecen pero no son lo mismo: prd_zona
+//    es la capa (N/V/A) y prd_es_anom la decision ya estabilizada tras
+//    N-de-M y anti-flap. Un detector sin anti-flap pondria zona='A'
+//    con es_anom=false.
+//
+//  - prd_sco_iso y prd_sco_cop se conservan: mdl_tipo admite
+//    isolation_forest o copod solos, y en esos casos uno de los dos
+//    ES el score. Y con el ensemble, ver cual de los dos disparo es
+//    justamente para que la alerta se pueda explicar.
+//
+//  - alv_valor y alv_z se conservan: el primero es la lectura cruda y
+//    el segundo la desviacion contra lo normal. No es uno derivado del
+//    otro sin perder la magnitud real.
+//
+//  - ren_params se conserva aunque mdl_hparms exista: si el candidato
+//    se rechaza no hay fila de modelo que lo guarde.
+//
+//  - ssq_usr se conserva aunque hoy todas las conexiones usen 'sa':
+//    es lo que permitira atribuir a un operario cuando el escritorio
+//    use logins por persona.
+//
+// NOTA CRITICA (prd_feats):
+//   Decir "solo si zona <> N" ROMPE el reentrenamiento. ren_criterio
+//   pide "solo ventanas zona N" y sin features no hay con que
+//   entrenar. Por eso se guardan SIEMPRE los candidatos (zona N y V);
+//   la zona A puede omitirlos porque ya esta en alerta_variable.
+//
+// NOTA (hma_sev): debe derivarse de alertas.alt_sev. El bug actual es
+//   que anomalias.py lo tiene hardcodeado a 'alerta_alta', por lo que
+//   el mapa de calor nunca mostro contraste entre severidades.
+// ============================================================================
+
+
+// ------------------------------------------------------------
+// ACCESO
+// Las 4 tablas de esta seccion conservan la auditoria completa.
+// ------------------------------------------------------------
+Table usuario {
+  usu_cod int [pk, increment]
+  usu_nom varchar(100) [not null]
+  usu_log varchar(50) [not null, unique, note: 'es el login']
+  usu_cla varchar(255) [not null, note: 'hash, nunca texto plano']
+  usu_ema varchar(100) [null]
+  usu_dni char(12) [not null, unique]
+  usu_tel varchar(20)
+  usu_est char(1) [not null, default: 'A']
+  rol_cod int [not null, ref: > rol.rol_cod]
+  reg_usu int [null]
+  fec_reg timestamp [default: `now()`]
+  eli_usu int [null]
+  fec_eli timestamp [null]
+}
+
+Table rol {
+  rol_cod int [pk, increment]
+  rol_nom varchar(50) [not null, unique]
+  rol_est char(1) [not null, default: 'A']
+  reg_usu int [null]
+  fec_reg timestamp [default: `now()`]
+  eli_usu int [null]
+  fec_eli timestamp [null]
+}
+
+Table permiso {
+  per_cod int [pk, increment]
+  per_acc varchar(30) [not null, note: 'accion: ver, gestionar, aprobar...']
+  per_mod varchar(30) [not null, note: 'modulo: alertas, modelos, usuarios...']
+  per_est char(1) [not null, default: 'A']
+  reg_usu int [null]
+  fec_reg timestamp [default: `now()`]
+  eli_usu int [null]
+  fec_eli timestamp [null]
+
+  indexes {
+    (per_mod, per_acc) [unique, name: 'UQ_permiso']
+  }
+}
+
+Table rol_permiso {
+  rp_cod  int       [pk, increment]
+  rol_cod int       [not null, ref: > rol.rol_cod]
+  per_cod int       [not null, ref: > permiso.per_cod]
+  rp_est  char(1)   [not null, default: 'A']
+  reg_usu int       [null, ref: > usuario.usu_cod]
+  fec_reg timestamp [default: `now()`]
+  eli_usu int       [null, ref: > usuario.usu_cod]
+  fec_eli timestamp [null]
+
+  indexes {
+    (rol_cod, per_cod) [unique, name: 'UQ_rol_permiso']
+  }
+}
+
+// Sesiones de la aplicacion web (login del usuario).
+// ses_usr_agt eliminado: se guardaba pero no se leia en ningun lado.
+Table sesiones {
+  ses_cod     int         [pk, increment]
+  ses_usu     int         [not null, ref: > usuario.usu_cod]
+  ses_fec_ini timestamp   [not null, default: `now()`]
+  ses_fec_fin timestamp   [null]
+  ses_ip      varchar(45) [null]
+  ses_est     char(1)     [not null, default: 'A']
+  fec_reg     timestamp   [not null, default: `now()`]
+
+  indexes {
+    ses_usu
+    ses_est
+  }
+}
+
+
+// ------------------------------------------------------------
+// QUE SE MONITOREA Y DESDE DONDE SE ORIGINA LA CARGA
+// ------------------------------------------------------------
+
+// Reemplaza a Nodos_SCADA. Separa la instancia vigilada del origen de
+// la carga, que antes vivian mezclados en una sola fila.
+//
+// ins_fec_alta (agregada) = desde cuando se vigila. Sin ella no se
+// puede validar que una prediccion no sea anterior al monitor, que es
+// lo que hace el trigger TR_prd_ins_valida_instancia.
+Table instancias {
+  ins_cod     int          [pk, increment]
+  ins_nom     varchar(100) [not null, note: 'ej: SteelNort-PROD']
+  ins_host    varchar(150) [not null]
+  ins_puerto  int          [not null, default: 1433]
+  ins_fec_alta timestamp   [null, note: 'desde cuando se monitorea; NULL = nunca verificada']
+  ins_est     char(1)      [not null, default: 'A']
+  fec_reg     timestamp    [not null, default: `now()`]
+
+  indexes {
+    (ins_host, ins_puerto) [unique, name: 'UQ_instancia']
+  }
+}
+
+// Sesiones dentro de SQL Server (antes sesiones_app; renombrada para no
+// confundirla con el login de la web)
+//
+// ssq_host y ssq_prog (agregadas) son los UNICOS campos que sirven:
+// se verifico la instancia monitoreada y las 27 conexiones usaban el
+// mismo login (sa), asi que ssq_usr solo produce filas identicas. Host
+// y program_name si las distinguen (internas, JDBC, CEIP, collector).
+//
+// El indice unico evita duplicar fila cuando se recicla el session_id.
+Table sesiones_sql {
+  ssq_cod     int          [pk, increment]
+  ssq_ins     int          [not null, ref: > instancias.ins_cod]
+  ssq_sid     int          [not null, note: 'session_id de SQL Server']
+  ssq_usr     varchar(128) [null, note: 'login SQL (original_login_name)']
+  ssq_host    varchar(150) [null, note: 'client_hostname: identifica la conexion']
+  ssq_prog    varchar(100) [null, note: 'program_name: JDBC, collector, app...']
+  ssq_fec_ini timestamp    [not null, note: 'login_time']
+  ssq_fec_fin timestamp    [null, note: 'logoff_time']
+  ssq_est     char(1)      [not null, default: 'A']
+  fec_reg     timestamp    [not null, default: `now()`]
+
+  indexes {
+    (ssq_ins, ssq_sid, ssq_fec_ini) [unique, name: 'UQ_ssq', note: 'unico: el session_id se recicla']
+  }
+}
+
+
+// ------------------------------------------------------------
+// MODELO
+// ------------------------------------------------------------
+
+// El umbral quedo en DOS columnas y no una: mdl_cuantil es la politica
+// (0.010 = q01) y mdl_umbral el score concreto que sale del dataset.
+// Antes coexistian mdl_umbral_pct=85 y el score real -2.42, en formatos
+// que no se podian comparar.
+//
+// mdl_ent_ini / mdl_ent_fin / mdl_n_train / mdl_tpr / mdl_fpr /
+// mdl_f1 se eliminaron: no aparecen en ningun .py y toda esa
+// informacion ya vive en `reentrenamiento`.
+// La auditoria se conserva completa.
+Table modelos_ml {
+  mdl_cod      int           [pk, increment]
+  mdl_nom      varchar(100)  [not null]
+  mdl_tipo     varchar(30)   [not null, default: 'ensemble_z', note: 'isolation_forest | copod | ensemble_z | lof | ocsvm | elliptic']
+  mdl_cuantil  decimal(4,3)  [not null, default: 0.010, note: '0.010 = q01']
+  mdl_umbral   decimal(10,6) [null, note: 'valor del score en ese cuantil']
+  mdl_vars     varchar       [null, note: 'NVARCHAR(MAX) JSON: columnas EN EL ORDEN EXACTO del entrenamiento']
+  mdl_hparms   varchar       [null, note: 'NVARCHAR(MAX) JSON: hiperparametros, semilla']
+  mdl_ruta_art varchar(500)  [null, note: 'ruta del artefacto entrenado']
+  mdl_est      char(1)       [not null, default: 'C', note: 'unico A (produccion) a la vez']
+  mdl_fec_entr timestamp     [null]
+  reg_usu      int           [null]
+  fec_reg      timestamp     [not null, default: `now()`]
+  eli_usu      int           [null]
+  fec_eli      timestamp     [null]
+
+  indexes {
+    mdl_est
+  }
+}
+
+
+// ------------------------------------------------------------
+// DETECCION: una fila por ventana evaluada (todas, no solo anomalias)
+// ------------------------------------------------------------
+Table predicciones_ml {
+  prd_cod     bigint        [pk, increment]
+  prd_mdl     int           [not null, ref: > modelos_ml.mdl_cod]
+  prd_ins     int           [not null, ref: > instancias.ins_cod]
+  prd_ini     timestamp     [not null, note: 'inicio de la ventana; columna de particion']
+  prd_fin     timestamp     [not null, note: 'fin de la ventana']
+  prd_sco_iso decimal(10,6) [null, note: 'score Isolation Forest']
+  prd_sco_cop decimal(10,6) [null, note: 'score COPOD']
+  prd_sco_ens decimal(10,6) [not null, note: 'score ENSEMBLE_Z (el que se compara con el umbral)']
+  prd_umbral  decimal(10,6) [not null, note: 'umbral vigente al evaluar; permite re-puntuar a posteriori']
+  prd_zona    char(1)       [not null, default: 'N', note: 'capa zonal']
+  prd_es_anom boolean       [not null, note: 'true = anomalia ya estabilizada tras N-de-M y anti-flap']
+  prd_feats   varchar       [null, note: 'NVARCHAR(MAX) JSON con las 15 variables. SIEMPRE en zona N y V (insumo del reentrenamiento); opcional en zona A']
+  fec_reg     timestamp     [not null, default: `now()`]
+
+  indexes {
+    (prd_ins, prd_ini)
+    (prd_mdl, prd_ini)
+    (prd_es_anom, prd_ini)
+  }
+}
+
+Table alertas {
+  alt_cod      int          [pk, increment]
+  alt_prd      bigint       [null, ref: > predicciones_ml.prd_cod, note: 'ventana que la origino (null si es manual)']
+  alt_ins      int          [null, ref: > instancias.ins_cod]
+  alt_usu      int          [null, ref: > usuario.usu_cod, note: 'usuario que la atiende']
+  alt_tipo     varchar(50)  [not null]
+  alt_sev      char(1)      [not null, note: 'C critica | A alta | M media | B baja']
+  alt_titulo   varchar(200) [not null]
+  alt_diag     varchar(500) [null]
+  alt_est      char(1)      [not null, default: 'A']
+  alt_fec      timestamp    [not null, default: `now()`]
+  alt_fec_resu timestamp    [null]
+  fec_reg      timestamp    [not null, default: `now()`]
+
+  indexes {
+    alt_fec
+    alt_est
+    alt_sev
+  }
+}
+
+// Que variables explican cada alerta (PCA: contribucion a T2 / SPE).
+// Sustituye al JSON prd_expl. Volumen bajo: solo hay fila si hay alerta,
+// asi que aqui si vale la pena normalizar.
+Table alerta_variable {
+  alv_cod     int           [pk, increment]
+  alv_alt     int           [not null, ref: > alertas.alt_cod]
+  alv_var     varchar(100)  [not null]
+  alv_valor   decimal(18,4) [null]
+  alv_z       decimal(10,4) [null, note: 'desviaciones respecto a lo normal']
+  alv_contrib decimal(10,6) [null]
+  alv_rank    tinyint       [null, note: '1 = la que mas aporta']
+  fec_reg     timestamp     [not null, default: `now()`]
+
+  indexes {
+    (alv_alt, alv_rank) [unique, name: 'UQ_alv']
+  }
+}
+
+// cra_tono eliminado: los 3 call-sites escribian "rojo" literal.
+Table causas_raiz {
+  cra_cod   int          [pk, increment]
+  cra_alt   int          [not null, ref: > alertas.alt_cod]
+  cra_padre int          [null, ref: > causas_raiz.cra_cod]
+  cra_nivel char(1)      [not null, note: 'R root | W warn | L leaf']
+  cra_etiq  varchar(200) [not null]
+  fec_reg   timestamp    [not null, default: `now()`]
+}
+
+// Preagrega del mapa de calor: 575 anomalias colapsan en 3 filas.
+//
+// NO se particiona: 24 h x 3 severidades = 72 filas/dia como maximo, y
+// particionar por CONVERT(datetime2, hma_fec) impediria crear UQ_hma
+// (SQL Server exige que toda clave unica de una tabla particionada
+// contenga la columna de particion, y aqui no hay datetime2 real).
+Table heatmap_anomalias {
+  hma_cod  int         [pk, increment]
+  hma_fec  date        [not null]
+  hma_hora tinyint     [not null, note: '0 a 23']
+  hma_sev  char(1)     [not null, note: 'N normal | B baja | A alta; derivado de alertas.alt_sev']
+  hma_cant int         [not null, default: 0]
+  fec_reg  timestamp   [not null, default: `now()`]
+
+  indexes {
+    (hma_fec, hma_hora, hma_sev) [unique, name: 'UQ_hma']
+  }
+}
+
+
+// ------------------------------------------------------------
+// DATOS CRUDOS: metricas, eventos y logs (los 4 archivos del collector)
+// prd_cod se completa cuando la ventana ya fue evaluada.
+// Particionados por mes: ver proc_roll_particiones y proc_purgar_*
+// en database/schema_bdsteelnort.sql
+// ------------------------------------------------------------
+
+// metrics.log — una fila por captura (~cada 7 s = 12.285/dia).
+// RETENCION CORTA: 7 dias (proc_purgar_metricas). El historico util ya
+// esta en predicciones_ml.prd_feats, que guarda las 15 variables por
+// ventana. A 1,2 KB por fila son ~5,4 GB/ano por nodo si no se purga.
+Table metricas {
+  met_cod  bigint    [pk, increment]
+  met_ins  int       [not null, ref: > instancias.ins_cod]
+  met_prd  bigint    [null, ref: > predicciones_ml.prd_cod, note: 'ventana a la que pertenece']
+  met_fec  timestamp [not null, note: 'momento de la captura; columna de particion']
+  met_json varchar   [not null, note: 'NVARCHAR(MAX) JSON con todas las metricas de la captura']
+  fec_reg  timestamp [not null, default: `now()`]
+
+  indexes {
+    (met_ins, met_fec)
+    met_prd
+  }
+}
+
+// events.log — una fila por consulta/evento.
+//
+// OJO CON EL VOLUMEN: NO se persiste una fila por sql_batch_completed.
+// La instancia monitoreada tiene 11 conexiones del simulador de carga,
+// y a 10 lotes/s serian ~864.000 filas/dia con el texto SQL completo.
+//
+// REGLA DE ENTRADA: se persiste SOLO el evento que explica una
+// anomalia — dura sobre el umbral, logical_reads sobre el percentil, o
+// hubo error. El resto sigue agregandose en los .log del collector, que
+// es lo que ya hace el agregador actual.
+//
+// eve_writes eliminado: logical_writes es ~0 en read committed.
+Table eventos {
+  eve_cod    bigint        [pk, increment]
+  eve_ins    int           [not null, ref: > instancias.ins_cod]
+  eve_prd    bigint        [null, ref: > predicciones_ml.prd_cod]
+  eve_fec    timestamp     [not null, note: 'columna de particion']
+  eve_dur    bigint        [null, note: 'duration']
+  eve_cpu    bigint        [null, note: 'cpu_time: distingue limitacion de CPU vs de I/O']
+  eve_lreads bigint        [null]
+  eve_wait   varchar(60)   [null, note: 'wait_type']
+  eve_sql    varchar(500)  [null, note: 'sql_text truncado']
+  fec_reg    timestamp     [not null, default: `now()`]
+
+  indexes {
+    (eve_ins, eve_fec)
+    eve_prd
+  }
+}
+
+// sqlserver_logs.log — mensajes del log de SQL Server
+Table logs_sql {
+  lgs_cod bigint      [pk, increment]
+  lgs_ins int         [not null, ref: > instancias.ins_cod]
+  lgs_prd bigint      [null, ref: > predicciones_ml.prd_cod]
+  lgs_fec timestamp   [not null, note: 'columna de particion']
+  lgs_niv char(1)     [null, note: 'I info | W warning | E error']
+  lgs_msg varchar     [null, note: 'NVARCHAR(MAX) error_message']
+  fec_reg timestamp   [not null, default: `now()`]
+
+  indexes {
+    (lgs_ins, lgs_fec)
+    lgs_prd
+  }
+}
+
+// workload_stats.log — estadisticas de la carga de trabajo.
+// wks_prd eliminado: foto agregada por intervalo, no una ventana
+// evaluada, y era el unico *_prd sin indice.
+Table estadisticas_carga {
+  wks_cod  bigint    [pk, increment]
+  wks_ins  int       [not null, ref: > instancias.ins_cod]
+  wks_fec  timestamp [not null, note: 'columna de particion']
+  wks_json varchar   [not null, note: 'NVARCHAR(MAX) JSON con las estadisticas de la captura']
+  fec_reg  timestamp [not null, default: `now()`]
+
+  indexes {
+    (wks_ins, wks_fec)
+  }
+}
+
+
+// ------------------------------------------------------------
+// DERIVA Y REENTRENAMIENTO
+// ------------------------------------------------------------
+
+// CUANDO se detecta que el modelo se quedo viejo
+Table deriva_monitor {
+  drv_cod     int           [pk, increment]
+  drv_mdl     int           [not null, ref: > modelos_ml.mdl_cod]
+  drv_fec     timestamp     [not null, default: `now()`]
+  drv_var     varchar(100)  [not null, note: 'variable evaluada']
+  drv_metrica char(1)       [not null, default: 'P', note: 'P PSI | K KS']
+  drv_valor   decimal(10,6) [not null]
+  drv_est     char(1)       [not null, default: 'E']
+  fec_reg     timestamp     [not null, default: `now()`]
+
+  indexes {
+    (drv_mdl, drv_fec)
+  }
+}
+
+// Cabecera de cada reentrenamiento: CUANDO, POR QUE y CON QUE DATOS.
+// Se entrena en una copia; el modelo activo no cambia hasta la aprobacion.
+//
+// Eliminadas: ren_fec_ini / ren_fec_fin (MIN/MAX de los pasos),
+// ren_n_test (va en el rep_detalle de validacion_holdout) y
+// ren_ruta_copia (el path es deterministico desde ren_fec_sol).
+// La auditoria se conserva completa: es la tabla donde importa saber
+// quien pidio y quien aprobo, y ren_usu_sol / ren_usu_apr solo cubren
+// los casos en que hubo usuarios (no los automaticos por deriva).
+Table reentrenamiento {
+  ren_cod        int           [pk, increment]
+  ren_mdl_origen int           [not null, ref: > modelos_ml.mdl_cod, note: 'modelo vigente al solicitar']
+  ren_mdl_nuevo  int           [null, ref: > modelos_ml.mdl_cod, note: 'candidato; null hasta que exista']
+  ren_disparo    char(1)       [not null, note: 'D deriva | F exceso de falsos positivos | P programado | M manual']
+  ren_motivo     varchar(200)  [null, note: 'ej: deriva en 3 variables']
+  ren_usu_sol    int           [null, ref: > usuario.usu_cod, note: 'quien lo solicito (null si fue automatico)']
+  ren_fec_sol    timestamp     [not null, default: `now()`]
+  ren_dat_ini    timestamp     [null, note: 'rango de datos usado: desde']
+  ren_dat_fin    timestamp     [null, note: 'rango de datos usado: hasta']
+  ren_criterio   varchar(500)  [null, note: 'ej: solo ventanas zona N, sin alerta, sin deriva']
+  ren_n_train    int           [null]
+  ren_params     varchar       [null, note: 'NVARCHAR(MAX) JSON: hiperparametros y semilla usados']
+  ren_f1_antes   decimal(5,4)  [null]
+  ren_f1_desp    decimal(5,4)  [null]
+  ren_fpr_antes  decimal(5,2)  [null]
+  ren_fpr_desp   decimal(5,2)  [null]
+  ren_est        char(1)       [not null, default: 'P']
+  ren_usu_apr    int           [null, ref: > usuario.usu_cod, note: 'quien aprobo o rechazo']
+  ren_fec_apr    timestamp     [null]
+  ren_obs        varchar(500)  [null]
+  reg_usu        int           [null]
+  fec_reg        timestamp     [not null, default: `now()`]
+  eli_usu        int           [null]
+  fec_eli        timestamp     [null]
+
+  indexes {
+    ren_est
+    ren_fec_sol
+  }
+}
+
+// COMO se hizo: bitacora paso a paso de cada reentrenamiento.
+// rep_cod eliminado: (rep_ren, rep_orden) ya es unico y es lo que se
+// consulta siempre.
+Table reentrenamiento_paso {
+  rep_ren     int          [not null, ref: > reentrenamiento.ren_cod]
+  rep_orden   tinyint      [not null, note: '1, 2, 3...']
+  rep_paso    varchar(50)  [not null, note: 'copia_modelo | seleccion_datos | filtrado | entrenamiento | validacion_holdout | comparacion | publicacion']
+  rep_est     char(1)      [not null, default: 'P']
+  rep_fec_ini timestamp    [null]
+  rep_fec_fin timestamp    [null]
+  rep_detalle varchar(500) [null, note: 'resultado o error del paso']
+  fec_reg     timestamp    [not null, default: `now()`]
+
+  indexes {
+    (rep_ren, rep_orden) [pk, name: 'PK_rep']
+  }
+}
+
+
+// ------------------------------------------------------------
+// CONFIGURACION
+// cfg_cod eliminado: cfg_clave ya era la clave natural.
+// cfg_desc eliminado: documentacion, pertenece al codigo.
+// La auditoria se conserva completa: el borrado logico de un
+// parametro tiene que ser rastreable (que se desactivo y cuando),
+// y ahi no hay *_est que lo reemplace.
+// ------------------------------------------------------------
+Table configuracion_sistema {
+  cfg_clave varchar(100) [pk, note: 'ej: TELEMETRIA_UMBRAL']
+  cfg_valor varchar(500) [not null]
+  reg_usu   int          [null]
+  fec_reg   timestamp    [not null, default: `now()`]
+  eli_usu   int          [null]
+  fec_eli   timestamp    [null]
+}

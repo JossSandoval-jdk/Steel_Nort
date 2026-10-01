@@ -1,0 +1,345 @@
+﻿event_name,timestamp,session_id,login_name,program_name,database_name,command,duration,cpu_time,logical_reads,writes,wait_type,resource_type,mode,status
+login,2026-09-07 04:26:22.557,64,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,65,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,66,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,67,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,68,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,69,sa,python3.11,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,70,sa,python3.11,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,71,sa,python3.11,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,51,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,52,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,53,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,54,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,55,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,56,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,57,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,58,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,59,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,60,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,61,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,62,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:22.557,63,sa,Microsoft JDBC Driver for SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:26:22.557,53,,,master,TRACE QUEUE TASK,270425.0,0.0,0.0,0.0,SQLTRACE_INCREMENTAL_FLUSH_SLEEP,,,
+sql_batch_completed,2026-09-07 04:26:22.557,54,,,SteelNort,SYSTEM_HEALTH_MONITOR,270428.0,0.0,0.0,0.0,SP_SERVER_DIAGNOSTICS_SLEEP,,,
+sql_batch_completed,2026-09-07 04:26:22.557,55,,,master,TASK MANAGER,270336.0,0.0,0.0,0.0,ONDEMAND_TASK_QUEUE,,,
+sql_batch_completed,2026-09-07 04:26:22.557,56,,,master,CHECKPOINT,270338.0,0.0,0.0,6.0,CHECKPOINT_QUEUE,,,
+sql_batch_completed,2026-09-07 04:26:22.557,57,,,master,BRKR EVENT HNDLR,268669.0,5.0,16.0,3.0,BROKER_EVENTHANDLER,,,
+sql_batch_completed,2026-09-07 04:26:22.557,58,,,master,BRKR TASK,268665.0,25.0,0.0,0.0,BROKER_TO_FLUSH,,,
+sql_batch_completed,2026-09-07 04:26:22.557,59,,,master,BRKR TASK,268667.0,100.0,0.0,0.0,HADR_FILESTREAM_IOMGR_IOCOMPLETION,,,
+sql_batch_completed,2026-09-07 04:26:22.557,61,,,SteelNort,HADR_AR_MGR_NOTIFICATION_WORKER,270321.0,0.0,0.0,0.0,HADR_NOTIFICATION_DEQUEUE,,,
+sql_batch_completed,2026-09-07 04:26:22.557,69,,,SteelNort,SELECT,13.0,4.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:22.557,70,,,SteelNort,SELECT,14.0,6.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:22.557,71,,,SteelNort,EXECUTE,88.0,55.0,40.0,0.0,PREEMPTIVE_OS_VERIFYTRUST,,,
+lock_acquired,2026-09-07 04:26:22.557,64,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,70,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,67,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,68,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,52,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,71,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,65,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,62,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,69,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,66,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,51,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,63,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:26:22.557,60,,,,,,,,,,DATABASE,S,
+sql_batch_completed,2026-09-07 04:26:24.685,51,,,SteelNort,EXECUTE,-8.0,0.0,0.0,0.0,,,,
+wait_info,2026-09-07 04:26:24.685,71,,,SteelNort,,,,,,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:26:24.685,69,,,SteelNort,SELECT,2060.0,4.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:26:26.716,65,,,SteelNort,SELECT,238.0,28.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:26.716,66,,,SteelNort,SELECT,132.0,27.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:26.716,67,,,SteelNort,COMMIT TRANSACTION,-3.0,2.0,0.0,0.0,PREEMPTIVE_OS_FLUSHFILEBUFFERS,,,
+sql_batch_completed,2026-09-07 04:26:26.716,51,,,SteelNort,EXECUTE,2031.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:26:26.716,71,,,SteelNort,EXECUTE,2077.0,47.0,0.0,0.0,,,,completed
+lock_acquired,2026-09-07 04:26:26.716,66,,,,,,,,,,RID,S,
+lock_acquired,2026-09-07 04:26:26.716,65,,,,,,,,,,OBJECT,IS,
+lock_acquired,2026-09-07 04:26:26.716,65,,,,,,,,,,PAGE,IS,
+lock_acquired,2026-09-07 04:26:26.716,66,,,,,,,,,,OBJECT,IS,
+lock_acquired,2026-09-07 04:26:26.716,66,,,,,,,,,,PAGE,IS,
+sql_batch_completed,2026-09-07 04:26:28.767,65,,,SteelNort,SELECT,2291.0,28.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:26:28.767,66,,,SteelNort,SELECT,2186.0,27.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:26:28.767,67,,,SteelNort,COMMIT TRANSACTION,2051.0,2.0,0.0,0.0,,,,completed
+lock_released,2026-09-07 04:26:28.767,66,,,,,,,,,,RID,S,
+lock_released,2026-09-07 04:26:28.767,65,,,,,,,,,,OBJECT,IS,
+lock_released,2026-09-07 04:26:28.767,65,,,,,,,,,,PAGE,IS,
+lock_released,2026-09-07 04:26:28.767,66,,,,,,,,,,OBJECT,IS,
+lock_released,2026-09-07 04:26:28.767,66,,,,,,,,,,PAGE,IS,
+sql_batch_completed,2026-09-07 04:26:34.884,71,,,SteelNort,EXECUTE,66.0,93.0,0.0,0.0,MSQL_XP,,,
+lock_acquired,2026-09-07 04:26:34.884,62,,,,,,,,,,OBJECT,IS,
+login,2026-09-07 04:26:36.955,72,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:36.955,73,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:36.955,74,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:36.955,75,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:36.955,76,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:36.955,77,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:36.955,78,sa,unknown,SteelNort,,,,,,,,,
+login,2026-09-07 04:26:36.955,79,sa,unknown,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:26:36.955,72,,,master,TASK MANAGER,153.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:36.955,73,,,master,TASK MANAGER,155.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:36.955,74,,,master,TASK MANAGER,156.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:36.955,75,,,master,TASK MANAGER,154.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:36.955,76,,,master,TASK MANAGER,155.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:36.955,77,,,master,TASK MANAGER,156.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:36.955,78,,,master,TASK MANAGER,157.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:36.955,79,,,master,TASK MANAGER,158.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:36.955,71,,,SteelNort,EXECUTE,2137.0,93.0,0.0,0.0,,,,completed
+lock_released,2026-09-07 04:26:36.955,62,,,,,,,,,,OBJECT,IS,
+login,2026-09-07 04:26:39.010,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:26:39.010,71,,,SteelNort,EXECUTE,253.0,175.0,0.0,0.0,MSQL_XP,,,
+logout,2026-09-07 04:26:41.052,80,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:26:41.052,71,,,SteelNort,EXECUTE,2284.0,175.0,0.0,0.0,,,,completed
+login,2026-09-07 04:26:43.078,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+wait_info,2026-09-07 04:26:43.078,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:26:43.078,63,,,SteelNort,AWAITING COMMAND,-4.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:43.078,71,,,SteelNort,EXECUTE,261.0,151.0,0.0,0.0,MSQL_XP,,,
+logout,2026-09-07 04:26:45.174,80,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:26:45.174,62,,,SteelNort,CONDITIONAL,-22.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:45.174,67,,,SteelNort,AWAITING COMMAND,-21.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:45.174,71,,,SteelNort,EXECUTE,2330.0,151.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:26:45.174,63,,,SteelNort,AWAITING COMMAND,2074.0,0.0,0.0,0.0,,,,completed
+login,2026-09-07 04:26:47.208,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:26:47.208,71,,,SteelNort,EXECUTE,469.0,244.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:26:47.208,67,,,SteelNort,AWAITING COMMAND,2021.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:26:47.208,62,,,SteelNort,CONDITIONAL,2022.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:26:49.261,80,,,master,BRKR TASK,409.0,0.0,0.0,0.0,BROKER_TASK_STOP,,,
+sql_batch_completed,2026-09-07 04:26:49.261,71,,,SteelNort,EXECUTE,2518.0,244.0,0.0,0.0,,,,completed
+login,2026-09-07 04:26:51.297,81,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:26:51.297,71,,,SteelNort,EXECUTE,304.0,279.0,0.0,0.0,MSQL_XP,,,
+login,2026-09-07 04:26:53.357,82,NT AUTHORITY\SYSTEM,SQLServerCEIP,SteelNort,,,,,,,,,
+logout,2026-09-07 04:26:53.357,81,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:26:53.357,51,,,SteelNort,AWAITING COMMAND,-1.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:53.357,71,,,SteelNort,EXECUTE,2367.0,279.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:26:55.421,51,,,SteelNort,AWAITING COMMAND,2052.0,0.0,0.0,0.0,,,,completed
+login,2026-09-07 04:26:59.665,81,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:26:59.665,60,,,SteelNort,AWAITING COMMAND,-18.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:26:59.665,71,,,SteelNort,EXECUTE,133.0,147.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:26:59.665,81,,,master,EXECUTE,-18.0,0.0,0.0,0.0,MEMORY_ALLOCATION_EXT,,,
+logout,2026-09-07 04:27:01.709,81,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:27:01.709,63,,,SteelNort,EXECUTE,-27.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:27:01.709,81,,,master,EXECUTE,2020.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:01.709,60,,,SteelNort,AWAITING COMMAND,2024.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:01.709,71,,,SteelNort,EXECUTE,2175.0,147.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:03.757,71,,,SteelNort,EXECUTE,436.0,219.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:27:03.757,80,,,master,BRKR TASK,10375.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:03.757,63,,,SteelNort,EXECUTE,2020.0,0.0,0.0,0.0,,,,completed
+logout,2026-09-07 04:27:05.804,80,,,,,,,,,,,,
+wait_info,2026-09-07 04:27:05.804,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+sql_batch_completed,2026-09-07 04:27:05.804,71,,,SteelNort,EXECUTE,2485.0,219.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:09.882,65,,,SteelNort,AWAITING COMMAND,-6.0,0.0,0.0,0.0,,,,
+login,2026-09-07 04:27:11.917,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:27:11.917,71,,,SteelNort,EXECUTE,147.0,112.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:27:11.917,65,,,SteelNort,AWAITING COMMAND,2025.0,0.0,0.0,0.0,,,,completed
+logout,2026-09-07 04:27:13.941,80,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:27:13.941,71,,,SteelNort,EXECUTE,2191.0,112.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:24.215,51,,,SteelNort,SET OPTION OFF,0.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:27:24.215,67,,,SteelNort,AWAITING COMMAND,0.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:27:26.241,67,,,SteelNort,AWAITING COMMAND,2027.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:26.241,51,,,SteelNort,SET OPTION OFF,2028.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:34.344,65,,,SteelNort,AWAITING COMMAND,-19.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:27:34.344,71,,,SteelNort,EXECUTE,27.0,43.0,0.0,0.0,MSQL_XP,,,
+wait_info,2026-09-07 04:27:36.377,76,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:27:36.377,65,,,SteelNort,AWAITING COMMAND,2017.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:36.377,71,,,SteelNort,EXECUTE,2064.0,43.0,0.0,0.0,,,,completed
+wait_info,2026-09-07 04:27:40.421,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:27:40.421,63,,,SteelNort,EXECUTE,-32.0,1.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:27:40.421,68,,,SteelNort,CONDITIONAL,-30.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:27:42.451,68,,,SteelNort,CONDITIONAL,2012.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:42.451,63,,,SteelNort,EXECUTE,2013.0,1.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:44.499,64,,,SteelNort,SET OPTION ON,-2.0,0.0,0.0,0.0,,,,
+lock_acquired,2026-09-07 04:27:44.499,62,,,,,,,,,,KEY,X,
+lock_acquired,2026-09-07 04:27:44.499,62,,,,,,,,,,OBJECT,IX,
+lock_acquired,2026-09-07 04:27:44.499,62,,,,,,,,,,PAGE,IX,
+lock_acquired,2026-09-07 04:27:44.499,62,,,,,,,,,,RID,X,
+sql_batch_completed,2026-09-07 04:27:46.617,71,,,SteelNort,EXECUTE,138.0,118.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:27:46.617,64,,,SteelNort,SET OPTION ON,2112.0,0.0,0.0,0.0,,,,completed
+lock_released,2026-09-07 04:27:46.617,62,,,,,,,,,,KEY,X,
+lock_released,2026-09-07 04:27:46.617,62,,,,,,,,,,OBJECT,IX,
+lock_released,2026-09-07 04:27:46.617,62,,,,,,,,,,PAGE,IX,
+lock_released,2026-09-07 04:27:46.617,62,,,,,,,,,,RID,X,
+sql_batch_completed,2026-09-07 04:27:48.829,71,,,SteelNort,EXECUTE,2343.0,118.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:27:56.971,67,,,SteelNort,AWAITING COMMAND,0.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:27:58.995,63,,,SteelNort,AWAITING COMMAND,-5.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:27:58.995,68,,,SteelNort,SELECT,-3.0,1.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:27:58.995,67,,,SteelNort,AWAITING COMMAND,2025.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:28:01.029,68,,,SteelNort,SELECT,2030.0,1.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:28:01.029,63,,,SteelNort,AWAITING COMMAND,2031.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:28:03.055,71,,,SteelNort,EXECUTE,53.0,61.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:28:05.082,71,,,SteelNort,EXECUTE,2080.0,61.0,0.0,0.0,,,,completed
+login,2026-09-07 04:28:07.107,80,sa,unknown,SteelNort,,,,,,,,,
+wait_info,2026-09-07 04:28:07.107,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+sql_batch_completed,2026-09-07 04:28:07.107,71,,,SteelNort,EXECUTE,95.0,109.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:28:07.107,80,,,master,BRKR TASK,1636.0,0.0,0.0,0.0,BROKER_TASK_STOP,,,
+lock_acquired,2026-09-07 04:28:07.107,81,,,,,,,,,,DATABASE,S,
+sql_batch_completed,2026-09-07 04:28:09.161,71,,,SteelNort,EXECUTE,2145.0,109.0,0.0,0.0,,,,completed
+lock_released,2026-09-07 04:28:09.161,81,,,,,,,,,,DATABASE,S,
+logout,2026-09-07 04:28:15.316,80,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:28:15.316,80,,,master,BRKR TASK,9831.0,0.0,0.0,0.0,,,,completed
+login,2026-09-07 04:28:17.360,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:28:17.360,52,,,SteelNort,EXECUTE,-8.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:28:17.360,71,,,SteelNort,EXECUTE,268.0,189.0,0.0,0.0,MSQL_XP,,,
+logout,2026-09-07 04:28:19.392,80,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:28:19.392,52,,,SteelNort,EXECUTE,2033.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:28:19.392,71,,,SteelNort,EXECUTE,2311.0,189.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:28:21.442,71,,,SteelNort,EXECUTE,127.0,142.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:28:23.503,71,,,SteelNort,EXECUTE,2185.0,142.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:28:25.556,71,,,SteelNort,EXECUTE,264.0,287.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:28:27.664,71,,,SteelNort,EXECUTE,2326.0,287.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:28:29.729,51,,,SteelNort,EXECUTE,0.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:28:31.765,51,,,SteelNort,EXECUTE,2055.0,0.0,0.0,0.0,,,,completed
+login,2026-09-07 04:28:33.820,80,sa,unknown,SteelNort,,,,,,,,,
+wait_info,2026-09-07 04:28:33.820,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:28:33.820,71,,,SteelNort,EXECUTE,992.0,494.0,0.0,0.0,MSQL_XP,,,
+logout,2026-09-07 04:28:36.851,80,,,,,,,,,,,,
+wait_info,2026-09-07 04:28:36.851,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+wait_info,2026-09-07 04:28:36.851,59,,,master,,,,,,HADR_FILESTREAM_IOMGR_IOCOMPLETION,,,
+sql_batch_completed,2026-09-07 04:28:39.235,71,,,SteelNort,EXECUTE,3400.0,1169.0,0.0,0.0,,,,completed
+wait_info,2026-09-07 04:28:41.760,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:28:43.848,71,,,SteelNort,EXECUTE,1841.0,1870.0,0.0,0.0,MSQL_XP,,,
+wait_info,2026-09-07 04:28:46.928,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+wait_info,2026-09-07 04:28:52.333,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:28:52.333,71,,,SteelNort,EXECUTE,2951.0,81.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:28:54.378,71,,,SteelNort,EXECUTE,59.0,66.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:28:56.403,65,,,SteelNort,AWAITING COMMAND,-12.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:28:56.403,71,,,SteelNort,EXECUTE,2089.0,66.0,0.0,0.0,,,,completed
+login,2026-09-07 04:28:58.430,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:28:58.430,71,,,SteelNort,EXECUTE,283.0,186.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:28:58.430,65,,,SteelNort,AWAITING COMMAND,2028.0,0.0,0.0,0.0,,,,completed
+logout,2026-09-07 04:29:00.497,80,,,,,,,,,,,,
+wait_info,2026-09-07 04:29:00.497,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+sql_batch_completed,2026-09-07 04:29:00.497,67,,,SteelNort,SELECT,509.0,283.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:29:00.497,71,,,SteelNort,EXECUTE,2840.0,186.0,0.0,0.0,,,,completed
+lock_acquired,2026-09-07 04:29:00.497,72,,,,,,,,,,KEY,X,
+login,2026-09-07 04:29:04.219,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+wait_info,2026-09-07 04:29:04.219,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:29:04.219,65,,,SteelNort,AWAITING COMMAND,-2.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:29:04.219,71,,,SteelNort,EXECUTE,3527.0,3558.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:29:04.219,82,,,msdb,SELECT,1275.0,314.0,8.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:29:04.219,67,,,SteelNort,SELECT,4132.0,283.0,0.0,0.0,,,,completed
+lock_released,2026-09-07 04:29:04.219,72,,,,,,,,,,KEY,X,
+logout,2026-09-07 04:29:06.635,80,,,,,,,,,,,,
+wait_info,2026-09-07 04:29:06.635,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+sql_batch_completed,2026-09-07 04:29:06.635,65,,,SteelNort,AWAITING COMMAND,2600.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:06.635,82,,,msdb,SELECT,3946.0,314.0,8.0,0.0,,,,completed
+login,2026-09-07 04:29:10.033,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+wait_info,2026-09-07 04:29:10.033,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:29:10.033,69,,,SteelNort,SELECT,567.0,246.0,0.0,0.0,,,,
+logout,2026-09-07 04:29:12.646,80,,,,,,,,,,,,
+wait_info,2026-09-07 04:29:12.646,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+sql_batch_completed,2026-09-07 04:29:14.776,69,,,SteelNort,SELECT,2168.0,12.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:14.776,71,,,SteelNort,EXECUTE,3263.0,1040.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:16.991,71,,,SteelNort,EXECUTE,1176.0,1170.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:29:16.991,82,,,master,EXECUTE,180.0,104.0,40.0,0.0,,,,
+lock_acquired,2026-09-07 04:29:16.991,82,,,,,,,,,,OBJECT,X,
+lock_acquired,2026-09-07 04:29:16.991,82,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:29:16.991,82,,,,,,,,,,OBJECT,Sch-S,
+lock_acquired,2026-09-07 04:29:16.991,82,,,,,,,,,,METADATA,Sch-S,
+sql_batch_completed,2026-09-07 04:29:19.227,82,,,master,EXECUTE,2282.0,104.0,40.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:19.227,71,,,SteelNort,EXECUTE,3281.0,1170.0,0.0,0.0,,,,completed
+lock_released,2026-09-07 04:29:19.227,82,,,,,,,,,,OBJECT,X,
+lock_released,2026-09-07 04:29:19.227,82,,,,,,,,,,DATABASE,S,
+lock_released,2026-09-07 04:29:19.227,82,,,,,,,,,,OBJECT,Sch-S,
+lock_released,2026-09-07 04:29:19.227,82,,,,,,,,,,METADATA,Sch-S,
+login,2026-09-07 04:29:21.262,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:29:21.262,71,,,SteelNort,EXECUTE,142.0,135.0,0.0,0.0,MSQL_XP,,,
+logout,2026-09-07 04:29:23.299,80,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:29:23.299,71,,,SteelNort,EXECUTE,2169.0,135.0,0.0,0.0,,,,completed
+wait_info,2026-09-07 04:29:31.408,58,,,master,,,,,,SLEEP_TASK,,,
+login,2026-09-07 04:29:39.516,80,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+sql_batch_completed,2026-09-07 04:29:39.516,52,,,SteelNort,AWAITING COMMAND,1.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:29:39.516,60,,,SteelNort,CONDITIONAL,2.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:29:39.516,71,,,SteelNort,EXECUTE,153.0,173.0,0.0,0.0,MSQL_XP,,,
+logout,2026-09-07 04:29:41.554,72,,,,,,,,,,,,
+logout,2026-09-07 04:29:41.554,75,,,,,,,,,,,,
+logout,2026-09-07 04:29:41.554,78,,,,,,,,,,,,
+logout,2026-09-07 04:29:41.554,79,,,,,,,,,,,,
+logout,2026-09-07 04:29:41.554,80,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:29:41.554,66,,,SteelNort,AWAITING COMMAND,-6.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:29:41.554,71,,,SteelNort,EXECUTE,2191.0,173.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:41.554,72,,,master,TASK MANAGER,184748.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:41.554,75,,,master,TASK MANAGER,184747.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:41.554,78,,,master,TASK MANAGER,184747.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:41.554,79,,,master,TASK MANAGER,184749.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:41.554,52,,,SteelNort,AWAITING COMMAND,2047.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:41.554,60,,,SteelNort,CONDITIONAL,2049.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:43.599,71,,,SteelNort,EXECUTE,-2.0,4.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:29:43.599,66,,,SteelNort,AWAITING COMMAND,2035.0,0.0,0.0,0.0,,,,completed
+logout,2026-09-07 04:29:45.640,73,,,,,,,,,,,,
+logout,2026-09-07 04:29:45.640,76,,,,,,,,,,,,
+logout,2026-09-07 04:29:45.640,77,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:29:45.640,82,,,master,EXECUTE,55.0,52.0,8.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:29:45.640,73,,,master,TASK MANAGER,188858.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:45.640,76,,,master,TASK MANAGER,188876.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:45.640,77,,,master,TASK MANAGER,188889.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:29:45.640,71,,,SteelNort,EXECUTE,2107.0,4.0,0.0,0.0,,,,completed
+lock_acquired,2026-09-07 04:29:45.640,82,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:29:45.640,82,,,,,,,,,,OBJECT,Sch-S,
+lock_acquired,2026-09-07 04:29:45.640,82,,,,,,,,,,METADATA,Sch-S,
+wait_info,2026-09-07 04:29:47.785,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+sql_batch_completed,2026-09-07 04:29:47.785,71,,,SteelNort,EXECUTE,880.0,711.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:29:47.785,82,,,master,EXECUTE,3405.0,52.0,8.0,0.0,,,,completed
+lock_released,2026-09-07 04:29:47.785,82,,,,,,,,,,DATABASE,S,
+lock_released,2026-09-07 04:29:47.785,82,,,,,,,,,,OBJECT,Sch-S,
+lock_released,2026-09-07 04:29:47.785,82,,,,,,,,,,METADATA,Sch-S,
+login,2026-09-07 04:29:51.078,72,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+wait_info,2026-09-07 04:29:51.078,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:29:51.078,71,,,SteelNort,EXECUTE,3191.0,711.0,0.0,0.0,,,,completed
+logout,2026-09-07 04:29:53.355,72,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:29:53.355,71,,,SteelNort,EXECUTE,72.0,47.0,0.0,0.0,MSQL_XP,,,
+login,2026-09-07 04:29:56.461,72,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+wait_info,2026-09-07 04:29:56.461,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+sql_batch_completed,2026-09-07 04:29:56.461,67,,,SteelNort,EXECUTE,127.0,0.0,0.0,0.0,,,,
+logout,2026-09-07 04:29:59.345,72,,,,,,,,,,,,
+wait_info,2026-09-07 04:29:59.345,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:29:59.345,82,,,master,SELECT,180.0,136.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:29:59.345,67,,,SteelNort,EXECUTE,2569.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:01.533,82,,,master,SELECT,2397.0,136.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:03.724,65,,,SteelNort,EXECUTE,-1.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:30:03.724,71,,,SteelNort,EXECUTE,2898.0,844.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:05.760,68,,,SteelNort,CONDITIONAL,-9.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:30:05.760,65,,,SteelNort,EXECUTE,2029.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:07.781,68,,,SteelNort,CONDITIONAL,2008.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:09.807,71,,,SteelNort,EXECUTE,1078.0,1005.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:30:13.276,82,,,master,SELECT,3479.0,3186.0,0.0,0.0,,,,
+login,2026-09-07 04:30:16.115,72,sa,SQLCMD,SteelNort,,,,,,,,,
+wait_info,2026-09-07 04:30:16.115,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+wait_info,2026-09-07 04:30:16.115,71,,,SteelNort,,,,,,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:30:16.115,82,,,master,SELECT,5689.0,3186.0,0.0,0.0,,,,completed
+lock_acquired,2026-09-07 04:30:16.115,69,,,,,,,,,,OBJECT,Sch-S,
+logout,2026-09-07 04:30:18.324,72,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:30:18.324,52,,,SteelNort,EXECUTE,-28.0,0.0,0.0,0.0,,,,
+lock_released,2026-09-07 04:30:18.324,69,,,,,,,,,,OBJECT,Sch-S,
+sql_batch_completed,2026-09-07 04:30:21.013,52,,,SteelNort,EXECUTE,2062.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:21.013,71,,,SteelNort,EXECUTE,3495.0,1456.0,0.0,0.0,,,,completed
+login,2026-09-07 04:30:23.128,72,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+wait_info,2026-09-07 04:30:23.128,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:30:23.128,71,,,SteelNort,EXECUTE,239.0,145.0,0.0,0.0,MSQL_XP,,,
+logout,2026-09-07 04:30:25.174,72,,,,,,,,,,,,
+sql_batch_completed,2026-09-07 04:30:25.174,60,,,SteelNort,AWAITING COMMAND,-9.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:30:25.174,71,,,SteelNort,EXECUTE,2277.0,145.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:27.230,52,,,SteelNort,AWAITING COMMAND,-10.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:30:27.230,60,,,SteelNort,AWAITING COMMAND,2061.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:29.298,52,,,SteelNort,AWAITING COMMAND,2055.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:33.349,71,,,SteelNort,EXECUTE,1.0,26.0,0.0,0.0,MSQL_XP,,,
+login,2026-09-07 04:30:35.402,72,795ec2146175\Administrator,Microsoft SQL Server,SteelNort,,,,,,,,,
+logout,2026-09-07 04:30:38.041,72,,,,,,,,,,,,
+wait_info,2026-09-07 04:30:38.041,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+wait_info,2026-09-07 04:30:41.057,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:30:41.057,67,,,SteelNort,SELECT,51.0,1.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:30:41.057,82,,,master,SELECT,463.0,175.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:30:41.057,71,,,SteelNort,EXECUTE,4059.0,1206.0,0.0,0.0,,,,completed
+lock_acquired,2026-09-07 04:30:41.057,82,,,,,,,,,,DATABASE,S,
+lock_acquired,2026-09-07 04:30:41.057,82,,,,,,,,,,METADATA,Sch-S,
+wait_info,2026-09-07 04:30:43.784,58,,,master,,,,,,BROKER_TO_FLUSH,,,
+sql_batch_completed,2026-09-07 04:30:43.784,71,,,SteelNort,EXECUTE,68.0,47.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:30:43.784,82,,,master,SELECT,3152.0,175.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:43.784,67,,,SteelNort,SELECT,2783.0,1.0,0.0,0.0,,,,completed
+lock_released,2026-09-07 04:30:43.784,82,,,,,,,,,,DATABASE,S,
+lock_released,2026-09-07 04:30:43.784,82,,,,,,,,,,METADATA,Sch-S,
+wait_info,2026-09-07 04:30:46.917,58,,,master,,,,,,SLEEP_TASK,,,
+sql_batch_completed,2026-09-07 04:30:46.917,71,,,SteelNort,EXECUTE,3108.0,47.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:51.057,62,,,SteelNort,AWAITING COMMAND,16.0,0.0,0.0,0.0,,,,
+sql_batch_completed,2026-09-07 04:30:51.057,71,,,SteelNort,EXECUTE,156.0,109.0,0.0,0.0,MSQL_XP,,,
+sql_batch_completed,2026-09-07 04:30:53.610,62,,,SteelNort,AWAITING COMMAND,2388.0,0.0,0.0,0.0,,,,completed
+sql_batch_completed,2026-09-07 04:30:53.610,71,,,SteelNort,EXECUTE,2509.0,109.0,0.0,0.0,,,,completed
+lock_acquired,2026-09-07 04:30:59.660,64,,,,,,,,,,OBJECT,IS,

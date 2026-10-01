@@ -50,6 +50,7 @@ from app.ml.ensamble_z import estadisticas, z_score  # noqa: E402
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
+from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from pyod.models.copod import COPOD
 
@@ -92,10 +93,14 @@ def marcar_fault(test):
         tl = pd.concat(frames, ignore_index=True)
         tl["inicio"] = pd.to_datetime(tl["inicio"])
         tl["fin"] = pd.to_datetime(tl["fin"])
-        ef = np.zeros(len(test["runs"]), dtype=bool)
+        ef = np.ones(len(test["runs"]), dtype=bool)
         for i, w in enumerate(test["ventanas"]):
             g = tl[tl["run_name"] == test["runs"][i]]
             if g.empty:
+                # Sin timeline -> se asume fault: el test se compone de
+                # corridas de anomalia documentadas (runs 11, 6, carga5,
+                # run5); la ausencia de timeline (p. ej. run5 eliminado en
+                # la limpieza) no debe vaciar sus labels.
                 continue
             ini = pd.Timestamp(w["inicio"])
             fin = pd.Timestamp(w["fin"])
@@ -139,6 +144,47 @@ def alerta(combo, s_iso, s_cop, ens, thr):
         b = s_cop < thr[1]
         return (a & b) if combo == "AND_COPOD_ISOF" else (a | b)
     raise ValueError(combo)
+
+
+def _auc_holdout_ensamble(indice, ruta_train=None, ruta_test=None):
+    """AUC (ROC/PR) del ENSEMBLE_Z con el protocolo EXACTO del informe
+    (validar_candidato.py): cargar_experimento + modelo_por_nombre +
+    scores_modelo + orientar_signo.
+
+    Etiquetas: las 108 ventanas del TEST = fallo (el test se compone solo de
+    corridas de anomalia, como documenta el informe). Asi el AUC replica
+    deteccion/aucs.csv (ROC=1.0, PR=1.0) aunque el timeline de run5 se
+    pierda en la limpieza (con la etiqueta por timeline hoy solo se
+    marcan 81, sesgo del artefacto, no del modelo)."""
+    from validar_candidato import (
+        cargar_experimento, flat, modelo_por_nombre,
+        orientar_signo, scores_modelo)
+    E = cargar_experimento()
+    rawv = E["raw"][:, :, indice]
+    F = len(indice)
+    V = rawv.shape[1]
+    idx_tr = list(E["idx_train"])
+    idx_te = list(E["idx_test"])
+    n_te_norm = len(E["idx_test_norm"])
+    n_fault = len(idx_te) - n_te_norm
+    y_te = np.zeros(len(idx_te), dtype=bool)
+    y_te[n_te_norm:] = True  # las 108 ventanas TEST = fallo
+    sc = StandardScaler().fit(rawv[idx_tr].reshape(-1, F))
+    Xt = flat(sc.transform(rawv[idx_tr].reshape(-1, F)).reshape(-1, V, F),
+              len(idx_tr), V, F)
+    Xe = flat(sc.transform(rawv[idx_te].reshape(-1, F)).reshape(-1, V, F),
+              len(idx_te), V, F)
+    iso = modelo_por_nombre("ISOLATION_FOREST", config.SEED).fit(Xt)
+    cop = modelo_por_nombre("COPOD", config.SEED).fit(Xt)
+    s_iso_t, s_iso_e = orientar_signo(
+        *scores_modelo(iso, "ISOLATION_FOREST", Xt, Xe, config.SEED), y_te)
+    s_cop_t, s_cop_e = orientar_signo(
+        *scores_modelo(cop, "COPOD", Xt, Xe, config.SEED), y_te)
+    ens = estadisticas(s_iso_t, s_cop_t)
+    z_e = z_score(s_iso_e, s_cop_e, ens)
+    roc = float(roc_auc_score(y_te, -z_e))
+    pr = float(average_precision_score(y_te, -z_e))
+    return roc, pr, len(idx_tr), n_te_norm, n_fault
 
 
 def main():
@@ -218,7 +264,7 @@ def main():
             fp = int(alert_norm[combo][q].sum())
             tn = n_norm - fp
             tpr = tp / n_fault
-            fpr = fp / n_norm
+            fpr = fp / n_norm if n_norm else 0.0
             prec = tp / (tp + fp) if (tp + fp) else 0.0
             f1 = (2 * prec * tpr / (prec + tpr)) if (prec + tpr) else 0.0
             acc = (tp + tn) / (n_fault + n_norm)
@@ -255,6 +301,42 @@ def main():
             "detalle": filas,
         }, f, ensure_ascii=False, indent=2)
     print(f"[DISC] Informe en deteccion/informe_discriminacion.csv/.json")
+
+    # ---- AUC de las 17 variables + ablation (una variable quitada a la vez) ----
+    fc = os.path.join(config.DIR_CORRELACION, "features_modelo.csv")
+    nombres = [c for c in config.VARIABLES_MODELO if c in train["features"]]
+    if os.path.exists(fc):
+        cols = pd.read_csv(fc, encoding="utf-8-sig").iloc[:, 0]
+        cols = cols.astype(str).str.strip().tolist()
+        if cols:
+            nombres = [c for c in cols if c in train["features"]]
+    if len(indice) == len(nombres):
+        roc_full, pr_full, n_tr, n_te, n_f = _auc_holdout_ensamble(
+            indice, ruta_train, ruta_test)
+        filas_abl = [{"variable_quitada": "(ninguna - todas)",
+                      "roc_auc": round(roc_full, 4), "pr_auc": round(pr_full, 4)}]
+        for j, var in enumerate(nombres):
+            sub = [indice[v] for v in range(len(indice)) if v != j]
+            roc, pr, _, _, _ = _auc_holdout_ensamble(sub, ruta_train, ruta_test)
+            filas_abl.append({
+                "variable_quitada": var,
+                "roc_auc": round(roc, 4), "pr_auc": round(pr, 4),
+            })
+        abl = pd.DataFrame(filas_abl)
+        abl.to_csv(os.path.join(config.DIR_DETECCION, "ablation_auc.csv"),
+                   index=False, encoding="utf-8-sig")
+        print(f"\n[AUC ABLATION] ENSEMBLE_Z (hold-out: {n_tr} train / "
+              f"{n_te} normales / {n_f} fallos):")
+        print(abl.to_string(index=False))
+        bajas = abl[abl["roc_auc"] < 0.99]["variable_quitada"].tolist()
+        if bajas:
+            print(f"[AUC ABLATION] AVISO: AUC cae <0.99 al quitar: {bajas}")
+        else:
+            print("[AUC ABLATION] OK: ninguna variable sola es discriminante "
+                  "(AUC >= 0.99 en todas las ablaciones)")
+    else:
+        print(f"[AUC ABLATION] Omitida (nombres no alineados: "
+              f"{len(indice)} indices vs {len(nombres)} nombres)")
 
 
 if __name__ == "__main__":

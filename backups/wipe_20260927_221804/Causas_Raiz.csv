@@ -1,0 +1,10 @@
+﻿cra_cod,cra_alt,cra_padre,cra_nivel,cra_etiq,cra_tono,reg_usu,fec_reg,eli_usu,fec_eli
+1,1,,root,Telemetria detenida del nodo Servidor Negocio,rojo,monitor,2026-09-11 05:52:53.836914,,
+2,3,,root,Telemetria detenida del nodo Servidor Negocio,rojo,monitor,2026-09-11 06:11:21.406082,,
+3,4,,root,Telemetria detenida del nodo Servidor Negocio,rojo,monitor,2026-09-11 06:17:37.427845,,
+4,5,,root,Telemetria detenida del nodo Servidor Negocio,rojo,monitor,2026-09-11 06:44:35.328642,,
+5,6,,root,Telemetria detenida del nodo Servidor Negocio,rojo,monitor,2026-09-11 07:13:09.158055,,
+6,7,,root,Sin conexion al SQL Server de negocio (VPS),rojo,monitor,2026-09-11 07:56:54.065758,,
+7,8,,root,Sin conexion al SQL Server de negocio (VPS),rojo,monitor,2026-09-11 08:01:34.827662,,
+8,9,,root,Sin conexion al SQL Server de negocio (VPS),rojo,monitor,2026-09-24 18:04:40.533384,,
+9,13,,root,Telemetria detenida del nodo Servidor Negocio,rojo,monitor,2026-09-24 18:24:42.828227,,

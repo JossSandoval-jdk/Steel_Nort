@@ -1,0 +1,19 @@
+﻿variable_quitada,roc_auc,pr_auc
+(ninguna - todas),1.0,1.0
+cpu_usr,1.0,1.0
+cpu_sys,0.9982,0.9985
+cpu_wai,1.0,1.0
+memory_available_mb,0.9999,0.9999
+page_life_expectancy,1.0,1.0
+disk_read_per_sec,1.0,1.0
+disk_write_per_sec,1.0,1.0
+total_reads,1.0,1.0
+total_writes,1.0,1.0
+active_sessions,1.0,1.0
+active_requests,1.0,1.0
+transactions_per_sec,1.0,1.0
+duration_avg_ms,1.0,1.0
+cpu_time_sum_ms,1.0,1.0
+api_latency_ms,1.0,1.0
+api_status,1.0,1.0
+load1,1.0,1.0

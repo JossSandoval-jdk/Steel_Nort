@@ -19,12 +19,26 @@ from decimal import Decimal
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models.model_alerta import Alertas, HeatmapAnomalias
+from app.ml.detector import get_detector
+from app.models.model_alerta import Alertas, CausasRaiz, HeatmapAnomalias
 from app.models.model_ml import ModelosML, PrediccionesML
 from app.services.nodos import obtener_o_crear_nodo
 from app.utils import utc_now
 
 log = logging.getLogger("steelnort.anomalias")
+
+# Categorias de diagnostico de causa raiz, agrupando las variables del modelo.
+CATEGORIAS_DIAG = [
+    ("API de negocio", ("api_status", "api_latency_ms")),
+    ("CPU", ("cpu_usr", "cpu_sys", "cpu_wai", "load1")),
+    ("Memoria", ("memory_percent", "memory_used_mb", "page_life_expectancy")),
+    ("Disco y red", ("disk_read_per_sec", "disk_write_per_sec",
+                     "net_send_per_sec", "net_recv_per_sec")),
+    ("Sesiones y transacciones", ("active_sessions", "active_requests",
+                                  "transactions_per_sec", "long_queries",
+                                  "long_transactions")),
+    ("Bloqueos", ("lock_waits", "total_locks", "deadlocks_per_sec")),
+]
 
 
 def _registrar_modelo_desplegado(db: Session) -> ModelosML:
@@ -73,6 +87,78 @@ def obtener_modelo_activo(db: Session) -> ModelosML | None:
     if modelo is None:
         modelo = _registrar_modelo_desplegado(db)
     return modelo
+
+
+def _contribuyentes_z(prediccion: dict) -> dict[str, float]:
+    """z estandarizado de cada variable del modelo (mismo escalado que el
+    detector) para diagnosticar que grupo deja la ventana fuera de normal."""
+    det = get_detector()
+    scaler = getattr(det, "_scaler", None)
+    posiciones = getattr(det, "_posiciones", {}) or {}
+    features = getattr(det, "_features_modelo", []) or []
+    valores = prediccion.get("features") or {}
+    z: dict[str, float] = {}
+    if scaler is None or not hasattr(scaler, "mean_"):
+        return z
+    for nombre in features:
+        pos = posiciones.get(nombre, -1)
+        if pos is None or pos < 0 or pos >= len(scaler.mean_):
+            continue
+        v = float(valores.get(nombre, 0.0) or 0.0)
+        mean = float(scaler.mean_[pos])
+        scale = float(scaler.scale_[pos]) or 1.0
+        z[nombre] = (v - mean) / scale
+    return z
+
+
+def _diagnosticar_causas(z: dict[str, float], valores: dict) -> list[dict]:
+    """Deja las categorias con mayor desviacion |z| > umbral."""
+    causas = []
+    for categoria, variables in CATEGORIAS_DIAG:
+        presentes = {v: z[v] for v in variables if v in z}
+        if not presentes:
+            continue
+        var, zv = max(presentes.items(), key=lambda kv: abs(kv[1]))
+        fuerza = abs(zv)
+        if fuerza >= 2.5:
+            nivel, tono = "leaf", "rojo"
+        elif fuerza >= 1.8:
+            nivel, tono = "warn", "amarillo"
+        else:
+            continue
+        causas.append({
+            "categoria": categoria, "variable": var, "z": zv,
+            "valor": valores.get(var, 0.0), "nivel": nivel, "tono": tono,
+        })
+    causas.sort(key=lambda c: abs(c["z"]), reverse=True)
+    return causas[:4]
+
+
+def _abrir_causas_raiz(db: Session, alerta: Alertas, prediccion: dict,
+                       origen: str) -> None:
+    """Persiste el arbol Causas_Raiz de una alerta ML recien creada."""
+    try:
+        z = _contribuyentes_z(prediccion)
+        causas = _diagnosticar_causas(z, prediccion.get("features") or {})
+        raiz = CausasRaiz(
+            cra_alt=alerta.alt_cod, cra_nivel="root",
+            cra_etiq=f"{alerta.alt_titulo} (score={prediccion.get('score', 0)})",
+            cra_tono="rojo", reg_usu=origen,
+        )
+        db.add(raiz)
+        db.flush()
+        for causa in causas:
+            detalle = (
+                f"{causa['categoria']}: {causa['variable']}="
+                f"{float(causa['valor']):.4g} (z={causa['z']:+.1f})"
+            )
+            db.add(CausasRaiz(
+                cra_alt=alerta.alt_cod, cra_padre=raiz.cra_cod,
+                cra_nivel=causa["nivel"], cra_etiq=detalle[:200],
+                cra_tono=causa["tono"], reg_usu=origen,
+            ))
+    except Exception:
+        log.exception("Fallo el diagnostico de causa raiz; la alerta quedo creada")
 
 
 def persistir_prediccion(
@@ -138,6 +224,7 @@ def persistir_prediccion(
         )
         db.add(alerta)
         db.flush()
+        _abrir_causas_raiz(db, alerta, prediccion, origen)
     else:
         alerta = alerta_abierta
 

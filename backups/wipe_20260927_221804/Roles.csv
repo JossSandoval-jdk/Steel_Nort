@@ -1,0 +1,4 @@
+﻿rol_cod,rol_nom,rol_desc,rol_act,reg_usu,fec_reg,eli_usu,fec_eli
+1,Administrador,Acceso total al sistema.,True,sistema,2026-09-10 08:08:01.137,,
+2,Supervisor,"Lectura de usuarios, roles y permisos.",True,sistema,2026-09-10 08:08:01.137,,
+3,Operador,Operación diaria sin privilegios administrativos.,True,sistema,2026-09-10 08:08:01.137,,

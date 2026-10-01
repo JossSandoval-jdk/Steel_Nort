@@ -57,6 +57,8 @@ _CORRIDAS_NO_SANA_DEF = [
     "carga20",
     "normal_baja_01",
     "normal_media_01",
+    "normal_prueba_01",
+    "normal_media_02",
     # Duplicados exactos (mismo fingerprint) de las excluidas cargax:
     # 01_muestras los descarta por deduplicación, pero 02_correlacion NO
     # deduplica, así que hay que excluirlos aquí para que la referencia
@@ -75,34 +77,35 @@ CORRIDAS_NO_BASE_SANA = (
 )
 
 # ---------------------------------------------------------------------------
-# Poda del conjunto canónico de data_preparation (VARIABLES_PRINCIPALES).
-# El DATASET conserva las 22 columnas para diagnóstico, pero EL MODELO usa
-# SOLO estas 17 variables. Se excluyen por redundancia comprobada:
-#   - cpu_idl          : complemento de cpu_usr (r=-0.78)
-#   - memory_used_mb   : complemento de memory_available_mb (r=-0.75)
-#   - duration_max_ms  : idéntica a duration_avg_ms (r=1.00)
-#   - long_queries     : 100% nula en todo el dataset integrado (el
-#   - long_transactions: collector aún no la captura); quedaban como
-#                        constante 0 (ruido sin señal) tras fillna(0).
+# Variables del modelo (conjunto v2, LIVE-COMPATIBLE).
+# El daemon emite en vivo 21 de ellas; las 4 restantes (events_wait_count,
+# batch_count, batch_duration_avg_ms, batch_duration_max_ms) son constantes 0
+# en el train corregido, asi que el detector las rellena con 0.0 sin
+# distorsionar el score (match exacto entrenamiento <-> produccion).
+# Se excluyen las features de eventos que el daemon NO puede emitir en vivo
+# (events_login/logout, events_lock_acquired/released) para evitar mismatch.
 # ---------------------------------------------------------------------------
 VARIABLES_MODELO = [
-    "cpu_usr",
-    "cpu_sys",
-    "cpu_wai",
-    "memory_available_mb",
-    "page_life_expectancy",
-    "disk_read_per_sec",
-    "disk_write_per_sec",
-    "total_reads",
-    "total_writes",
-    "active_sessions",
-    "active_requests",
-    "transactions_per_sec",
-    "duration_avg_ms",
-    "cpu_time_sum_ms",
-    "api_latency_ms",
-    "api_status",
+    # CPU
+    "cpu_usr", "cpu_sys", "cpu_wai",
+    # Memoria
+    "memory_percent", "memory_used_mb", "page_life_expectancy",
+    # Disco / red
+    "disk_read_per_sec", "disk_write_per_sec",
+    "net_send_per_sec", "net_recv_per_sec",
+    # Carga
     "load1",
+    # Sesiones
+    "active_sessions", "active_requests",
+    # Transacciones
+    "transactions_per_sec", "long_queries", "long_transactions",
+    # API (la señal clave)
+    "api_latency_ms", "api_status",
+    # Locks
+    "lock_waits", "total_locks", "deadlocks_per_sec",
+    # Constantes en el train (el detector las rellena con 0.0 en vivo)
+    "events_wait_count",
+    "batch_count", "batch_duration_avg_ms", "batch_duration_max_ms",
 ]
 
 # Objetivo máximo de tasa de falsa alarma media (FPR) sobre normal
@@ -175,15 +178,19 @@ def ruta_corrida(raiz, corrida):
             return str(p)
     return str(raiz / corrida)
 
+DATASET_SET = os.getenv("STEELNORT_DATASET_SET", "integrado_v2")
+
 DATASET_PRINCIPALES = os.path.join(
     OUTPUT_BASE,
-    "integrado",
-    "dataset_carga_principales.csv"
+    DATASET_SET,
+    "dataset_steelnort_preparado.csv"
 )
+
+MODELADO_SET = os.getenv("STEELNORT_MODELADO_SET", "modelado_v2")
 
 DIR_MODELADO = os.path.join(
     OUTPUT_BASE,
-    "modelado"
+    MODELADO_SET
 )
 
 DIR_CORRELACION = os.path.join(
@@ -227,6 +234,7 @@ COLUMNAS_CONTEXTO = [
     "timestamp",      # etiqueta temporal (contexto, no es variable)
     "run_name",       # a qué corrida pertenece el dato
     "experiment_id",  # id del experimento de captura
+    "grupo",          # baseline/anomalias (etiqueta del dataset v2)
 ]
 
 SEED = 42

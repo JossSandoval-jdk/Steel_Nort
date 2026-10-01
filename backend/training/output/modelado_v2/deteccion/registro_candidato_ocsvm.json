@@ -1,0 +1,43 @@
+{
+  "modelo": "OCSVM",
+  "fecha_validacion": "2026-09-28T02:40:19",
+  "umbrales": {
+    "q01": -12.79058581410371,
+    "q05": -4.776515093362486,
+    "q10": -4.259286841675223
+  },
+  "n_train_windows": 171,
+  "features": [
+    "cpu_usr",
+    "cpu_sys",
+    "cpu_wai",
+    "memory_percent",
+    "memory_used_mb",
+    "page_life_expectancy",
+    "disk_read_per_sec",
+    "disk_write_per_sec",
+    "net_send_per_sec",
+    "net_recv_per_sec",
+    "load1",
+    "active_sessions",
+    "active_requests",
+    "transactions_per_sec",
+    "long_queries",
+    "long_transactions",
+    "api_latency_ms",
+    "api_status",
+    "lock_waits",
+    "total_locks",
+    "deadlocks_per_sec",
+    "events_login_count",
+    "events_logout_count",
+    "events_lock_acquired_count",
+    "events_lock_released_count",
+    "events_wait_count",
+    "batch_count",
+    "batch_duration_avg_ms",
+    "batch_duration_max_ms"
+  ],
+  "artefacto": "deteccion/candidato_ocsvm.joblib",
+  "nota": "Modelo simple (sin ensamble). Entrenado con las corridas normales corregidas del train pkl."
+}

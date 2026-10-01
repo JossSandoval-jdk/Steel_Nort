@@ -1,0 +1,14 @@
+﻿columna,motivo,media_abs_corr
+cpu_sys,"correlación >= 0.85 con ['active_requests', 'api_latency_ms', 'api_status', 'cpu_idl', 'total_reads', 'total_writes', 'transactions_per_sec']",0.5221
+active_requests,"correlación >= 0.85 con ['active_sessions', 'api_status', 'total_reads', 'total_writes']",0.5089
+total_reads,"correlación >= 0.85 con ['api_latency_ms', 'api_status', 'cpu_idl', 'page_life_expectancy', 'total_writes', 'transactions_per_sec']",0.4956
+api_status,"correlación >= 0.85 con ['api_latency_ms', 'cpu_idl', 'page_life_expectancy', 'total_writes', 'transactions_per_sec']",0.4788
+cpu_idl,"correlación >= 0.85 con ['api_latency_ms', 'total_writes']",0.4587
+memory_used_mb,"correlación >= 0.85 con ['memory_available_mb', 'memory_percent']",0.4408
+total_writes,"correlación >= 0.85 con ['api_latency_ms', 'page_life_expectancy']",0.4258
+memory_available_mb,correlación >= 0.85 con ['memory_percent'],0.404
+api_latency_ms,correlación >= 0.85 con ['page_life_expectancy'],0.3785
+events_lock_acquired_count,correlación >= 0.85 con ['events_lock_released_count'],0.3376
+load15,correlación >= 0.85 con ['load5'],0.2967
+long_queries,correlación >= 0.85 con ['long_transactions'],0.266
+net_send_per_sec,correlación >= 0.85 con ['net_recv_per_sec'],0.1827

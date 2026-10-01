@@ -124,7 +124,14 @@ def main():
     datos = pd.read_csv(config.DATASET_PRINCIPALES, encoding="utf-8-sig")
     features = [c for c in datos.columns if c not in config.COLUMNAS_CONTEXTO]
 
-    corridas_sanas = config.corridas_entrenamiento(datos["run_name"])
+    if "grupo" in datos.columns:
+        no_sana = set(config.CORRIDAS_NO_BASE_SANA)
+        corridas_sanas = sorted(
+            r for r in datos.loc[datos["grupo"] == "baseline",
+                                 "run_name"].unique()
+            if r not in no_sana)
+    else:
+        corridas_sanas = config.corridas_entrenamiento(datos["run_name"])
     train = datos[datos["run_name"].isin(corridas_sanas)].copy()
     if config.NORMALIZACION_RELATIVA:
         train = util_normalizacion.transformar_relativo(train, features)

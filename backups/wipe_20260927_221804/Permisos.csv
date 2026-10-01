@@ -1,0 +1,11 @@
+﻿prm_cod,prm_clave,prm_nom,prm_mod,prm_act,reg_usu,fec_reg,eli_usu,fec_eli
+1,usuarios:leer,Ver usuarios,usuarios,True,sistema,2026-09-10 08:08:01.107,,
+2,usuarios:crear,Crear usuarios,usuarios,True,sistema,2026-09-10 08:08:01.107,,
+3,usuarios:editar,Editar usuarios,usuarios,True,sistema,2026-09-10 08:08:01.107,,
+4,usuarios:eliminar,Eliminar usuarios,usuarios,True,sistema,2026-09-10 08:08:01.107,,
+5,roles:leer,Ver roles,roles,True,sistema,2026-09-10 08:08:01.107,,
+6,roles:crear,Crear roles,roles,True,sistema,2026-09-10 08:08:01.107,,
+7,roles:editar,Editar roles,roles,True,sistema,2026-09-10 08:08:01.107,,
+8,roles:eliminar,Eliminar roles,roles,True,sistema,2026-09-10 08:08:01.107,,
+9,permisos:crear,Crear permisos,permisos,True,sistema,2026-09-10 08:08:01.107,,
+10,ml:reentrenar,Reentrenar modelo ML,ml,True,sistema,2026-09-10 08:08:01.107,,

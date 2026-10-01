@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -96,6 +97,13 @@ class CausaRaizOut(ORMModel):
     cra_nivel: str
     cra_etiq: str
     cra_tono: str
+
+
+class AlertaResolverPayload(BaseModel):
+    """Clasificacion manual de una alerta para alimentar FPR/TPR."""
+
+    etiqueta: Literal["falsa_alarma", "incidente_real", "esperado"] = "esperado"
+    nota: str | None = Field(default=None, max_length=300)
 
 
 class HeatmapOut(ORMModel):

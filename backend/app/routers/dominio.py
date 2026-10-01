@@ -2,26 +2,31 @@
 
 from __future__ import annotations
 
+import re
+from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.model_alerta import Alertas, CausasRaiz, HeatmapAnomalias
 from app.models.model_configuracion import ConfiguracionSistema
 from app.models.model_ml import ModelosML, PrediccionesML
+from app.models.model_muestra_normal import MuestrasNormales
 from app.models.model_reporte import Reportes
 from app.models.model_scada import NodosSCADA, Servicios
 from app.models.model_usuario import EventosSesion, Sesiones, Usuarios
 from app.routers.auth import get_current_user, require_csrf
 from app.schemas.dominio import (
-    AlertaCreate, AlertaOut, CausaRaizOut, ConfiguracionCreate, ConfiguracionOut,
-    EventoSesionOut, HeatmapOut, ModeloMLOut, NodoCreate, NodoOut, PrediccionMLOut,
-    ReporteOut, ServicioCreate, ServicioOut, SesionDetalleOut,
+    AlertaCreate, AlertaOut, AlertaResolverPayload, CausaRaizOut,
+    ConfiguracionCreate, ConfiguracionOut, EventoSesionOut, HeatmapOut,
+    ModeloMLOut, NodoCreate, NodoOut, PrediccionMLOut, ReporteOut,
+    ServicioCreate, ServicioOut, SesionDetalleOut,
 )
 from app.services.dominio import crear, listar, obtener
+from app.utils import utc_now
 
 router = APIRouter(tags=["dominio"])
 Db = Annotated[Session, Depends(get_db)]
@@ -73,6 +78,105 @@ def crear_alerta(payload: AlertaCreate, db: Db, current: Auth) -> Alertas:
 def causas(alerta_id: int, db: Db, _current: Auth) -> list[CausasRaiz]:
     consulta = select(CausasRaiz).where(CausasRaiz.cra_alt == alerta_id)
     return list(db.scalars(consulta))
+
+
+@router.patch("/alertas/{alerta_id}/resolver", response_model=AlertaOut,
+              dependencies=[Depends(require_csrf)])
+def resolver_alerta(alerta_id: int, payload: AlertaResolverPayload,
+                    db: Db, current: Auth) -> Alertas:
+    """Cierra una alerta y la clasifica (falsa_alarma/incidente_real/esperado).
+
+    Esa clasificacion es la verdad de campo que alimenta el FPR/TPR de la
+    vigilancia en vivo.
+    """
+    alerta = db.get(Alertas, alerta_id)
+    if alerta is None or alerta.fec_eli is not None:
+        raise HTTPException(status_code=404, detail="Alerta no encontrada")
+    if alerta.alt_resu:
+        return alerta
+
+    nota = f" - {payload.nota}" if payload.nota else ""
+    alerta.alt_resu = True
+    alerta.alt_fec_resu = utc_now()
+    alerta.alt_usu = current.usu_cod
+    prev = alerta.alt_diag or ""
+    alerta.alt_diag = (
+        f"{prev} | resuelta por {current.usu_cod} "
+        f"etiqueta={payload.etiqueta}{nota}"
+    )[:500]
+    db.commit()
+    db.refresh(alerta)
+    return alerta
+
+
+@router.get("/alertas/vigilancia")
+def vigilancia(db: Db, _current: Auth) -> dict:
+    """FPR/TPR observado en vivo por nodo.
+
+    - ``ratio_alarma``: ventanas anomalas / total evaluadas (proxy del FPR
+      mientras el entorno este sano).
+    - ``alertas.por_etiqueta``: resueltas manualmente como falsa_alarma /
+      incidente_real / esperado (verdad de campo).
+    """
+    nodos = {n[0]: n[1] for n in
+             db.execute(select(NodosSCADA.ndo_cod, NodosSCADA.ndo_nom))}
+    normales = db.execute(
+        select(MuestrasNormales.mno_ndo, func.count())
+        .group_by(MuestrasNormales.mno_ndo)
+    ).all()
+    anomalias = db.execute(
+        select(PrediccionesML.prd_ndo, func.count())
+        .group_by(PrediccionesML.prd_ndo)
+    ).all()
+    desde_24h = utc_now() - timedelta(hours=24)
+    norm_24h = db.execute(
+        select(func.count()).select_from(MuestrasNormales)
+        .where(MuestrasNormales.mno_fec >= desde_24h)).scalar() or 0
+    anom_24h = db.execute(
+        select(func.count()).select_from(PrediccionesML)
+        .where(PrediccionesML.prd_fec >= desde_24h)).scalar() or 0
+
+    def ratio(a: int, n: int) -> float:
+        tot = a + n
+        return round(a / tot, 4) if tot else 0.0
+
+    por_nodo = []
+    g_anom = g_norm = 0
+    for ndo_cod, nombre in sorted(nodos.items(), key=lambda kv: kv[1]):
+        a = dict(anomalias).get(ndo_cod, 0)
+        n = dict(normales).get(ndo_cod, 0)
+        g_anom += a
+        g_norm += n
+        por_nodo.append({
+            "nodo": nombre, "ndo_cod": ndo_cod,
+            "anomalias": a, "normales": n, "ventanas": a + n,
+            "ratio_alarma": ratio(a, n),
+        })
+
+    alertas = db.execute(
+        select(Alertas.alt_diag, Alertas.alt_resu)
+        .where(Alertas.alt_tipo == "anomalia_ml")
+    ).all()
+    abiertas = sum(1 for _, r in alertas if not r)
+    etiquetas = {"falsa_alarma": 0, "incidente_real": 0, "esperado": 0}
+    for diag, resu in alertas:
+        m = re.search(r"etiqueta=(\w+)", diag or "")
+        if resu and m and m.group(1) in etiquetas:
+            etiquetas[m.group(1)] += 1
+
+    return {
+        "generado": utc_now().isoformat(),
+        "por_nodo": por_nodo,
+        "global": {
+            "anomalias": g_anom, "normales": g_norm,
+            "ventanas": g_anom + g_norm, "ratio_alarma": ratio(g_anom, g_norm),
+        },
+        "ultimas_24h": {
+            "anomalias": anom_24h, "normales": norm_24h,
+            "ratio_alarma": ratio(anom_24h, norm_24h),
+        },
+        "alertas": {"abiertas": abiertas, "por_etiqueta": etiquetas},
+    }
 
 
 @router.get("/heatmap", response_model=list[HeatmapOut])

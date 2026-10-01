@@ -70,6 +70,9 @@ function RolesPermisosModal({ isOpen, onClose }) {
   const [mensaje, setMensaje] = useState(null)
   const [error, setError] = useState(null)
   const [rolEditandoNombre, setRolEditandoNombre] = useState(null)
+  const [misPermisos, setMisPermisos] = useState([])
+
+  const puede = (permiso) => Array.isArray(misPermisos) && misPermisos.includes(permiso)
 
   const csrf = api.getCsrfToken()
 
@@ -92,13 +95,15 @@ function RolesPermisosModal({ isOpen, onClose }) {
 
     async function load() {
       try {
-        const [rolesData, permisosData] = await Promise.all([
+        const [rolesData, permisosData, propios] = await Promise.all([
           api.get('/roles', { token: accessToken }),
           api.get('/roles/permisos', { token: accessToken }),
+          api.get('/usuarios/me/permisos', { token: accessToken }),
         ])
         if (!mounted) return
         setRoles(rolesData)
         setPermisos(permisosData)
+        setMisPermisos(propios)
         if (rolesData.length > 0) {
           setSelectedRolId(rolesData[0].rol_cod)
           const permisosRol = await api.get(`/roles/${rolesData[0].rol_cod}/permisos`, {
@@ -280,24 +285,28 @@ function RolesPermisosModal({ isOpen, onClose }) {
                         </td>
                         <td style={{ textAlign: 'right' }}>
                           <div className="row-actions" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              type="button"
-                              className="icon-btn"
-                              title="Editar rol"
-                              onClick={() => {
-                                setRolEditandoNombre(rol)
-                              }}
-                            >
-                              <IconEdit />
-                            </button>
-                            <button
-                              type="button"
-                              className="icon-btn danger"
-                              title="Eliminar rol"
-                              onClick={() => handleEliminarRol(rol)}
-                            >
-                              <IconTrash />
-                            </button>
+                            {puede('roles:editar') && (
+                              <button
+                                type="button"
+                                className="icon-btn"
+                                title="Editar rol"
+                                onClick={() => {
+                                  setRolEditandoNombre(rol)
+                                }}
+                              >
+                                <IconEdit />
+                              </button>
+                            )}
+                            {puede('roles:eliminar') && (
+                              <button
+                                type="button"
+                                className="icon-btn danger"
+                                title="Eliminar rol"
+                                onClick={() => handleEliminarRol(rol)}
+                              >
+                                <IconTrash />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -307,16 +316,18 @@ function RolesPermisosModal({ isOpen, onClose }) {
               </table>
 
               <div className="card-actions">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => {
-                    setIsModalOpen(true)
-                  }}
-                >
-                  <IconPlus />
-                  Nuevo rol
-                </button>
+                {puede('roles:crear') && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      setIsModalOpen(true)
+                    }}
+                  >
+                    <IconPlus />
+                    Nuevo rol
+                  </button>
+                )}
               </div>
             </article>
 
@@ -432,6 +443,8 @@ function RolesPermisosModal({ isOpen, onClose }) {
                                 type="checkbox"
                                 className="perm-checkbox"
                                 checked={(permisosPorRol[rolSeleccionado.rol_cod] || new Set()).has(permiso.prm_cod)}
+                                disabled={!puede('roles:editar')}
+                                title={puede('roles:editar') ? 'Asignar / quitar permiso' : 'Requiere permiso roles:editar'}
                                 onChange={(e) =>
                                   handleTogglePermiso(
                                     rolSeleccionado.rol_cod,

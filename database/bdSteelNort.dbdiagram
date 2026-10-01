@@ -1,0 +1,578 @@
+{
+  "version": "3.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "relationshipMode": "All",
+    "tablePositions": [
+      {
+        "name": "usuario",
+        "schemaName": "public",
+        "x": 1213.84521484375,
+        "y": 12
+      },
+      {
+        "name": "rol",
+        "schemaName": "public",
+        "x": 641.83984375,
+        "y": 12
+      },
+      {
+        "name": "permiso",
+        "schemaName": "public",
+        "x": 641.83984375,
+        "y": 154
+      },
+      {
+        "name": "rol_permiso",
+        "schemaName": "public",
+        "x": 1213.84521484375,
+        "y": 506
+      },
+      {
+        "name": "sesiones",
+        "schemaName": "public",
+        "x": 1813.7724609375,
+        "y": 12
+      },
+      {
+        "name": "instancias",
+        "schemaName": "public",
+        "x": 641.83984375,
+        "y": 328
+      },
+      {
+        "name": "sesiones_sql",
+        "schemaName": "public",
+        "x": 1213.84521484375,
+        "y": 681
+      },
+      {
+        "name": "modelos_ml",
+        "schemaName": "public",
+        "x": 641.83984375,
+        "y": 598
+      },
+      {
+        "name": "predicciones_ml",
+        "schemaName": "public",
+        "x": 1213.84521484375,
+        "y": 1285
+      },
+      {
+        "name": "alertas",
+        "schemaName": "public",
+        "x": 1813.7724609375,
+        "y": 282
+      },
+      {
+        "name": "alerta_variable",
+        "schemaName": "public",
+        "x": 2305.537109375,
+        "y": 12
+      },
+      {
+        "name": "causas_raiz",
+        "schemaName": "public",
+        "x": 2305.537109375,
+        "y": 366
+      },
+      {
+        "name": "heatmap_anomalias",
+        "schemaName": "public",
+        "x": 332.98583984375,
+        "y": 12
+      },
+      {
+        "name": "metricas",
+        "schemaName": "public",
+        "x": 1813.7724609375,
+        "y": 744
+      },
+      {
+        "name": "eventos",
+        "schemaName": "public",
+        "x": 1813.7724609375,
+        "y": 1014
+      },
+      {
+        "name": "logs_sql",
+        "schemaName": "public",
+        "x": 1813.7724609375,
+        "y": 1412
+      },
+      {
+        "name": "estadisticas_carga",
+        "schemaName": "public",
+        "x": 1213.84521484375,
+        "y": 1047
+      },
+      {
+        "name": "deriva_monitor",
+        "schemaName": "public",
+        "x": 1213.84521484375,
+        "y": 1801
+      },
+      {
+        "name": "reentrenamiento",
+        "schemaName": "public",
+        "x": 1813.7724609375,
+        "y": 1714
+      },
+      {
+        "name": "reentrenamiento_paso",
+        "schemaName": "public",
+        "x": 2305.537109375,
+        "y": 636
+      },
+      {
+        "name": "configuracion_sistema",
+        "schemaName": "public",
+        "x": 12,
+        "y": 12
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "rol_cod"
+        ],
+        "firstTableName": "rol",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "rol_cod"
+        ],
+        "secondTableName": "usuario",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "rol_cod"
+        ],
+        "firstTableName": "rol",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "rol_cod"
+        ],
+        "secondTableName": "rol_permiso",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "per_cod"
+        ],
+        "firstTableName": "permiso",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "per_cod"
+        ],
+        "secondTableName": "rol_permiso",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "usu_cod"
+        ],
+        "firstTableName": "usuario",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "ses_usu"
+        ],
+        "secondTableName": "sesiones",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ins_cod"
+        ],
+        "firstTableName": "instancias",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "ssq_ins"
+        ],
+        "secondTableName": "sesiones_sql",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "mdl_cod"
+        ],
+        "firstTableName": "modelos_ml",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "prd_mdl"
+        ],
+        "secondTableName": "predicciones_ml",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ins_cod"
+        ],
+        "firstTableName": "instancias",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "prd_ins"
+        ],
+        "secondTableName": "predicciones_ml",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "prd_cod"
+        ],
+        "firstTableName": "predicciones_ml",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "alt_prd"
+        ],
+        "secondTableName": "alertas",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ins_cod"
+        ],
+        "firstTableName": "instancias",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "alt_ins"
+        ],
+        "secondTableName": "alertas",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "usu_cod"
+        ],
+        "firstTableName": "usuario",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "alt_usu"
+        ],
+        "secondTableName": "alertas",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "alt_cod"
+        ],
+        "firstTableName": "alertas",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "alv_alt"
+        ],
+        "secondTableName": "alerta_variable",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "alt_cod"
+        ],
+        "firstTableName": "alertas",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "cra_alt"
+        ],
+        "secondTableName": "causas_raiz",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "cra_cod"
+        ],
+        "firstTableName": "causas_raiz",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "cra_padre"
+        ],
+        "secondTableName": "causas_raiz",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ins_cod"
+        ],
+        "firstTableName": "instancias",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "met_ins"
+        ],
+        "secondTableName": "metricas",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "prd_cod"
+        ],
+        "firstTableName": "predicciones_ml",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "met_prd"
+        ],
+        "secondTableName": "metricas",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ins_cod"
+        ],
+        "firstTableName": "instancias",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "eve_ins"
+        ],
+        "secondTableName": "eventos",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "prd_cod"
+        ],
+        "firstTableName": "predicciones_ml",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "eve_prd"
+        ],
+        "secondTableName": "eventos",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ins_cod"
+        ],
+        "firstTableName": "instancias",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "lgs_ins"
+        ],
+        "secondTableName": "logs_sql",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "prd_cod"
+        ],
+        "firstTableName": "predicciones_ml",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "lgs_prd"
+        ],
+        "secondTableName": "logs_sql",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ins_cod"
+        ],
+        "firstTableName": "instancias",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "wks_ins"
+        ],
+        "secondTableName": "estadisticas_carga",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "mdl_cod"
+        ],
+        "firstTableName": "modelos_ml",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "drv_mdl"
+        ],
+        "secondTableName": "deriva_monitor",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "mdl_cod"
+        ],
+        "firstTableName": "modelos_ml",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "ren_mdl_origen"
+        ],
+        "secondTableName": "reentrenamiento",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "mdl_cod"
+        ],
+        "firstTableName": "modelos_ml",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "ren_mdl_nuevo"
+        ],
+        "secondTableName": "reentrenamiento",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "usu_cod"
+        ],
+        "firstTableName": "usuario",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "ren_usu_sol"
+        ],
+        "secondTableName": "reentrenamiento",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "usu_cod"
+        ],
+        "firstTableName": "usuario",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "ren_usu_apr"
+        ],
+        "secondTableName": "reentrenamiento",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ren_cod"
+        ],
+        "firstTableName": "reentrenamiento",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "rep_ren"
+        ],
+        "secondTableName": "reentrenamiento_paso",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "usu_cod"
+        ],
+        "firstTableName": "usuario",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "reg_usu"
+        ],
+        "secondTableName": "rol_permiso",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "usu_cod"
+        ],
+        "firstTableName": "usuario",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "eli_usu"
+        ],
+        "secondTableName": "rol_permiso",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "prd_cod"
+        ],
+        "firstTableName": "predicciones_ml",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "wks_prd"
+        ],
+        "secondTableName": "estadisticas_carga",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      }
+    ]
+  },
+  "views": {}
+}

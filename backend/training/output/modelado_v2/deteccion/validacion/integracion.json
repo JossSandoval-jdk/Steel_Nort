@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "respuestas": [
+    {
+      "indice": 9,
+      "es_anomalia": false,
+      "score": -9.2994,
+      "umbral": -1.8973,
+      "features": {
+        "cpu_usr": 2.3745574204048174,
+        "cpu_sys": -3.2096443695363077,
+        "cpu_wai": 0.0,
+        "memory_percent": 2.0174297009688957,
+        "memory_used_mb": 2.0598629449020502,
+        "page_life_expectancy": 9.878703220493124,
+        "disk_read_per_sec": 0.0472148162225639,
+        "disk_write_per_sec": -0.6469345349500347,
+        "net_send_per_sec": -0.34240615274634706,
+        "net_recv_per_sec": -0.33112255648406397,
+        "load1": -1.2675346252678723,
+        "active_sessions": 1.6792408984197298,
+        "active_requests": -2.331582749597024,
+        "transactions_per_sec": -1.8476534250779397,
+        "long_queries": -0.9714667024213457,
+        "long_transactions": -0.9302895282521119,
+        "api_latency_ms": -13.358460910264746,
+        "api_status": 403.0,
+        "lock_waits": -0.46981196012034576,
+        "total_locks": -0.8348194161100232,
+        "deadlocks_per_sec": 52.0,
+        "events_wait_count": 0.0,
+        "batch_count": 0.0,
+        "batch_duration_avg_ms": 0.0,
+        "batch_duration_max_ms": 0.0
+      },
+      "zona": "CRITICA",
+      "es_anomalia_cruda": true,
+      "racha_critica": 1,
+      "cooldown": false,
+      "mvn_dist": 1651143910743.2,
+      "mvn_coherente": false
+    }
+  ]
+}

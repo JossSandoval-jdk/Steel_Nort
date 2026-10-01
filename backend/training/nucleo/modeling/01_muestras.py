@@ -139,7 +139,14 @@ def main():
         log("Normalización RELATIVA por corrida aplicada")
 
     todas_corridas = set(datos["run_name"].unique())
-    corridas_train = config.corridas_entrenamiento(todas_corridas)
+    if "grupo" in datos.columns:
+        no_sana = set(config.CORRIDAS_NO_BASE_SANA)
+        corridas_train = sorted(
+            r for r in datos.loc[datos["grupo"] == "baseline",
+                                 "run_name"].unique()
+            if r not in no_sana)
+    else:
+        corridas_train = config.corridas_entrenamiento(todas_corridas)
     corridas_test = _corridas_test_validas(
         datos, [c for c in config.corridas_anomalia() if c in todas_corridas])
 

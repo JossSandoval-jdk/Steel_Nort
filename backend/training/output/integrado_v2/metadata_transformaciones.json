@@ -1,0 +1,48 @@
+{
+  "fase_crispdm": "Data Preparation",
+  "fuentes": [
+    "metrics.log",
+    "events.log",
+    "sqlserver_logs.log"
+  ],
+  "features_modelo": [
+    "cpu_usr",
+    "cpu_sys",
+    "cpu_wai",
+    "memory_percent",
+    "memory_used_mb",
+    "page_life_expectancy",
+    "disk_read_per_sec",
+    "disk_write_per_sec",
+    "net_send_per_sec",
+    "net_recv_per_sec",
+    "load1",
+    "active_sessions",
+    "active_requests",
+    "transactions_per_sec",
+    "long_queries",
+    "long_transactions",
+    "api_latency_ms",
+    "api_status",
+    "lock_waits",
+    "total_locks",
+    "deadlocks_per_sec",
+    "events_login_count",
+    "events_logout_count",
+    "events_lock_acquired_count",
+    "events_lock_released_count",
+    "events_wait_count",
+    "batch_count",
+    "batch_duration_avg_ms",
+    "batch_duration_max_ms",
+    "log_error_count",
+    "log_fatal_count"
+  ],
+  "columnas_contexto": [
+    "run_name",
+    "experiment_id"
+  ],
+  "total_corridas": 21,
+  "total_filas": 1313,
+  "nota_etiquetado": "La columna 'grupo' indica procedencia (baseline/anomalias). No se usa para entrenamiento; solo para validación post-hoc."
+}

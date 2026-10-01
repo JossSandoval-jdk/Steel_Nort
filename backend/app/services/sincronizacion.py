@@ -27,6 +27,8 @@ import logging
 import os
 import time
 
+import pyodbc
+
 from app.database import SessionLocal
 from app.models.model_alerta import Alertas, CausasRaiz
 from app.services.monitor import MonitorPeriodico
@@ -56,8 +58,6 @@ ESTADO_INICIAL = {
 
 def _test_vps_sql() -> bool:
     """Intenta conectar al SQL Server de negocio (Podman/VPS)."""
-    import pyodbc  # noqa: PLC0415
-
     try:
         from app.collector.config import SQL_SERVER_CONN_STR
         conn = pyodbc.connect(SQL_SERVER_CONN_STR, timeout=VPS_SQL_TIMEOUT, autocommit=True)

@@ -62,3 +62,5 @@
   margin-top: 24px;
   justify-content: flex-end;
 }
+
+.modal-error { color: #dc3545; font-size: 13px; margin: 0 0 12px; }

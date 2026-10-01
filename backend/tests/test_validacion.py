@@ -147,9 +147,13 @@ def test_latencia_lote():
 
 
 # ---------------------------------------------------------------------------
-# Robustez
+# Robustez — sub-casos con nombre propio (punto 3 del checklist):
+#   test_robustez_faltantes_nan_no_rompe    NaN en una celda de la ventana
+#   test_robustez_faltantes_columna_ausente variable completa ausente (-> 0.0)
+#   test_robustez_escala_una_variable       unidades distintas (x5 en 1 var)
+#   test_robustez_ruido_fallas_estables     ruido minimo en ventanas de falla
 # ---------------------------------------------------------------------------
-def test_nan_no_rompe_y_es_finito():
+def test_robustez_faltantes_nan_no_rompe():
     bundle = cargar_bundle()
     test = cargar_muestra(PKL_TEST)
     X, _ = ventanas_escaladas(bundle, test)
@@ -160,7 +164,42 @@ def test_nan_no_rompe_y_es_finito():
     assert np.isfinite(s).all(), "NaN propagado a la decisión"
 
 
-def test_decision_falla_estable_ante_ruido():
+def test_robustez_faltantes_columna_ausente():
+    # la variable aparece ausente en TODA la ventana (produccion rellena 0.0).
+    # El ENSEMBLE_Z sigue alertando el 100% de las fallas: ninguna variable
+    # aislada lleva la señal (consistente con la ablatión de AUC).
+    bundle = cargar_bundle()
+    test = cargar_muestra(PKL_TEST)
+    X, _ = ventanas_escaladas(bundle, test)
+    j = bundle["features"].index("cpu_usr")
+    ausente = (0.0 - bundle["scaler"].mean_[j]) / (bundle["scaler"].scale_[j] or 1.0)
+    pert = X.copy()
+    pert[:, j::len(bundle["features"])] = ausente
+    with np.errstate(all="ignore"):
+        s = ens_score(bundle, pert)
+    assert np.isfinite(s).all(), "columna ausente rompe el score"
+    assert float((s < bundle["umbrales"]["q01"]).mean()) >= 0.9, \
+        "quitar cpu_usr apaga la deteccion de fallas"
+
+
+def test_robustez_escala_una_variable():
+    # unidades distintas (x5 en una sola variable): la decision de las fallas
+    # no cambia (mismo resultado que en la validacion robustez/escala).
+    bundle = cargar_bundle()
+    test = cargar_muestra(PKL_TEST)
+    X, _ = ventanas_escaladas(bundle, test)
+    umb = bundle["umbrales"]["q01"]
+    base = ens_score(bundle, X) < umb
+    pert = X.copy()
+    j = bundle["features"].index("cpu_usr")
+    pert[:, j::len(bundle["features"])] *= 5.0
+    s = ens_score(bundle, pert)
+    flips = int(np.count_nonzero((s < umb) != base))
+    assert np.isfinite(s).all()
+    assert flips == 0, f"{flips} fallas cambiaron de decision bajo escala x5"
+
+
+def test_robustez_ruido_fallas_estables():
     # las ventanas de falla quedan lejos del umbral: ruido mínimo no las decide cambiar
     bundle = cargar_bundle()
     test = cargar_muestra(PKL_TEST)

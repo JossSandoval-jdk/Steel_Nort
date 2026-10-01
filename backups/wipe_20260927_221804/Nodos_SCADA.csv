@@ -1,0 +1,5 @@
+﻿ndo_cod,ndo_nom,ndo_ubic,ndo_ip,ndo_tipo,ndo_est,ndo_uptime,reg_usu,fec_reg,eli_usu,fec_eli
+3,Servidor Negocio,,127.0.0.1,servidor,operativo,0,monitor,2026-09-11 05:52:53.779700,,
+4,REPLAY-NORMAL,,0.0.0.0,servidor,operativo,0,importacion,2026-09-24 18:16:27.197587,,
+5,REPLAY-ANOMALIA,,0.0.0.0,servidor,operativo,0,importacion,2026-09-24 18:16:27.796016,,
+6,REPLAY-MIX,,0.0.0.0,servidor,operativo,0,importacion,2026-09-24 18:16:29.236080,,

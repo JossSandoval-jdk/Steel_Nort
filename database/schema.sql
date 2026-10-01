@@ -42,11 +42,11 @@ GO
 CREATE TABLE Usuarios (
     usu_cod         INT IDENTITY(1,1) PRIMARY KEY,
     usu_nom         NVARCHAR(100)   NOT NULL,
+    usu_log         NVARCHAR(50)    NOT NULL,
     usu_ema         NVARCHAR(150)   NOT NULL UNIQUE,
     usu_pwd         NVARCHAR(256)   NOT NULL,
     usu_rol         NVARCHAR(30)    NOT NULL CHECK (usu_rol IN ('Administrador','Supervisor','Operador')),
-    usu_ini         NVARCHAR(4)     NOT NULL,
-    usu_act         BIT             NOT NULL DEFAULT 1,
+    usu_est         BIT             NOT NULL DEFAULT 1,
     reg_usu         NVARCHAR(60)    NULL,
     fec_reg         DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
     eli_usu         NVARCHAR(60)    NULL,

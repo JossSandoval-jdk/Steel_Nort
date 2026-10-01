@@ -35,11 +35,29 @@ def crear_usuario(db: Session, payload: UsuarioCreate, actor: Usuarios) -> Usuar
     return usuario
 
 
+def _es_ultimo_admin(db: Session, usuario: Usuarios) -> bool:
+    """True si cancela/degrada la ultima cuenta Administrador activa."""
+    if not (usuario.usu_act and not usuario.fec_eli and usuario.usu_rol == "Administrador"):
+        return False
+    otros = db.scalars(
+        select(Usuarios).where(
+            Usuarios.usu_rol == "Administrador",
+            Usuarios.usu_act.is_(True),
+            Usuarios.fec_eli.is_(None),
+            Usuarios.usu_cod != usuario.usu_cod,
+        )
+    )
+    return not any(otros)
+
+
 def actualizar_usuario(db: Session, usuario_id: int, payload: UsuarioUpdate, actor: Usuarios) -> Usuarios:
     usuario = db.get(Usuarios, usuario_id)
     if usuario is None or usuario.fec_eli is not None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado.")
     cambios = payload.model_dump(exclude_unset=True)
+    if (("usu_rol" in cambios and cambios["usu_rol"] != "Administrador") or cambios.get("usu_act") is False):
+        if _es_ultimo_admin(db, usuario):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No puedes degradar o desactivar al ultimo Administrador del sistema.")
     if "usu_ema" in cambios:
         existente = db.scalar(select(Usuarios).where(Usuarios.usu_ema == cambios["usu_ema"], Usuarios.usu_cod != usuario_id))
         if existente:
@@ -61,6 +79,8 @@ def eliminar_usuario(db: Session, usuario_id: int, actor: Usuarios) -> None:
     usuario = db.get(Usuarios, usuario_id)
     if usuario is None or usuario.fec_eli is not None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado.")
+    if _es_ultimo_admin(db, usuario):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No puedes eliminar al ultimo Administrador del sistema.")
     usuario.usu_act = False
     usuario.eli_usu = str(actor.usu_cod)
     usuario.fec_eli = datetime.now(timezone.utc)

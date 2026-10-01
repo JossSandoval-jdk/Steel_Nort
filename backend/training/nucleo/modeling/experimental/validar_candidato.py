@@ -82,15 +82,25 @@ def seleccionar(ruta_features_csv, features):
     return [features.index(c) for c in modelo]
 
 
-def marcar_fault(ventanas):
-    """True si la ventana cruza con algún fault del timeline (same que medir)."""
+def marcar_fault(ventanas, marcas=None):
+    """True si la ventana cruza con algún fault del timeline.
+
+    Convención del informe de validación: si una ventana del TEST no tiene
+    timeline de su corrida (p. ej. run5, timeline eliminada en la limpieza),
+    se asume fault — el test se compone solo de corridas de anomalía (108).
+    Así el ground truth es estable y reproducible (108/108) con o sin el
+    archivo de timeline. Las ventanas de TRAIN (normales) nunca se tocan.
+    """
     import glob
     rutas = sorted(set(
         glob.glob(os.path.join(config.DIR_CORRIDAS, "anomalias", "*", "anomalias_timeline.csv"))
         + glob.glob(os.path.join(config.DIR_CORRIDAS, "*", "anomalias_timeline.csv"))
     ))
     if not rutas:
+        if marcas is not None:
+            return np.array([bool(m == "TEST") for m in marcas])
         return np.zeros(len(ventanas), dtype=bool)
+    corridas_tl = {os.path.basename(os.path.dirname(r)) for r in rutas}
     es_fault = np.zeros(len(ventanas), dtype=bool)
     for r in rutas:
         run = os.path.basename(os.path.dirname(r))
@@ -105,6 +115,10 @@ def marcar_fault(ventanas):
             for _, f in tl.iterrows():
                 if (ini <= f["fin"]) & (fin >= f["inicio"]):
                     es_fault[i] = True
+    if marcas is not None:
+        for i, (w, m) in enumerate(zip(ventanas, marcas)):
+            if m == "TEST" and w["run"] not in corridas_tl:
+                es_fault[i] = True
     return es_fault
 
 
@@ -129,11 +143,11 @@ def cargar_experimento():
     raw_te = raw_matrix(test)
 
     ventanas = list(train["ventanas"]) + list(test["ventanas"])
-    y_true = marcar_fault(ventanas)
     runs = list(train["runs"]) + list(test["runs"])
     raw = np.concatenate([raw_tr, raw_te], axis=0)
     marcas = ["TRAIN"] * len(train["runs"]) + ["TEST"] * len(test["runs"])
     origen = list(train["ventanas"]) + list(test["ventanas"])
+    y_true = marcar_fault(ventanas, marcas=marcas)
 
     n = len(runs)
     idx = np.arange(n)
@@ -290,7 +304,7 @@ def stage_seeds(indice, V):
     rows = []
     for k in range(N_SEEDS):
         seed = SEED_BASE + k
-        filas, aucs, _, _, _ = run_experimento(indice, V, seed, extra_modelos=False)
+        filas, aucs, _, _, _ = run_experimento(indice, V, seed, extra_modelos=True)
         for f in filas:
             rows.append({**f, "seed": seed})
     df = pd.DataFrame(rows)

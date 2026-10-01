@@ -28,6 +28,15 @@ function IconPlus() {
   )
 }
 
+function IconEdit() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  )
+}
+
 function IconShield() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -127,6 +136,9 @@ function Configuracion() {
   const [usuarios, setUsuarios] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isRolesModalOpen, setIsRolesModalOpen] = useState(false)
+  const [usuarioEditando, setUsuarioEditando] = useState(null)
+  const [misPermisos, setMisPermisos] = useState([])
+  const [errorUsuarios, setErrorUsuarios] = useState(null)
   const [importFile, setImportFile] = useState(null)
   const [importNodo, setImportNodo] = useState('')
   const [importando, setImportando] = useState(false)
@@ -162,23 +174,43 @@ function Configuracion() {
   }
 
   const handleSaveUsuario = async (nuevoUsuario) => {
+    setErrorUsuarios(null)
     try {
-      await api.post('/usuarios', nuevoUsuario, { token: accessToken, csrf })
+      if (usuarioEditando) {
+        const cambios = { ...nuevoUsuario }
+        if (!cambios.password) delete cambios.password
+        await api.patch(`/usuarios/${usuarioEditando.usu_cod}`, cambios, { token: accessToken, csrf })
+      } else {
+        await api.post('/usuarios', nuevoUsuario, { token: accessToken, csrf })
+      }
       setIsModalOpen(false)
-      const data = await api.get('/usuarios', { token: accessToken })
-      setUsuarios(data)
+      setUsuarioEditando(null)
+      await cargarUsuarios()
     } catch (err) {
-      console.error("Error al guardar usuario:", err)
+      setErrorUsuarios(err.message || 'Error al guardar usuario.')
     }
+  }
+
+  const abrirCrearUsuario = () => {
+    setUsuarioEditando(null)
+    setErrorUsuarios(null)
+    setIsModalOpen(true)
+  }
+
+  const abrirEditarUsuario = (u) => {
+    setUsuarioEditando(u)
+    setErrorUsuarios(null)
+    setIsModalOpen(true)
   }
 
   const handleEliminarUsuario = async (u) => {
     if (!window.confirm(`¿Eliminar al usuario '${u.usu_nom}'?`)) return
+    setErrorUsuarios(null)
     try {
       await api.del(`/usuarios/${u.usu_cod}`, { token: accessToken, csrf })
       setUsuarios((prev) => prev.filter((x) => x.usu_cod !== u.usu_cod))
     } catch (err) {
-      console.error("Error al eliminar usuario:", err)
+      setErrorUsuarios(err.message || 'Error al eliminar usuario.')
     }
   }
 
@@ -197,6 +229,25 @@ function Configuracion() {
     const primerTick = setTimeout(cargarUsuarios, 0)
     return () => clearTimeout(primerTick)
   }, [accessToken, cargarUsuarios])
+
+  // Permisos efectivos del usuario logueado para ocultar botones no autorizados.
+  const cargarMisPermisos = useCallback(async () => {
+    if (!accessToken) return
+    try {
+      const data = await api.get('/usuarios/me/permisos', { token: accessToken })
+      setMisPermisos(data)
+    } catch (err) {
+      console.error("Error al cargar permisos:", err)
+    }
+  }, [accessToken])
+
+  useEffect(() => {
+    if (!accessToken) return undefined
+    const primerTick = setTimeout(cargarMisPermisos, 0)
+    return () => clearTimeout(primerTick)
+  }, [accessToken, cargarMisPermisos])
+
+  const puede = (permiso) => Array.isArray(misPermisos) && misPermisos.includes(permiso)
 
   // Estado de sincronización (cadena VPS SQL + logs del VPS).
   const cargarSinc = useCallback(async () => {
@@ -286,6 +337,7 @@ function Configuracion() {
                     <tr>
                       <th>Nombre</th>
                       <th>Rol</th>
+                      <th>Estado</th>
                       <th style={{ textAlign: 'right' }}>Acciones</th>
                     </tr>
                   </thead>
@@ -305,8 +357,24 @@ function Configuracion() {
                           <span className={`rol-pill ${u.usu_rol ? u.usu_rol.toLowerCase() : ''}`}>{u.usu_rol}</span>
                         </td>
                         <td>
+                          <span className={`conn-pill ${u.usu_act ? '' : 'off'}`}>
+                            <span className={`status-led ${u.usu_act ? 'online' : 'offline'}`} />
+                            {u.usu_act ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </td>
+                        <td>
                           <div className="row-actions">
-                            {u.usu_rol !== 'Administrador' && (
+                            {puede('usuarios:editar') && (
+                              <button
+                                type="button"
+                                className="icon-btn"
+                                title="Editar usuario"
+                                onClick={() => abrirEditarUsuario(u)}
+                              >
+                                <IconEdit />
+                              </button>
+                            )}
+                            {puede('usuarios:eliminar') && (
                               <button
                                 type="button"
                                 className="icon-btn danger"
@@ -322,24 +390,29 @@ function Configuracion() {
                     ))}
                   </tbody>
                 </table>
+                {errorUsuarios && <p className="import-error">{errorUsuarios}</p>}
 
                 <div className="card-actions">
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    <IconPlus />
-                    Crear usuario
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={() => setIsRolesModalOpen(true)}
-                  >
-                    <IconShield />
-                    Gestionar roles y permisos
-                  </button>
+                  {puede('usuarios:crear') && (
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={abrirCrearUsuario}
+                    >
+                      <IconPlus />
+                      Crear usuario
+                    </button>
+                  )}
+                  {puede('roles:leer') && (
+                    <button
+                      type="button"
+                      className="btn btn-outline"
+                      onClick={() => setIsRolesModalOpen(true)}
+                    >
+                      <IconShield />
+                      Gestionar roles y permisos
+                    </button>
+                  )}
                 </div>
               </article>
             </section>
@@ -534,6 +607,8 @@ function Configuracion() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveUsuario}
         accessToken={accessToken}
+        usuario={usuarioEditando}
+        error={errorUsuarios}
       />
       <RolesPermisosModal
         isOpen={isRolesModalOpen}
