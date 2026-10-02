@@ -427,6 +427,7 @@ CREATE TABLE dbo.eventos (
     eve_cod    bigint        IDENTITY(1,1) NOT NULL,
     eve_ins    int           NOT NULL,
     eve_prd    bigint        NULL,
+    eve_sid    int           NULL,
     eve_fec    datetime2(3)  NOT NULL,
     eve_dur    bigint        NULL,
     eve_cpu    bigint        NULL,
@@ -436,6 +437,10 @@ CREATE TABLE dbo.eventos (
     fec_reg    datetime2(3)  NOT NULL CONSTRAINT DF_eve_fec_reg DEFAULT SYSUTCDATETIME(),
     CONSTRAINT PK_eventos PRIMARY KEY CLUSTERED (eve_cod, eve_fec)
 ) ON PS_Mes (eve_fec);
+GO
+
+IF COL_LENGTH('dbo.eventos', 'eve_sid') IS NULL
+    ALTER TABLE dbo.eventos ADD eve_sid int NULL;
 GO
 
 CREATE INDEX IX_eve_ins_fec ON dbo.eventos (eve_ins, eve_fec);
@@ -716,8 +721,13 @@ BEGIN
     MERGE dbo.heatmap_anomalias WITH (HOLDLOCK) AS t
     USING agregado AS a
       ON t.hma_fec = a.d AND t.hma_hora = a.hh AND t.hma_sev = a.sev
-    WHEN MATCHED AND t.hma_cant <> a.cant
-        THEN UPDATE SET t.hma_cant = a.cant
+    -- Acumula, no reemplaza: el MERGE solo ve las filas del statement en
+    -- curso, asi que poner t.hma_cant = a.cant dejaria el contador en el
+    -- numero de alertas del ultimo INSERT, no el total de la celda. Con
+    -- deleted en el UNION, un DELETE resta y un UPDATE que no cambia
+    -- severidad ni fecha suma y resta.
+    WHEN MATCHED
+        THEN UPDATE SET t.hma_cant = t.hma_cant + a.cant
     WHEN NOT MATCHED BY TARGET
         THEN INSERT (hma_fec, hma_hora, hma_sev, hma_cant) VALUES (a.d, a.hh, a.sev, a.cant);
 END
@@ -788,12 +798,12 @@ BEGIN
         RETURN;
     END
 
-    DECLARE @tabla sysname, @col sysname, @desde datetime2(3),
+    DECLARE @nombre sysname, @col sysname, @desde datetime2(3),
             @maximo datetime2(3), @limite datetime2(3), @sql nvarchar(max);
 
     DECLARE c CURSOR LOCAL FAST_FORWARD FOR SELECT tabla, col, desde FROM @lista;
     OPEN c;
-    FETCH NEXT FROM c INTO @tabla, @col, @desde;
+    FETCH NEXT FROM c INTO @nombre, @col, @desde;
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
@@ -818,8 +828,8 @@ BEGIN
             SET @limite = DATEADD(MONTH, 1, @limite);
         END
 
-        PRINT @tabla + ': cortes partitions hasta ' + CONVERT(varchar(19), @maximo, 120);
-        FETCH NEXT FROM c INTO @tabla, @col, @desde;
+        PRINT @nombre + ': cortes partitions hasta ' + CONVERT(varchar(19), @maximo, 120);
+        FETCH NEXT FROM c INTO @nombre, @col, @desde;
     END
 
     CLOSE c;
@@ -877,21 +887,27 @@ BEGIN
     -- Cada DROP PARTITION baja ahi un monton de filas, asi que van en
     -- batches: una sola transaccion con 4 millones de filas de metricas
     -- llenaria el log entero.
+    --
+    -- Se usa sys.dm_db_partition_stats y no sys.partitions porque en SQL
+    -- Server 2025 la vista sys.partitions quedo sin partition_function_id ni
+    -- boundary_id: la particion N guarda los valores menores que el corte N,
+    -- asi que las que hay que tirar son las que su numero no supera la
+    -- cantidad de cortes anteriores a la fecha de corte.
     DECLARE @t sysname, @part int, @sql nvarchar(max);
     DECLARE part_cur CURSOR LOCAL FAST_FORWARD FOR
         SELECT DISTINCT t.name, ps.partition_number
-        FROM sys.partitions ps
-        JOIN sys.tables    t ON t.object_id = ps.object_id
-        JOIN sys.indexes   i ON i.object_id = ps.object_id AND i.index_id = ps.index_id
-        WHERE ps.partition_number > 1
+        FROM sys.dm_db_partition_stats ps
+        JOIN sys.tables  t ON t.object_id = ps.object_id
+        JOIN sys.indexes i ON i.object_id = ps.object_id AND i.index_id = ps.index_id
+        WHERE ps.index_id > 0
           AND i.name IN ('PK_metricas','PK_eventos','PK_logs_sql','PK_estadisticas_carga')
-          AND ps.rows > 0
-          AND ps.boundary_id IN (
-                SELECT rv.boundary_id
+          AND ps.row_count > 0
+          AND ps.partition_number > 1
+          AND ps.partition_number <= (
+                SELECT COUNT(*)
                 FROM sys.partition_range_values rv
                 WHERE rv.function_id = OBJECT_ID('PF_Mes')
-                  AND CONVERT(datetime2(3), rv.value) <= @mes_corte
-          )
+                  AND CONVERT(datetime2(3), rv.value) <= @mes_corte)
         ORDER BY t.name, ps.partition_number;
 
     OPEN part_cur;

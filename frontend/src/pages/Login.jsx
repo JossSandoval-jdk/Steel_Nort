@@ -1,12 +1,13 @@
 // Pagina de inicio de sesion.
 //
-// Antes: el boton solo navegaba a /inicio sin validar nada.
-// Ahora: envia las credenciales al backend (POST /auth/login),
-// maneja los errores de validacion (400/401/403) y redirige a /inicio
-// solo si la autenticacion fue exitosa.
+// En la v2 el login es por USUARIO (columna usu_log del esquema), no por
+// correo. Envia POST /api/v2/auth/login con { usuario, clave }, muestra los
+// errores que devuelve el backend (401 usuario/clave incorrectos, 403 usuario
+// inactivo) y redirige a /inicio solo si la autenticacion fue exitosa.
 //
-// Nota: los enlaces "Recordar / Crear cuenta / Recuperar" se mantienen
-// como placeholders (mock) por ahora.
+// Nota: los enlaces de recuperacion y redes sociales siguen como
+// placeholders; el "recordar contraseña" no aplica porque el token se
+// guarda en memoria y se pierde al recargar.
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import logo from '../assets/brands/logo_steelNorth.png'
@@ -17,42 +18,31 @@ import { useAuth } from '../context/AuthContext.jsx'
 import '../css/Login.css'
 
 function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [remember, setRemember] = useState(false)
+  const [usuario, setUsuario] = useState('')
+  const [clave, setClave] = useState('')
   const [error, setError] = useState('')
   const { login, loading } = useAuth()
   const navigate = useNavigate()
 
-  // Envia la peticion de login. Muestra el error en pantalla si la
-  // autenticacion falla y NO redirige.
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
 
-    const em = email.trim()
+    const us = usuario.trim()
 
-    // Validaciones del lado del cliente (formato y longitud) para
-    // evitar llamadas al backend con datos claramente invalidos.
-    if (!em) {
-      setError('Ingrese su correo electronico.')
+    // Validaciones minimas del lado del cliente para no llamar al backend
+    // con datos claramente incompletos.
+    if (!us) {
+      setError('Ingrese su usuario.')
       return
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
-      setError('Ingrese un correo electronico valido.')
-      return
-    }
-    if (!password) {
+    if (!clave) {
       setError('Ingrese su contrasena.')
-      return
-    }
-    if (password.length < 8) {
-      setError('La contrasena debe tener al menos 8 caracteres.')
       return
     }
 
     try {
-      await login({ email: em, password })
+      await login({ usuario: us, clave })
       navigate('/inicio')
     } catch (err) {
       setError(err.message || 'No se pudo iniciar sesion.')
@@ -66,37 +56,30 @@ function Login() {
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="login-field">
-            <label htmlFor="email">Correo electrónico</label>
+            <label htmlFor="usuario">Usuario</label>
             <input
-              id="email"
-              type="email"
-              placeholder="correo@ejemplo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="usuario"
+              type="text"
+              placeholder="admin"
+              autoComplete="username"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
               required
             />
           </div>
 
           <div className="login-field">
-            <label htmlFor="password">Contraseña</label>
+            <label htmlFor="clave">Contraseña</label>
             <input
-              id="password"
+              id="clave"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              value={clave}
+              onChange={(e) => setClave(e.target.value)}
               required
             />
           </div>
-
-          <label className="login-remember">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-            />
-            Recordar contraseña
-          </label>
 
           {error && <p className="login-error">{error}</p>}
 

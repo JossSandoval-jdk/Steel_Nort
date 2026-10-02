@@ -1,0 +1,17 @@
+# Ajustes de ruff para este backend (FastAPI + SQLAlchemy).
+#   ruff check .          -> revisa
+#   ruff check . --fix    -> corrige lo automatico
+#   ruff format .         -> formatea
+line-length = 120
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "I", "B", "UP", "RUF"]
+
+ignore = [
+    "B008",   # FastAPI: Depends()/Query() en los parametros de la ruta es lo normal
+    "RUF012", # SQLAlchemy: __table_args__ es un dict propio de la clase
+]
+
+[format]
+quote-style = "double"

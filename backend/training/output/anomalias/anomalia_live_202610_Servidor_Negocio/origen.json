@@ -1,0 +1,7 @@
+{
+  "origen": "telemetria_v2",
+  "es_carga_normal": false,
+  "sospecha_esperada": "Posible presión de lectura o escritura en disco o red.",
+  "regla_aplicada": "Detección estadística sostenida (consenso de ventanas)",
+  "csv_correlacionado": "training\\captures\\anomalias\\anomalias_202610.csv"
+}

@@ -44,6 +44,7 @@ from __future__ import annotations
 import logging
 import os
 from collections import deque
+from datetime import datetime
 from pathlib import Path
 from threading import Lock
 
@@ -53,6 +54,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 from app.ml.ensamble_z import EnsambleZ
+from app.utils import utc_now
 
 log = logging.getLogger("steelnort.detector")
 
@@ -75,6 +77,22 @@ UMBRAL_DEFECTO = os.getenv("TELEMETRIA_UMBRAL", "q01")  # q10 | q05 | q01
 # activa, ``es_anomalia`` refleja la alerta ESTABLE; la decision bruta por
 # ventana queda en ``es_anomalia_cruda``.
 ZONAL = os.getenv("STEELNORT_ZONAL", "1") == "1"
+
+
+def _instante(muestra: dict) -> datetime:
+    """Fecha de una muestra. El collector manda ``fecha_str`` en ISO-8601 UTC.
+
+    La ventana necesita su inicio y su fin (``prd_ini`` / ``prd_fin``, con
+    ``prd_fin > prd_ini`` segun el CHECK del esquema) y las 10 muestras se
+    guardan como filas de ``metricas``. Sin marca de tiempo no habria forma.
+    """
+    crudo = muestra.get("fecha_str")
+    if crudo:
+        try:
+            return datetime.fromisoformat(str(crudo)).replace(tzinfo=None)
+        except ValueError:
+            pass
+    return utc_now()
 
 
 def _ref_mvn(X_sel: np.ndarray, ridge: float = 1e-6) -> dict:
@@ -124,6 +142,7 @@ class Detector:
         self._umbral_nombre = umbral_nombre if umbral_nombre in ("q10", "q05", "q01") else "q01"
         self._lock = Lock()
         self._windows: dict[str, deque] = {}
+        self._muestras: dict[str, deque] = {}
         self._modelo = None
         self._modelo_copod = None
         self._modo = "ISOLATION_FOREST"
@@ -266,8 +285,13 @@ class Detector:
                 resultado["zona"] = info["zona"]
                 resultado["es_anomalia"] = info["es_anomalia"]
                 resultado["es_anomalia_cruda"] = raw
+                resultado["alerta_activa"] = info["alerta_activa"]
+                resultado["alerta_nueva"] = info["alerta_nueva"]
                 resultado["racha_critica"] = info["racha_critica"]
                 resultado["cooldown"] = info["cooldown"]
+                resultado["regla"] = info["regla"]
+                resultado["umbral_entrada"] = info["umbral_entrada"]
+                resultado["umbral_salida"] = info["umbral_salida"]
                 resultado["mvn_dist"] = info["mvn_dist"]
                 resultado["mvn_coherente"] = info["mvn_coherente"]
         return resultado
@@ -279,6 +303,24 @@ class Detector:
     @property
     def umbral_actual(self) -> float:
         return self._umbrales.get(self._umbral_nombre, 0.0)
+
+    # Lo que necesita el escritor de anomalias para dejar la fila de
+    # modelos_ml y el nivel de severidad de la alerta.
+    @property
+    def modo(self) -> str:
+        return self._modo
+
+    @property
+    def features(self) -> list[str]:
+        return list(self._features_modelo)
+
+    @property
+    def ventana(self) -> int:
+        return self._ventana
+
+    @property
+    def umbral_nombre(self) -> str:
+        return self._umbral_nombre
 
     def estado(self) -> dict:
         with self._lock:
@@ -305,19 +347,21 @@ class Detector:
     def evaluar(self, nodo: str, muestra: dict) -> dict | None:
         """Puntua una muestra para ``nodo``.
 
-        Devuelve None hasta juntar las 10 muestras de la ventana; cuando
-        la ventana esta llena devuelve el resultado de la prediccion:
-        {es_anomalia, score, umbral, features}.
+        Devuelve None hasta juntar las 10 muestras de la ventana; cuando la
+        ventana esta llena devuelve la prediccion con, ademas del score,
+        los limites de la ventana (``prd_ini`` / ``prd_fin``) y las 10
+        muestras crudas (``muestras``) para poder guardarlas.
         """
         vector = self._escalar(muestra)
         with self._lock:
-            cola = self._windows.setdefault(
-                nodo, deque(maxlen=self._ventana)
-            )
+            cola = self._windows.setdefault(nodo, deque(maxlen=self._ventana))
             cola.append(vector)
+            crudas = self._muestras.setdefault(nodo, deque(maxlen=self._ventana))
+            crudas.append((_instante(muestra), dict(muestra)))
             if len(cola) < self._ventana:
                 return None
             flat = np.asarray(list(cola), dtype="float64").reshape(1, -1)
+            ventana = list(crudas)
         # decision_function es seguro fuera del candado (solo lectura).
         score = self._score_ensamble(flat)
         umbral = self.umbral_actual
@@ -326,6 +370,9 @@ class Detector:
             "es_anomalia": es_anom,
             "score": round(score, 4),
             "umbral": round(umbral, 4),
+            "prd_ini": ventana[0][0],
+            "prd_fin": ventana[-1][0],
+            "muestras": ventana,
             "features": {name: float(muestra.get(name, 0.0) or 0.0)
                          for name in self._features_modelo},
         }

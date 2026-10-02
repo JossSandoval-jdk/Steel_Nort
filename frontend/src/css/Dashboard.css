@@ -40,6 +40,7 @@
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  flex: 1 1 0;
 }
 
 .dash-disp-sub,
@@ -78,11 +79,12 @@
 }
 
 .dash-disp-chart {
-  width: 100%;
+  width: 55%;
   max-width: 300px;
+  min-width: 140px;
   height: auto;
   display: block;
-  flex-shrink: 0;
+  flex: 0 1 55%;
 }
 
 /* ── Tasa de anomalías ──────────────────────────────────────── */
@@ -129,11 +131,12 @@
 }
 
 .dash-bar-chart {
-  width: 100%;
-  max-width: 300px;
+  width: 52%;
+  max-width: 240px;
+  min-width: 140px;
   height: auto;
   display: block;
-  flex-shrink: 0;
+  flex: 0 1 52%;
 }
 
 /* ── Estado de sesiones transaccionales ─────────────────────── */
@@ -314,5 +317,18 @@
 @media (max-width: 860px) {
   .dash-top-row {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .dash-disp-top {
+    flex-wrap: wrap;
+  }
+
+  .dash-disp-chart,
+  .dash-bar-chart {
+    width: 100%;
+    max-width: none;
+    flex-basis: 100%;
   }
 }

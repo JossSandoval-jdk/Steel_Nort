@@ -1,4 +1,19 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+// Pantalla de Configuracion.
+//
+// Solo entra quien tiene el permiso "sistema:leer" (el backend lo exige otra
+// vez en cada llamada, esto solo evita ofrecer la pantalla).
+//
+// Esta es la parte que la API v2 ya soporta:
+//   GET    /acceso/usuarios        -> alta, edicion y baja de usuarios
+//   POST   /acceso/usuarios
+//   PATCH  /acceso/usuarios/{cod}
+//   DELETE /acceso/usuarios/{cod}
+//   GET    /acceso/roles           -> para traducir rol_cod a su nombre
+//   Roles y permisos              -> ventana "RolesPermisosModal"
+//
+// Las secciones de Conexiones, Modelo de aprendizaje e Importar carga quedan
+// pendientes: la v2 todavia no tiene esos endpoints.
+import { useCallback, useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
 import ModalUsuario from '../components/ModalUsuario.jsx'
@@ -64,6 +79,7 @@ function IconEye() {
   )
 }
 
+// Una fila de "etiqueta: valor" de las listas de informacion.
 function InfoRow({ label, value }) {
   return (
     <li className="info-item">
@@ -73,236 +89,155 @@ function InfoRow({ label, value }) {
   )
 }
 
-function ImportResultado({ reporte }) {
-  if (!reporte) return null
-  const nodos = reporte.por_nodo || {}
-  return (
-    <div className="import-result">
-      <div className="import-stats">
-        <div className="import-stat">
-          <span className="import-stat-num">{reporte.total_recibidas ?? 0}</span>
-          <span className="import-stat-label">recibidas</span>
-        </div>
-        <div className="import-stat">
-          <span className="import-stat-num">{reporte.evaluadas ?? 0}</span>
-          <span className="import-stat-label">evaluadas</span>
-        </div>
-        <div className="import-stat good">
-          <span className="import-stat-num">{reporte.normales ?? 0}</span>
-          <span className="import-stat-label">normales</span>
-        </div>
-        <div className="import-stat bad">
-          <span className="import-stat-num">{reporte.anomalias ?? 0}</span>
-          <span className="import-stat-label">anomalías</span>
-        </div>
-      </div>
-      {reporte.mensaje && <p className="import-msg">{reporte.mensaje}</p>}
-      {Object.keys(nodos).length > 0 && (
-        <ul className="import-nodes">
-          {Object.entries(nodos).map(([nombre, info]) => (
-            <li key={nombre} className="import-node">
-              <span className="import-node-name">{nombre}</span>
-              <span className="import-node-detail">
-                {info.normales} normales · {info.anomalias} anomalías ·{' '}
-                {info.descartadas_primera_ventana} descartadas (1ª ventana)
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  )
-}
-
+// Pastilla con el punto verde/rojo de una conexion.
 function PillConexion({ conectado, textoOk, textoOff, textoNull }) {
-  let estado = 'offline'
-  let texto = textoOff
   if (conectado === null || conectado === undefined) {
-    estado = 'offline'
-    texto = textoNull || 'Sin verificar'
-  } else if (conectado) {
-    estado = 'online'
-    texto = textoOk
+    return (
+      <span className="conn-pill off">
+        <span className="status-led offline" />
+        {textoNull || 'Sin verificar'}
+      </span>
+    )
   }
   return (
     <span className={`conn-pill ${conectado ? '' : 'off'}`}>
-      <span className={`status-led ${estado}`} />
-      {texto}
+      <span className={`status-led ${conectado ? 'online' : 'offline'}`} />
+      {conectado ? textoOk : textoOff}
     </span>
   )
 }
 
 function Configuracion() {
+  const { user, accessToken, rol, tiene } = useAuth()
   const [usuarios, setUsuarios] = useState([])
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isRolesModalOpen, setIsRolesModalOpen] = useState(false)
+  // rol_cod -> nombre del rol, para pintar la columna "Rol".
+  const [nombreDeRol, setNombreDeRol] = useState({})
+  const [cargando, setCargando] = useState(true)
+  const [modalUsuario, setModalUsuario] = useState(false)
   const [usuarioEditando, setUsuarioEditando] = useState(null)
-  const [misPermisos, setMisPermisos] = useState([])
-  const [errorUsuarios, setErrorUsuarios] = useState(null)
-  const [importFile, setImportFile] = useState(null)
-  const [importNodo, setImportNodo] = useState('')
-  const [importando, setImportando] = useState(false)
-  const [importResult, setImportResult] = useState(null)
-  const [importError, setImportError] = useState(null)
-  const [sinc, setSinc] = useState(null)
+  const [modalRoles, setModalRoles] = useState(false)
+  const [error, setError] = useState(null)
+  // Cada vez que sube, el efecto de abajo vuelve a pedir los datos. Asi las
+  // altas, las ediciones y las bajas se ven sin repetir la llamada a mano.
+  const [version, setVersion] = useState(0)
+
+  // ---- Estado de los bloques de Conexiones y Modelo ----
+  // Las conexiones se piden a GET /sistema/conexiones, que comprueba de verdad
+  // la base de la v2 y el SQL Server del sistema que monitoreamos.
+  const [conexiones, setConexiones] = useState(null)
+  const [verificando, setVerificando] = useState(false)
   const [modelo, setModelo] = useState(null)
   const [mostrarVariables, setMostrarVariables] = useState(false)
   const [reentrenando, setReentrenando] = useState(false)
   const [retrainResult, setRetrainResult] = useState(null)
-  const { user, accessToken } = useAuth()
-  const sincTimer = useRef(null)
-  const modeloTimer = useRef(null)
 
-  const csrf = api.getCsrfToken()
+  const recargar = useCallback(() => setVersion((actual) => actual + 1), [])
 
-  const handleImportar = async () => {
-    if (!importFile) return
-    setImportando(true)
-    setImportError(null)
-    setImportResult(null)
+// Comprueba las conexiones contra el backend.
+  const cargarConexiones = useCallback(async () => {
+    if (!accessToken) return
+    setVerificando(true)
     try {
-      const formData = new FormData()
-      formData.append('archivo', importFile)
-      if (importNodo) formData.append('nodo', importNodo)
-      const data = await api.upload('/telemetria/import/csv', formData, { token: accessToken })
-      setImportResult(data)
-    } catch (err) {
-      setImportError(err.message || 'Error al importar la carga.')
+      // CORREGIDO: Apunta al endpoint correcto que creamos (/estado/conexiones)
+      setConexiones(await api.get('/estado/conexiones', { token: accessToken }))
+    } catch {
+      setConexiones(null)
     } finally {
-      setImportando(false)
-    }
-  }
-
-  const handleSaveUsuario = async (nuevoUsuario) => {
-    setErrorUsuarios(null)
-    try {
-      if (usuarioEditando) {
-        const cambios = { ...nuevoUsuario }
-        if (!cambios.password) delete cambios.password
-        await api.patch(`/usuarios/${usuarioEditando.usu_cod}`, cambios, { token: accessToken, csrf })
-      } else {
-        await api.post('/usuarios', nuevoUsuario, { token: accessToken, csrf })
-      }
-      setIsModalOpen(false)
-      setUsuarioEditando(null)
-      await cargarUsuarios()
-    } catch (err) {
-      setErrorUsuarios(err.message || 'Error al guardar usuario.')
-    }
-  }
-
-  const abrirCrearUsuario = () => {
-    setUsuarioEditando(null)
-    setErrorUsuarios(null)
-    setIsModalOpen(true)
-  }
-
-  const abrirEditarUsuario = (u) => {
-    setUsuarioEditando(u)
-    setErrorUsuarios(null)
-    setIsModalOpen(true)
-  }
-
-  const handleEliminarUsuario = async (u) => {
-    if (!window.confirm(`¿Eliminar al usuario '${u.usu_nom}'?`)) return
-    setErrorUsuarios(null)
-    try {
-      await api.del(`/usuarios/${u.usu_cod}`, { token: accessToken, csrf })
-      setUsuarios((prev) => prev.filter((x) => x.usu_cod !== u.usu_cod))
-    } catch (err) {
-      setErrorUsuarios(err.message || 'Error al eliminar usuario.')
-    }
-  }
-
-  const cargarUsuarios = useCallback(async () => {
-    if (!accessToken) return
-    try {
-      const data = await api.get('/usuarios', { token: accessToken })
-      setUsuarios(data)
-    } catch (err) {
-      console.error("Error al cargar usuarios:", err)
+      setVerificando(false)
     }
   }, [accessToken])
 
   useEffect(() => {
     if (!accessToken) return undefined
-    const primerTick = setTimeout(cargarUsuarios, 0)
-    return () => clearTimeout(primerTick)
-  }, [accessToken, cargarUsuarios])
-
-  // Permisos efectivos del usuario logueado para ocultar botones no autorizados.
-  const cargarMisPermisos = useCallback(async () => {
-    if (!accessToken) return
-    try {
-      const data = await api.get('/usuarios/me/permisos', { token: accessToken })
-      setMisPermisos(data)
-    } catch (err) {
-      console.error("Error al cargar permisos:", err)
-    }
-  }, [accessToken])
-
-  useEffect(() => {
-    if (!accessToken) return undefined
-    const primerTick = setTimeout(cargarMisPermisos, 0)
-    return () => clearTimeout(primerTick)
-  }, [accessToken, cargarMisPermisos])
-
-  const puede = (permiso) => Array.isArray(misPermisos) && misPermisos.includes(permiso)
-
-  // Estado de sincronización (cadena VPS SQL + logs del VPS).
-  const cargarSinc = useCallback(async () => {
-    if (!accessToken) return
-    try {
-      const data = await api.get('/telemetria/sincronizacion', { token: accessToken })
-      setSinc(data.sincronizacion || null)
-    } catch (err) {
-      console.error("Error al cargar sincronización:", err)
-    }
-  }, [accessToken])
-
-  useEffect(() => {
-    if (!accessToken) return undefined
-    const primerTick = setTimeout(cargarSinc, 0)
-    sincTimer.current = setInterval(cargarSinc, 15000)
+    const primero = setTimeout(cargarConexiones, 0)
+    const repetido = setInterval(cargarConexiones, 30000)
     return () => {
-      clearTimeout(primerTick)
-      if (sincTimer.current) {
-        clearInterval(sincTimer.current)
-        sincTimer.current = null
-      }
+      clearTimeout(primero)
+      clearInterval(repetido)
     }
-  }, [accessToken, cargarSinc])
+  }, [accessToken, cargarConexiones])
+
+  useEffect(() => {
+    if (!accessToken) return undefined
+    const primero = setTimeout(cargarConexiones, 0)
+    const repetido = setInterval(cargarConexiones, 30000)
+    return () => {
+      clearTimeout(primero)
+      clearInterval(repetido)
+    }
+  }, [accessToken, cargarConexiones])
+
+  // Los permisos vienen del login (AuthContext), no hace falta volver a pedirlos.
+  const puedeCrear = tiene('acceso:crear')
+  const puedeEditar = tiene('acceso:editar')
+  const puedeEliminar = tiene('acceso:eliminar')
+  const puedeVerRoles = tiene('acceso:leer')
 
   // Estado del modelo de aprendizaje.
+  // La v2 no tiene un endpoint único "estado del modelo" (la v1 usaba
+  // /reentrenamiento/estado). Se arma la misma forma que consume la pantalla
+  // combining dos fuentes reales:
+  //   /modelo/modelos?estado=A    -> el modelo activo en produccion
+  //   /modelo/reentrenamientos    -> el ultimo pedido, con sus metricas
   const cargarModelo = useCallback(async () => {
     if (!accessToken) return
     try {
-      const data = await api.get('/reentrenamiento/estado', { token: accessToken })
-      setModelo(data)
-    } catch (err) {
-      console.error("Error al cargar estado del modelo:", err)
+      const [activos, reentrenamientos] = await Promise.all([
+        api.get('/modelo/modelos?estado=A&tamano=1', { token: accessToken }),
+        api.get('/modelo/reentrenamientos?tamano=1', { token: accessToken }),
+      ])
+      const mdl = activos?.items?.[0] || null
+      const ren = reentrenamientos?.items?.[0] || null
+      setModelo({
+        hay_modelo: Boolean(mdl),
+        codigo: mdl?.mdl_cod ?? null,
+        nombre: mdl?.mdl_nom || '',
+        tipo: mdl?.mdl_tipo || '',
+        umbral: mdl?.mdl_umbral ?? null,
+        fecha_entrenamiento: mdl?.mdl_fec_entr || null,
+        // mdl_vars es una lista separada por comas en la base.
+        features: mdl?.mdl_vars ? mdl.mdl_vars.split(',').map((v) => v.trim()).filter(Boolean) : [],
+        muestras_entrenamiento: ren?.ren_n_train ?? null,
+        // FPR medida: la del reentrenamiento mas reciente, antes o despues.
+        fpr_actual: ren?.ren_fpr_desp ?? ren?.ren_fpr_antes ?? null,
+        reentrenamiento_est: ren?.ren_est || null,
+      })
+    } catch {
+      setModelo(null)
     }
   }, [accessToken])
 
   useEffect(() => {
     if (!accessToken) return undefined
-    const primerTick = setTimeout(cargarModelo, 0)
-    modeloTimer.current = setInterval(cargarModelo, 30000)
+    const primero = setTimeout(cargarModelo, 0)
+    const repetido = setInterval(cargarModelo, 30000)
     return () => {
-      clearTimeout(primerTick)
-      if (modeloTimer.current) {
-        clearInterval(modeloTimer.current)
-        modeloTimer.current = null
-      }
+      clearTimeout(primero)
+      clearInterval(repetido)
     }
   }, [accessToken, cargarModelo])
 
-  const handleReentrenar = async () => {
+  // Pide un reentrenamiento del modelo.
+  // OJO con el cambio de semantica: en la v2 esto NO entrena aqui, registra
+  // un pedido (ren_est = 'P') que el pipeline toma despues. Por eso el boton
+  // dice "Solicitar" y el mensaje confirma que quedo pendiente.
+  // ren_mdl_origen es NOT NULL (FK al modelo) y ren_disparo solo admite
+  // D/F/P/M, asi que sin modelo activo la accion no tiene sentido.
+  async function handleReentrenar() {
+    if (!modelo?.codigo) return
     setReentrenando(true)
     setRetrainResult(null)
     try {
-      const data = await api.post('/reentrenamiento?dias=7', {}, { token: accessToken })
-      setRetrainResult(data)
+      const pedido = await api.post(
+        '/modelo/reentrenamientos',
+        {
+          ren_mdl_origen: modelo.codigo,
+          ren_disparo: 'M',
+          ren_motivo: 'Solicitado desde Configuracion',
+        },
+        { token: accessToken }
+      )
+      setRetrainResult({ exito: true, mensaje: `Reentrenamiento ${pedido.ren_cod} solicitado.` })
       await cargarModelo()
     } catch (err) {
       setRetrainResult({ exito: false, mensaje: err.message })
@@ -311,25 +246,87 @@ function Configuracion() {
     }
   }
 
-  const sqlVps = sinc?.sql_vps || null
-  const logsVps = sinc?.logs_vps || null
-  const nombre = user?.usu_nom || 'Nombre Usuario'
-  const cargo = user?.usu_rol || 'Cargo'
+  // Carga usuarios y el nombre de su rol.
+  useEffect(() => {
+    let cancelado = false
+
+    async function cargar() {
+      try {
+        const [usuariosData, rolesData] = await Promise.all([
+          api.get('/acceso/usuarios', { token: accessToken }),
+          api.get('/acceso/roles', { token: accessToken }),
+        ])
+        if (cancelado) return
+        setUsuarios(usuariosData.items)
+        const nombres = {}
+        for (const item of rolesData.items) {
+          nombres[item.rol_cod] = item.rol_nom
+        }
+        setNombreDeRol(nombres)
+        setError(null)
+      } catch (err) {
+        if (!cancelado) setError(err.message || 'No se pudieron cargar los usuarios.')
+      } finally {
+        if (!cancelado) setCargando(false)
+      }
+    }
+
+    cargar()
+    return () => {
+      cancelado = true
+    }
+  }, [accessToken, version])
+
+  // Crea o edita segun haya un usuario abierto en el modal.
+  async function guardarUsuario(cuerpo) {
+    try {
+      if (usuarioEditando) {
+        await api.patch(`/acceso/usuarios/${usuarioEditando.usu_cod}`, cuerpo, { token: accessToken })
+      } else {
+        await api.post('/acceso/usuarios', cuerpo, { token: accessToken })
+      }
+      setModalUsuario(false)
+      setUsuarioEditando(null)
+      setError(null)
+      recargar()
+    } catch (err) {
+      setError(err.message || 'No se pudo guardar el usuario.')
+    }
+  }
+
+  async function darDeBajaUsuario(usuario) {
+    const aviso = `¿Dar de baja a '${usuario.usu_nom}'? Podra volver a activarse editandolo.`
+    if (!window.confirm(aviso)) return
+    try {
+      await api.del(`/acceso/usuarios/${usuario.usu_cod}`, { token: accessToken })
+      recargar()
+    } catch (err) {
+      setError(err.message || 'No se pudo dar de baja el usuario.')
+    }
+  }
+
+// CORREGIDO: Coincide exactamente con la llave "monitored" que devuelve el backend
+  const monitored = conexiones?.monitored
+  const logs = conexiones?.logs
   const fpr = modelo?.fpr_actual
-  const fprPct = fpr !== null && fpr !== undefined ? (fpr * 100) : null
+  const fprPct = fpr !== null && fpr !== undefined ? fpr * 100 : null
 
   return (
     <div className="layout">
       <Sidebar />
       <div className="layout-main">
-        <Topbar nombre={nombre} cargo={cargo} />
+        <Topbar nombre={user?.usu_nom || 'Usuario'} cargo={rol} />
+
         <main className="layout-content">
           <div className="config">
+            {/* ============ USUARIOS ============ */}
             <section className="config-col">
               <article className="card">
                 <div className="card-head">
                   <h3 className="card-title">Gestión de usuarios y roles</h3>
-                  <span className="card-subtitle">{usuarios.length} usuarios registrados</span>
+                  <span className="card-subtitle">
+                    {cargando ? 'Cargando…' : `${usuarios.length} usuarios registrados`}
+                  </span>
                 </div>
 
                 <table className="users-table">
@@ -342,44 +339,50 @@ function Configuracion() {
                     </tr>
                   </thead>
                   <tbody>
-                    {usuarios.map((u, index) => (
-                      <tr key={u.usu_cod || index}>
+                    {usuarios.map((item) => (
+                      <tr key={item.usu_cod}>
                         <td>
                           <div className="user-cell">
-                            <span className="user-avatar">{u.usu_ini || (u.usu_nom ? u.usu_nom[0] : '?')}</span>
+                            <span className="user-avatar">{item.usu_nom?.[0] || '?'}</span>
                             <span className="user-name">
-                              {u.usu_nom}
-                              <span className="user-mail">{u.usu_ema}</span>
+                              {item.usu_nom}
+                              <span className="user-mail">{item.usu_ema || item.usu_log}</span>
                             </span>
                           </div>
                         </td>
                         <td>
-                          <span className={`rol-pill ${u.usu_rol ? u.usu_rol.toLowerCase() : ''}`}>{u.usu_rol}</span>
+                          <span className="rol-pill">
+                            {nombreDeRol[item.rol_cod] || 'Sin rol'}
+                          </span>
                         </td>
                         <td>
-                          <span className={`conn-pill ${u.usu_act ? '' : 'off'}`}>
-                            <span className={`status-led ${u.usu_act ? 'online' : 'offline'}`} />
-                            {u.usu_act ? 'Activo' : 'Inactivo'}
+                          <span className={`conn-pill ${item.usu_est === 'A' ? '' : 'off'}`}>
+                            <span className={`status-led ${item.usu_est === 'A' ? 'online' : 'offline'}`} />
+                            {item.usu_est === 'A' ? 'Activo' : 'Inactivo'}
                           </span>
                         </td>
                         <td>
                           <div className="row-actions">
-                            {puede('usuarios:editar') && (
+                            {puedeEditar && (
                               <button
                                 type="button"
                                 className="icon-btn"
                                 title="Editar usuario"
-                                onClick={() => abrirEditarUsuario(u)}
+                                onClick={() => {
+                                  setUsuarioEditando(item)
+                                  setError(null)
+                                  setModalUsuario(true)
+                                }}
                               >
                                 <IconEdit />
                               </button>
                             )}
-                            {puede('usuarios:eliminar') && (
+                            {puedeEliminar && (
                               <button
                                 type="button"
                                 className="icon-btn danger"
-                                title="Eliminar usuario"
-                                onClick={() => handleEliminarUsuario(u)}
+                                title="Dar de baja el usuario"
+                                onClick={() => darDeBajaUsuario(item)}
                               >
                                 <IconTrash />
                               </button>
@@ -390,24 +393,29 @@ function Configuracion() {
                     ))}
                   </tbody>
                 </table>
-                {errorUsuarios && <p className="import-error">{errorUsuarios}</p>}
+
+                {error && <p className="import-error">{error}</p>}
 
                 <div className="card-actions">
-                  {puede('usuarios:crear') && (
+                  {puedeCrear && (
                     <button
                       type="button"
                       className="btn btn-primary"
-                      onClick={abrirCrearUsuario}
+                      onClick={() => {
+                        setUsuarioEditando(null)
+                        setError(null)
+                        setModalUsuario(true)
+                      }}
                     >
                       <IconPlus />
                       Crear usuario
                     </button>
                   )}
-                  {puede('roles:leer') && (
+                  {puedeVerRoles && (
                     <button
                       type="button"
                       className="btn btn-outline"
-                      onClick={() => setIsRolesModalOpen(true)}
+                      onClick={() => setModalRoles(true)}
                     >
                       <IconShield />
                       Gestionar roles y permisos
@@ -417,50 +425,51 @@ function Configuracion() {
               </article>
             </section>
 
+            {/* ============ MODELO DE APRENDIZAJE ============ */}
+            {/* Pide su estado a la v1 (/reentrenamiento/estado); la v2 todavia
+                no expone ese endpoint, asi que se queda en "Sin modelo". */}
             <section className="config-col">
               <article className="card">
                 <div className="card-head">
                   <div className="head-text">
-                    <h3 className="card-title">SQL Server (OLTP)</h3>
-                    <span className="card-subtitle">Conexión al servidor SQL</span>
+                    <h3 className="card-title">SQL Server (Sistema monitoreado)</h3>
+                    <span className="card-subtitle">Conexión al servidor SQL que se vigila</span>
                   </div>
                   <PillConexion
-                    conectado={sqlVps?.conectado}
+                    conectado={monitored?.conectado}
                     textoOk="Conectado"
                     textoOff="Desconectado"
-                    textoNull="Sin verificar"
+                    textoNull="Sin conexión"
                   />
                 </div>
-
-                <div className="subhead">
-                  <h4 className="subhead-title">Logs del VPS</h4>
-                  <PillConexion
-                    conectado={logsVps?.conectado}
-                    textoOk="En conexión"
-                    textoOff="Sin conexión"
-                    textoNull="Sin verificar"
-                  />
-                </div>
-
-                <ul className="info-list">
-                  <InfoRow
-                    label="Logs reportando"
-                    value={logsVps?.detalle === 'logs_ok' ? 'errorlog de SQL Server' : 'Sin logs'}
-                  />
-                  <InfoRow
-                    label="Detalle SQL"
-                    value={sqlVps?.detalle || '—'}
-                  />
-                  <InfoRow
-                    label="Detalle logs"
-                    value={logsVps?.detalle || '—'}
-                  />
-                </ul>
 
                 <div className="card-foot">
-                  <button type="button" className="btn btn-outline" onClick={cargarSinc}>
+                  <button type="button" className="btn btn-outline" onClick={cargarConexiones} disabled={verificando}>
                     <IconRefresh />
-                    Verificar ahora
+                    {verificando ? 'Verificando…' : 'Verificar ahora'}
+                  </button>
+                </div>
+              </article>
+
+              {/* ============ LOGS ============ */}
+              <article className="card">
+                <div className="card-head">
+                  <div className="head-text">
+                    <h3 className="card-title">Logs</h3>
+                    <span className="card-subtitle">Conexión a los logs del sistema monitoreado</span>
+                  </div>
+                  <PillConexion
+                    conectado={logs?.conectado}
+                    textoOk="Conectado"
+                    textoOff="Desconectado"
+                    textoNull="Sin conexión"
+                  />
+                </div>
+
+                <div className="card-foot">
+                  <button type="button" className="btn btn-outline" onClick={cargarConexiones} disabled={verificando}>
+                    <IconRefresh />
+                    {verificando ? 'Verificando…' : 'Verificar ahora'}
                   </button>
                 </div>
               </article>
@@ -494,11 +503,14 @@ function Configuracion() {
                       value={`${fprPct.toFixed(1)} %` + (fprPct > 10 ? ' (no apto)' : '')}
                     />
                   )}
-                  {modelo?.hay_modelo && modelo.muestras_entrenamiento !== undefined && (
+                  {modelo?.hay_modelo && modelo.muestras_entrenamiento != null && (
                     <InfoRow label="Muestras de entrenamiento" value={modelo.muestras_entrenamiento} />
                   )}
                   {modelo?.hay_modelo && modelo.fecha_entrenamiento && (
-                    <InfoRow label="Fecha de entrenamiento" value={String(modelo.fecha_entrenamiento).slice(0, 19)} />
+                    <InfoRow
+                      label="Fecha de entrenamiento"
+                      value={String(modelo.fecha_entrenamiento).slice(0, 19)}
+                    />
                   )}
                   <li className="info-item">
                     <span className="info-label">Variables de entrenamiento</span>
@@ -514,9 +526,9 @@ function Configuracion() {
                   {mostrarVariables && (
                     <li className="info-item">
                       <ul className="import-nodes" style={{ width: '100%' }}>
-                        {(modelo?.hay_modelo ? modelo.features : []).map((f) => (
-                          <li key={f} className="import-node">
-                            <span className="import-node-name">{f}</span>
+                        {(modelo?.hay_modelo ? modelo.features : []).map((variable) => (
+                          <li key={variable} className="import-node">
+                            <span className="import-node-name">{variable}</span>
                           </li>
                         ))}
                         {(!modelo?.hay_modelo || !modelo.features || modelo.features.length === 0) && (
@@ -531,7 +543,8 @@ function Configuracion() {
 
                 {retrainResult && (
                   <p className={`import-msg ${retrainResult.exito ? 'good' : 'import-error'}`}>
-                    {retrainResult.mensaje || (retrainResult.exito ? 'Reentrenamiento completado.' : 'El reentrenamiento falló.')}
+                    {retrainResult.mensaje ||
+                      (retrainResult.exito ? 'Reentrenamiento completado.' : 'El reentrenamiento falló.')}
                   </p>
                 )}
 
@@ -539,81 +552,37 @@ function Configuracion() {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    disabled={reentrenando}
+                    disabled={reentrenando || !modelo?.codigo}
                     onClick={handleReentrenar}
+                    title={
+                      modelo?.codigo
+                        ? 'Registrar un pedido de reentrenamiento'
+                        : 'No hay modelo activo del que partir'
+                    }
                   >
                     <IconRefresh />
-                    {reentrenando ? 'Reentrenando…' : 'Reentrenar modelo'}
+                    {reentrenando ? 'Solicitando…' : 'Solicitar reentrenamiento'}
                   </button>
-                </div>
-              </article>
-
-              <article className="card">
-                <div className="card-head">
-                  <div className="head-text">
-                    <h3 className="card-title">Importar carga de trabajo</h3>
-                    <span className="card-subtitle">
-                      El detector separa normal vs anomalía; las normales alimentan el reentrenamiento
-                    </span>
-                  </div>
-                </div>
-
-                <div className="import-form">
-                  <label className="import-file pick">
-                    <input
-                      type="file"
-                      accept=".csv,text/csv"
-                      onChange={(e) => setImportFile(e.target.files[0] || null)}
-                    />
-                    <span className="import-file-name">
-                      {importFile ? importFile.name : 'Elegir archivo CSV…'}
-                    </span>
-                  </label>
-
-                  <div className="input-group">
-                    <input
-                      className="text-input grow"
-                      placeholder="Nodo (opcional si el CSV tiene columna nodo)"
-                      aria-label="Nodo destino de la carga"
-                      value={importNodo}
-                      onChange={(e) => setImportNodo(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      disabled={!importFile || importando}
-                      onClick={handleImportar}
-                    >
-                      <IconPlus />
-                      {importando ? 'Importando…' : 'Importar y separar'}
-                    </button>
-                  </div>
-
-                  <p className="import-hint">
-                    CSV con columnas de las variables del modelo. Columnas opcionales:{' '}
-                    <code>nodo</code>, <code>fec</code> (timestamp original).
-                  </p>
-
-                  {importError && <p className="import-error">{importError}</p>}
-                  <ImportResultado reporte={importResult} />
                 </div>
               </article>
             </section>
           </div>
         </main>
       </div>
+
       <ModalUsuario
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveUsuario}
+        isOpen={modalUsuario}
+        onClose={() => {
+          setModalUsuario(false)
+          setUsuarioEditando(null)
+        }}
+        onSave={guardarUsuario}
         accessToken={accessToken}
         usuario={usuarioEditando}
-        error={errorUsuarios}
+        error={error}
       />
-      <RolesPermisosModal
-        isOpen={isRolesModalOpen}
-        onClose={() => setIsRolesModalOpen(false)}
-      />
+
+      <RolesPermisosModal isOpen={modalRoles} onClose={() => setModalRoles(false)} />
     </div>
   )
 }

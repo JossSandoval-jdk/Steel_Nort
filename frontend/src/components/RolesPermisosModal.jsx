@@ -1,4 +1,22 @@
-import { useState, useEffect } from 'react'
+// Modal de Roles y Permisos (se abre desde la pantalla de Configuracion).
+//
+// Trabaja contra la API v2:
+//   GET    /acceso/roles            -> roles           {total, pagina, tamano, items}
+//   POST   /acceso/roles            -> crear rol       {rol_nom}
+//   DELETE /acceso/roles/{cod}      -> dar de baja un rol
+//   GET    /acceso/permisos         -> permisos        {items: [{per_cod, per_mod, per_acc}]}
+//   GET    /acceso/roles-permisos   -> asignaciones    {items: [{rp_cod, rol_cod, per_cod}]}
+//   POST   /acceso/roles-permisos   -> asignar         {rol_cod, per_cod}
+//   DELETE /acceso/roles-permisos/{rp_cod} -> quitar
+//
+// En la v2 el permiso se pone o se quita de uno en uno: no hay endpoint que
+// reemplace la lista entera del rol, asi que cada casilla hace un POST o un
+// DELETE. La v2 tampoco tiene descripcion de rol ni edicion de rol, por eso
+// aqui solo se crean y se dan de baja.
+//
+// Ojo: el backend vuelve a sembrar la matriz de permisos al arrancar, asi que
+// lo que se asigne aqui se reescribe en el siguiente reinicio del servidor.
+import { useEffect, useState } from 'react'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import '../css/RolesPermisos.css'
@@ -24,15 +42,6 @@ function IconTrash() {
   )
 }
 
-function IconEdit() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-    </svg>
-  )
-}
-
 function IconShield() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -50,186 +59,172 @@ function IconClose() {
   )
 }
 
-// Agrupa los permisos por módulo para mostrarlos ordenados.
+// Agrupa los permisos por modulo para pintarlos en bloques.
 function agruparPorModulo(permisos) {
   const grupos = {}
-  permisos.forEach((p) => {
-    if (!grupos[p.prm_mod]) grupos[p.prm_mod] = []
-    grupos[p.prm_mod].push(p)
-  })
+  for (const permiso of permisos) {
+    if (!grupos[permiso.per_mod]) grupos[permiso.per_mod] = []
+    grupos[permiso.per_mod].push(permiso)
+  }
   return grupos
 }
 
+// Nombre legible del permiso: "sistema" + "editar" -> "sistema:editar".
+function nombrePermiso(permiso) {
+  return `${permiso.per_mod}:${permiso.per_acc}`
+}
+
 function RolesPermisosModal({ isOpen, onClose }) {
-  const { accessToken } = useAuth()
+  const { accessToken, tiene } = useAuth()
   const [roles, setRoles] = useState([])
   const [permisos, setPermisos] = useState([])
-  const [permisosPorRol, setPermisosPorRol] = useState({}) // rol_id -> Set(prm_cod)
-  const [selectedRolId, setSelectedRolId] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  // rol_cod -> Set de per_cod asignados a ese rol.
+  const [asignados, setAsignados] = useState({})
+  // rp_cod -> per_cod, para poder quitar la asignacion concreta.
+  const [idsAsignacion, setIdsAsignacion] = useState({})
+  const [rolElegido, setRolElegido] = useState(null)
+  const [creandoRol, setCreandoRol] = useState(false)
+  const [nombreRol, setNombreRol] = useState('')
   const [mensaje, setMensaje] = useState(null)
   const [error, setError] = useState(null)
-  const [rolEditandoNombre, setRolEditandoNombre] = useState(null)
-  const [misPermisos, setMisPermisos] = useState([])
 
-  const puede = (permiso) => Array.isArray(misPermisos) && misPermisos.includes(permiso)
+  // Solo quien puede editar la parte de acceso toca estos botones.
+  const puedeEditar = tiene('acceso:editar')
+  const puedeCrear = tiene('acceso:crear')
+  const puedeEliminar = tiene('acceso:eliminar')
 
-  const csrf = api.getCsrfToken()
-
-  const notificar = (msg) => {
-    setMensaje(msg)
+  function avisar(texto) {
+    setMensaje(texto)
     setError(null)
     setTimeout(() => setMensaje(null), 3000)
   }
 
-  const notificarError = (msg) => {
-    setError(msg)
+  function avisarError(texto) {
+    setError(texto)
     setMensaje(null)
     setTimeout(() => setError(null), 4000)
   }
 
-  // ============ CARGA INICIAL DE DATOS ============
+  // Al abrir el modal se cargan roles, permisos y todas las asignaciones.
   useEffect(() => {
     if (!isOpen || !accessToken) return
-    let mounted = true
+    let sigueMontado = true
 
-    async function load() {
+    async function cargar() {
       try {
-        const [rolesData, permisosData, propios] = await Promise.all([
-          api.get('/roles', { token: accessToken }),
-          api.get('/roles/permisos', { token: accessToken }),
-          api.get('/usuarios/me/permisos', { token: accessToken }),
+        const [rolesData, permisosData, asignacionesData] = await Promise.all([
+          api.get('/acceso/roles', { token: accessToken }),
+          api.get('/acceso/permisos', { token: accessToken }),
+          api.get('/acceso/roles-permisos', { token: accessToken }),
         ])
-        if (!mounted) return
-        setRoles(rolesData)
-        setPermisos(permisosData)
-        setMisPermisos(propios)
-        if (rolesData.length > 0) {
-          setSelectedRolId(rolesData[0].rol_cod)
-          const permisosRol = await api.get(`/roles/${rolesData[0].rol_cod}/permisos`, {
-            token: accessToken,
-          })
-          if (!mounted) return
-          setPermisosPorRol({
-            [rolesData[0].rol_cod]: new Set(permisosRol.map((p) => p.prm_cod)),
-          })
+        if (!sigueMontado) return
+
+        const rolesActivos = rolesData.items.filter((r) => r.rol_est === 'A')
+        setRoles(rolesActivos)
+        setPermisos(permisosData.items)
+
+        // Las asignaciones vienen todas juntas: se reparten en dos mapas,
+        // rol_cod -> Set de per_cod, y rp_cod -> per_cod.
+        const porRol = {}
+        const idDe = {}
+        for (const asignacion of asignacionesData.items) {
+          if (asignacion.rp_est !== 'A') continue
+          if (!porRol[asignacion.rol_cod]) porRol[asignacion.rol_cod] = new Set()
+          porRol[asignacion.rol_cod].add(asignacion.per_cod)
+          idDe[`${asignacion.rol_cod}:${asignacion.per_cod}`] = asignacion.rp_cod
         }
+        setAsignados(porRol)
+        setIdsAsignacion(idDe)
+        setRolElegido(rolesActivos[0]?.rol_cod ?? null)
       } catch (err) {
-        if (mounted) notificarError(`Error al cargar datos: ${err.message}`)
+        if (sigueMontado) avisarError(`Error al cargar datos: ${err.message}`)
       }
     }
 
-    load()
+    cargar()
     return () => {
-      mounted = false
+      sigueMontado = false
     }
   }, [isOpen, accessToken])
 
-  // Recarga la lista de roles (usado tras crear/editar/eliminar).
-  const recargarRoles = async () => {
+  async function crearRol(evento) {
+    evento.preventDefault()
+    const nombre = nombreRol.trim()
+    if (!nombre) return
+
     try {
-      const data = await api.get('/roles', { token: accessToken })
-      setRoles(data)
-      return data
+      await api.post('/acceso/roles', { rol_nom: nombre }, { token: accessToken })
+      const datos = await api.get('/acceso/roles', { token: accessToken })
+      const activos = datos.items.filter((r) => r.rol_est === 'A')
+      setRoles(activos)
+      setCreandoRol(false)
+      setNombreRol('')
+      setRolElegido(activos.find((r) => r.rol_nom === nombre)?.rol_cod ?? null)
+      avisar(`Rol '${nombre}' creado.`)
     } catch (err) {
-      notificarError(`Error al cargar roles: ${err.message}`)
-      return []
+      avisarError(`No se pudo crear el rol: ${err.message}`)
     }
   }
 
-  // Carga y muestra los permisos de un rol (al seleccionarlo).
-  const seleccionarRol = (rolId) => {
-    setSelectedRolId(rolId)
-    api
-      .get(`/roles/${rolId}/permisos`, { token: accessToken })
-      .then((data) => {
-        setPermisosPorRol((prev) => ({
-          ...prev,
-          [rolId]: new Set(data.map((p) => p.prm_cod)),
-        }))
-      })
-      .catch((err) => notificarError(`Error al cargar permisos del rol: ${err.message}`))
-  }
-
-  const rolSeleccionado = roles.find((r) => r.rol_cod === selectedRolId) || null
-
-  const handleCrearRol = async (nombre, descripcion) => {
+  async function darDeBajaRol(rol) {
+    if (!window.confirm(`¿Dar de baja el rol '${rol.rol_nom}'?`)) return
     try {
-      await api.post('/roles', { rol_nom: nombre, rol_desc: descripcion }, { token: accessToken, csrf })
-      setIsModalOpen(false)
-      notificar(`Rol '${nombre}' creado correctamente.`)
-      const data = await recargarRoles()
-      if (data.length > 0) seleccionarRol(data[data.length - 1].rol_cod)
+      await api.del(`/acceso/roles/${rol.rol_cod}`, { token: accessToken })
+      const datos = await api.get('/acceso/roles', { token: accessToken })
+      const activos = datos.items.filter((r) => r.rol_est === 'A')
+      setRoles(activos)
+      if (rolElegido === rol.rol_cod) setRolElegido(activos[0]?.rol_cod ?? null)
+      avisar(`Rol '${rol.rol_nom}' dado de baja.`)
     } catch (err) {
-      notificarError(`No se pudo crear el rol: ${err.message}`)
+      avisarError(`No se pudo dar de baja el rol: ${err.message}`)
     }
   }
 
-  const handleEditRol = async (rolId, cambios) => {
-    try {
-      await api.patch(`/roles/${rolId}`, cambios, { token: accessToken, csrf })
-      notificar('Rol actualizado.')
-      await recargarRoles()
-    } catch (err) {
-      notificarError(`No se pudo actualizar el rol: ${err.message}`)
-    }
-  }
+  // Marca o desmarca un permiso del rol elegido y lo guarda en el backend.
+  async function alternarPermiso(per_cod, marcado) {
+    const clave = `${rolElegido}:${per_cod}`
 
-  const handleEliminarRol = async (rol) => {
-    if (!window.confirm(`¿Eliminar el rol '${rol.rol_nom}'?`)) return
-    try {
-      await api.del(`/roles/${rol.rol_cod}`, { token: accessToken, csrf })
-      notificar(`Rol '${rol.rol_nom}' eliminado.`)
-      const data = await recargarRoles()
-      if (selectedRolId === rol.rol_cod) {
-        setSelectedRolId(data.length > 0 ? data[0].rol_cod : null)
-      }
-    } catch (err) {
-      notificarError(`No se pudo eliminar el rol: ${err.message}`)
-    }
-  }
-
-  const handleTogglePermiso = async (rolId, prmId, checked) => {
-    // Calcular la nueva lista ANTES de actualizar el estado.
-    const actuales = permisosPorRol[rolId] ? [...permisosPorRol[rolId]] : []
-    let ids
-    if (checked) {
-      ids = actuales.includes(prmId) ? actuales : [...actuales, prmId]
-    } else {
-      ids = actuales.filter((id) => id !== prmId)
-    }
-
-    // Actualizar la UI inmediatamente.
-    setPermisosPorRol((prev) => {
-      const set = new Set(prev[rolId] || [])
-      if (checked) set.add(prmId)
-      else set.delete(prmId)
-      return { ...prev, [rolId]: set }
+    // Primero se refleja en pantalla; si el backend rechaza, se revierte.
+    setAsignados((anterior) => {
+      const copia = new Set(anterior[rolElegido] || [])
+      if (marcado) copia.add(per_cod)
+      else copia.delete(per_cod)
+      return { ...anterior, [rolElegido]: copia }
     })
 
     try {
-      await api.post(
-        `/roles/${rolId}/permisos`,
-        { prm_ids: ids },
-        { token: accessToken, csrf }
-      )
+      if (marcado) {
+        await api.post('/acceso/roles-permisos', { rol_cod: rolElegido, per_cod }, { token: accessToken })
+        avisar('Permiso asignado.')
+      } else {
+        const id = idsAsignacion[clave]
+        await api.del(`/acceso/roles-permisos/${id}`, { token: accessToken })
+        avisar('Permiso quitado.')
+      }
+      // Se recargan las asignaciones para tener los ids al dia.
+      const datos = await api.get('/acceso/roles-permisos', { token: accessToken })
+      const porRol = {}
+      const idDe = {}
+      for (const asignacion of datos.items) {
+        if (asignacion.rp_est !== 'A') continue
+        if (!porRol[asignacion.rol_cod]) porRol[asignacion.rol_cod] = new Set()
+        porRol[asignacion.rol_cod].add(asignacion.per_cod)
+        idDe[`${asignacion.rol_cod}:${asignacion.per_cod}`] = asignacion.rp_cod
+      }
+      setAsignados(porRol)
+      setIdsAsignacion(idDe)
     } catch (err) {
-      notificarError(`No se pudo actualizar el permiso: ${err.message}`)
-      // Revertir recargando los permisos del rol.
-      api
-        .get(`/roles/${rolId}/permisos`, { token: accessToken })
-        .then((data) => {
-          setPermisosPorRol((prev) => ({
-            ...prev,
-            [rolId]: new Set(data.map((p) => p.prm_cod)),
-          }))
-        })
-        .catch(() => {})
+      avisarError(`No se pudo guardar el permiso: ${err.message}`)
+      const copia = new Set(asignados[rolElegido] || [])
+      if (marcado) copia.delete(per_cod)
+      else copia.add(per_cod)
+      setAsignados((anterior) => ({ ...anterior, [rolElegido]: copia }))
     }
   }
 
-  const gruposPermisos = agruparPorModulo(permisos)
-  const modulos = Object.keys(gruposPermisos)
+  const grupos = agruparPorModulo(permisos)
+  const modulos = Object.keys(grupos)
+  const permisosDelRol = asignados[rolElegido] || new Set()
 
   if (!isOpen) return null
 
@@ -239,7 +234,7 @@ function RolesPermisosModal({ isOpen, onClose }) {
         <div className="roles-modal-head">
           <div>
             <h2 className="roles-modal-title">Roles y permisos</h2>
-            <p className="roles-modal-sub">Crea, edita y asigna permisos a cada rol</p>
+            <p className="roles-modal-sub">Crea roles y decide qué puede hacer cada uno</p>
           </div>
           <button type="button" className="icon-btn" title="Cerrar" onClick={onClose}>
             <IconClose />
@@ -255,164 +250,80 @@ function RolesPermisosModal({ isOpen, onClose }) {
             <article className="card">
               <div className="card-head">
                 <h3 className="card-title">Roles</h3>
-                <span className="card-subtitle">{roles.length} roles registrados</span>
+                <span className="card-subtitle">{roles.length} roles activos</span>
               </div>
 
               <table className="roles-table">
                 <thead>
                   <tr>
                     <th>Rol</th>
-                    <th>Descripción</th>
                     <th style={{ textAlign: 'center' }}>Permisos</th>
                     <th style={{ textAlign: 'right' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {roles.map((rol) => {
-                    const cantPermisos = (permisosPorRol[rol.rol_cod] || new Set()).size
-                    return (
-                      <tr
-                        key={rol.rol_cod}
-                        className={rol.rol_cod === selectedRolId ? 'selected' : ''}
-                        onClick={() => seleccionarRol(rol.rol_cod)}
-                      >
-                        <td>
-                          <span className={`rol-pill ${rol.rol_nom.toLowerCase()}`}>{rol.rol_nom}</span>
-                        </td>
-                        <td className="rol-desc">{rol.rol_desc || '—'}</td>
-                        <td style={{ textAlign: 'center' }}>
-                          <span className="perm-count">{cantPermisos}</span>
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <div className="row-actions" onClick={(e) => e.stopPropagation()}>
-                            {puede('roles:editar') && (
-                              <button
-                                type="button"
-                                className="icon-btn"
-                                title="Editar rol"
-                                onClick={() => {
-                                  setRolEditandoNombre(rol)
-                                }}
-                              >
-                                <IconEdit />
-                              </button>
-                            )}
-                            {puede('roles:eliminar') && (
-                              <button
-                                type="button"
-                                className="icon-btn danger"
-                                title="Eliminar rol"
-                                onClick={() => handleEliminarRol(rol)}
-                              >
-                                <IconTrash />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
+                  {roles.map((rol) => (
+                    <tr
+                      key={rol.rol_cod}
+                      className={rol.rol_cod === rolElegido ? 'selected' : ''}
+                      onClick={() => setRolElegido(rol.rol_cod)}
+                    >
+                      <td>
+                        <span className={`rol-pill ${rol.rol_nom.toLowerCase()}`}>{rol.rol_nom}</span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className="perm-count">{(asignados[rol.rol_cod] || new Set()).size}</span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div className="row-actions" onClick={(e) => e.stopPropagation()}>
+                          {puedeEliminar && (
+                            <button
+                              type="button"
+                              className="icon-btn danger"
+                              title="Dar de baja el rol"
+                              onClick={() => darDeBajaRol(rol)}
+                            >
+                              <IconTrash />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
 
               <div className="card-actions">
-                {puede('roles:crear') && (
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => {
-                      setIsModalOpen(true)
-                    }}
-                  >
+                {puedeCrear && !creandoRol && (
+                  <button type="button" className="btn btn-primary" onClick={() => setCreandoRol(true)}>
                     <IconPlus />
                     Nuevo rol
                   </button>
                 )}
-              </div>
-            </article>
-
-            {/* ============ DETALLE DEL ROL ============ */}
-            <article className="card">
-              <div className="card-head">
-                <div className="head-text">
-                  <h3 className="card-title">Detalle del rol</h3>
-                  <span className="card-subtitle">
-                    {rolSeleccionado ? `Permisos de '${rolSeleccionado.rol_nom}'` : 'Selecciona un rol'}
-                  </span>
-                </div>
-              </div>
-
-              {rolSeleccionado && (
-                <div className="rp-detail">
-                  {rolEditandoNombre?.rol_cod === rolSeleccionado.rol_cod ? (
-                    <form
-                      className="rp-edit-form"
-                      onSubmit={(e) => {
-                        e.preventDefault()
-                        const fd = new FormData(e.target)
-                        const cambios = {}
-                        const nombre = fd.get('rol_nom').toString().trim()
-                        const desc = fd.get('rol_desc').toString().trim()
-                        if (nombre && nombre !== rolSeleccionado.rol_nom) cambios.rol_nom = nombre
-                        if (desc !== (rolSeleccionado.rol_desc || '')) cambios.rol_desc = desc
-                        setRolEditandoNombre(null)
-                        if (Object.keys(cambios).length > 0) {
-                          handleEditRol(rolSeleccionado.rol_cod, cambios)
-                        }
+                {puedeCrear && creandoRol && (
+                  <form className="rp-edit-form" onSubmit={crearRol}>
+                    <input
+                      className="form-input"
+                      value={nombreRol}
+                      onChange={(e) => setNombreRol(e.target.value)}
+                      placeholder="Nombre del rol"
+                      maxLength={50}
+                      autoFocus
+                    />
+                    <button type="submit" className="btn btn-primary">Guardar</button>
+                    <button
+                      type="button"
+                      className="btn btn-outline"
+                      onClick={() => {
+                        setCreandoRol(false)
+                        setNombreRol('')
                       }}
                     >
-                      <div className="form-group">
-                        <label className="form-label">Nombre</label>
-                        <input
-                          className="form-input"
-                          name="rol_nom"
-                          defaultValue={rolSeleccionado.rol_nom}
-                          maxLength={30}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Descripción</label>
-                        <input
-                          className="form-input"
-                          name="rol_desc"
-                          defaultValue={rolSeleccionado.rol_desc || ''}
-                          maxLength={200}
-                        />
-                      </div>
-                      <div className="modal-actions">
-                        <button type="button" className="btn btn-outline" onClick={() => setRolEditandoNombre(null)}>
-                          Cancelar
-                        </button>
-                        <button type="submit" className="btn btn-primary">
-                          Guardar
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <ul className="info-list">
-                      <li className="info-item">
-                        <span className="info-label">Descripción</span>
-                        <span className="info-value">{rolSeleccionado.rol_desc || '—'}</span>
-                      </li>
-                      <li className="info-item">
-                        <span className="info-label">Permisos asignados</span>
-                        <span className="info-value">
-                          {(permisosPorRol[rolSeleccionado.rol_cod] || new Set()).size} de {permisos.length}
-                        </span>
-                      </li>
-                      <li className="info-item">
-                        <span className="info-label">Estado</span>
-                        <span className="info-value">
-                          <span className={`conn-pill ${rolSeleccionado.rol_act ? '' : 'off'}`}>
-                            <span className={`status-led ${rolSeleccionado.rol_act ? 'online' : 'offline'}`} />
-                            {rolSeleccionado.rol_act ? 'Activo' : 'Inactivo'}
-                          </span>
-                        </span>
-                      </li>
-                    </ul>
-                  )}
-                </div>
-              )}
+                      Cancelar
+                    </button>
+                  </form>
+                )}
+              </div>
             </article>
           </section>
 
@@ -421,42 +332,36 @@ function RolesPermisosModal({ isOpen, onClose }) {
             <article className="card">
               <div className="card-head">
                 <div className="head-text">
-                  <h3 className="card-title">Matriz de permisos</h3>
-                  <span className="card-subtitle">Haz clic en un permiso para asignarlo o quitarlo del rol seleccionado</span>
+                  <h3 className="card-title">Permisos</h3>
+                  <span className="card-subtitle">
+                    {rolElegido
+                      ? `Marca lo que puede hacer el rol '${roles.find((r) => r.rol_cod === rolElegido)?.rol_nom}'`
+                      : 'Selecciona un rol'}
+                  </span>
                 </div>
                 <IconShield />
               </div>
 
-              {rolSeleccionado ? (
+              {rolElegido ? (
                 <div className="perm-matrix">
                   {modulos.map((modulo) => (
                     <div key={modulo} className="perm-group">
                       <div className="perm-group-head">
                         <h4 className="perm-modulo">{modulo}</h4>
-                        <span className="card-subtitle">{gruposPermisos[modulo].length} permisos</span>
+                        <span className="card-subtitle">{grupos[modulo].length} permisos</span>
                       </div>
                       <ul className="perm-list">
-                        {gruposPermisos[modulo].map((permiso) => (
-                          <li key={permiso.prm_cod}>
+                        {grupos[modulo].map((permiso) => (
+                          <li key={permiso.per_cod}>
                             <label className="perm-item">
                               <input
                                 type="checkbox"
                                 className="perm-checkbox"
-                                checked={(permisosPorRol[rolSeleccionado.rol_cod] || new Set()).has(permiso.prm_cod)}
-                                disabled={!puede('roles:editar')}
-                                title={puede('roles:editar') ? 'Asignar / quitar permiso' : 'Requiere permiso roles:editar'}
-                                onChange={(e) =>
-                                  handleTogglePermiso(
-                                    rolSeleccionado.rol_cod,
-                                    permiso.prm_cod,
-                                    e.target.checked
-                                  )
-                                }
+                                checked={permisosDelRol.has(permiso.per_cod)}
+                                disabled={!puedeEditar}
+                                onChange={(e) => alternarPermiso(permiso.per_cod, e.target.checked)}
                               />
-                              <span>
-                                <span className="perm-clave">{permiso.prm_clave}</span>
-                                <span className="perm-nom">{permiso.prm_nom}</span>
-                              </span>
+                              <span className="perm-nom">{nombrePermiso(permiso)}</span>
                             </label>
                           </li>
                         ))}
@@ -470,41 +375,6 @@ function RolesPermisosModal({ isOpen, onClose }) {
             </article>
           </section>
         </div>
-
-        {/* ============ MODAL NUEVO ROL ============ */}
-        {isModalOpen && (
-          <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-head">
-                <h3 className="modal-title">Nuevo rol</h3>
-              </div>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  const fd = new FormData(e.target)
-                  handleCrearRol(fd.get('rol_nom').trim(), fd.get('rol_desc').trim())
-                }}
-              >
-                <div className="form-group">
-                  <label className="form-label">Nombre</label>
-                  <input name="rol_nom" className="form-input" required maxLength={30} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Descripción</label>
-                  <input name="rol_desc" className="form-input" maxLength={200} />
-                </div>
-                <div className="modal-actions">
-                  <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>
-                    Cancelar
-                  </button>
-                  <button type="submit" className="btn btn-primary">
-                    Guardar
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

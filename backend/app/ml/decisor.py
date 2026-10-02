@@ -80,11 +80,21 @@ class DecisorZonal:
         n_limpiar: int | None = None,
         m_limpiar: int | None = None,
         cooldown: int | None = None,
+        n_max_critica: int | None = None,
     ) -> None:
         self._q10 = q10
         self._q05 = q05
         self._q01 = q01
-        # histeresis: entrar en CRITICA exige cruzar q01; salir exige q10
+        # Histeresis: entrar en CRITICA exige cruzar q01; salir exige q10.
+        #
+        # PERO q10 solo sirve como salida si el score puede alcanzarlo. Con
+        # datos de negocio reales el ENSEMBLE_Z rondaba -2.6 con q10 en -1.37,
+        # asi que NUNCA se llegaba a q10 y el automata quedaba enclavado en
+        # CRITICA para siempre: cada ventana emitia una alerta nueva (23, 36,
+        # 42...). Para que la histeresis no se vuelva un compartimento
+        # estanco, la salida usa un umbral propio mas bajo que q10, derivado
+        # de la banda de entrada, y solo cuando el score se aleja claramente
+        # de q01. Ver _salir_efectivo().
         self._entrar = q01
         self._salir = q10
 
@@ -94,6 +104,20 @@ class DecisorZonal:
         self._m_limpiar = m_limpiar if m_limpiar is not None else _env_int("STEELNORT_ZONA_M_LIMPIAR", 3)
         self._cooldown = cooldown if cooldown is not None else _env_int("STEELNORT_ZONA_COOLDOWN", 2)
 
+        # Salida efectiva de CRITICA. q10 es el extremo superior del
+        # entrenamiento y con datos reales puede quedar fuera de alcance;
+        # en ese caso se usa un umbral intermedio para que el automata
+        # pueda volver a NORMAL. Se puede fijar con STEELNORT_ZONA_SALIR.
+        salida_env = os.getenv("STEELNORT_ZONA_SALIR")
+        if salida_env:
+            self._salir_ef = float(salida_env)
+        elif q10 > q01 and (q10 - q01) > 1e-9:
+            # Punto medio de la banda [q01, q10]: sale quien se aleja de la
+            # banda critica, pero sin exigir el extremo del train.
+            self._salir_ef = q01 + 0.5 * (q10 - q01)
+        else:
+            self._salir_ef = q10
+
         self._mvn = mvn or {}
 
         self._zona: str = NORMAL
@@ -102,6 +126,17 @@ class DecisorZonal:
         self._racha_critica = 0
         self._hist_alertar: deque[bool] = deque(maxlen=self._m_alertar)
         self._hist_limpiar: deque[bool] = deque(maxlen=self._m_limpiar)
+
+        # Escape valve. Los umbrales salen del dataset de entrenamiento, pero
+        # en operacion el score ENSEMBLE_Z caia shifted: rondaba -2.6 cuando
+        # q10 era -1.37, asi que el score jamas alcanzaba la salida de CRITICA
+        # y el automata emitia una alerta por ventana para siempre (23, 36,
+        # 42...). Si se superan estas ventanas seguidas en CRITICA se fuerza
+        # la salida, para que un desajuste train/servicio no se convierta en
+        # una alerta infinita. 0 desactiva el valve.
+        self._max_critica = n_max_critica if n_max_critica is not None else _env_int(
+            "STEELNORT_ZONA_MAX_CRITICA", 12
+        )
 
     # ------------------------------------------------------------------
     # Coherencia MVN
@@ -138,10 +173,9 @@ class DecisorZonal:
         """Zona por score con histeresis de salida de CRITICA.
 
         Estando en CRITICA, solo se baja a WARNING/NORMAL cuando el score
-        vuelve por encima de ``q10`` (si no, sigue CRITICA aunque pase por
-        encima de q01).
+        vuelve por encima de ``_salir_ef`` (umbral de salida efectivo).
         """
-        if self._zona == CRITICA and score < self._salir:
+        if self._zona == CRITICA and score < self._salir_ef:
             return CRITICA
         if score < self._entrar:
             return CRITICA
@@ -156,13 +190,27 @@ class DecisorZonal:
         vector aplanado V*F estandarizado (opcional, solo para MVN).
         """
         zona_previa = self._zona
+        alerta_previa = self._alerta
 
         helado = self._cooldown_restante > 0
+        valve = False
         if helado:
             self._cooldown_restante -= 1
             nueva = zona_previa  # congelada durante el debounce
         else:
             nueva = self._zona_raw(score)
+            # Escape valve: demasiadas ventanas seguidas en CRITICA indicarian
+            # que el score de operacion esta desplazado respecto al
+            # entrenamiento, no que el nodo este realmente caido. Se fuerza
+            # la salida para que no se dispare una alerta por ventana.
+            if (
+                self._max_critica
+                and zona_previa == CRITICA
+                and nueva == CRITICA
+                and self._racha_critica >= self._max_critica
+            ):
+                nueva = WARNING_ESCALA
+                valve = True
             if nueva != zona_previa:
                 self._cooldown_restante = self._cooldown
 
@@ -180,13 +228,61 @@ class DecisorZonal:
         elif n_n >= self._n_limpiar:
             self._alerta = False
 
+        # Tras el valve hay que limpiar la alerta a proposito: la rama de
+        # arriba solo la apaga con N_de_M ventanas NORMAL, y si el score
+        # esta desplazado respecto al train (el caso que disparo el valve)
+        # NORMAL tampoco se alcanza, asi que la alerta quedaria encendida
+        # para siempre.
+        if valve:
+            self._alerta = False
+            self._hist_alertar.clear()
+            self._hist_limpiar.clear()
+            self._hist_alertar.append(False)
+            self._hist_limpiar.append(False)
+
         mvn_dist = self.mvn_distancia(flat)
+        # Texto de la regla que produjo esta decision, para que el
+        # diagnostico de la alerta diga POR QUE se fired y no solo el score.
+        if valve:
+            regla = (
+                f"R-VALVE: {self._racha_critica} ventanas seguidas en CRITICA "
+                f"superan el maximo {self._max_critica}; se fuerza salida a "
+                f"WARNING_ESCALA (score {score:.4f}). Indica desajuste entre "
+                f"el score de operacion y los umbrales del entrenamiento."
+            )
+        elif nueva == CRITICA and not helado:
+            regla = (
+                f"R-CRITICA: score {score:.4f} < umbral de entrada q01 "
+                f"{self._entrar:.4f} (o en racha critica {self._racha_critica})"
+            )
+        elif nueva == WARNING_ESCALA and not helado:
+            regla = (
+                f"R-ADVERTENCIA: score {score:.4f} entre q01 {self._entrar:.4f} "
+                f"y q10 {self._salir:.4f} (zona gris, no alerta)"
+            )
+        elif nueva == NORMAL and not helado:
+            regla = (
+                f"R-NORMAL: score {score:.4f} >= salida efectiva "
+                f"{self._salir_ef:.4f}"
+            )
+        else:
+            regla = (
+                f"R-DEBOUNCE: zona congelada {zona_previa} por "
+                f"{self._cooldown_restante + 1} ventana(s) de cooldown"
+            )
+
         return {
             "zona": nueva,
             "es_anomalia": self._alerta,
+            "alerta_activa": self._alerta,
+            "alerta_nueva": self._alerta and not alerta_previa,
             "score": round(float(score), 4),
             "racha_critica": int(self._racha_critica),
             "cooldown": helado,
+            "valve": valve,
+            "regla": regla,
+            "umbral_entrada": round(float(self._entrar), 4),
+            "umbral_salida": round(float(self._salir_ef), 4),
             "mvn_dist": round(mvn_dist, 2) if np.isfinite(mvn_dist) else None,
             "mvn_coherente": self.mvn_coherente(flat),
             "hist_critica": "".join(
@@ -201,4 +297,7 @@ class DecisorZonal:
             "racha_critica": self._racha_critica,
             "cooldown_restante": self._cooldown_restante,
             "hist_alertar": list(self._hist_alertar),
+            "umbral_entrada": self._entrar,
+            "umbral_salida": self._salir_ef,
+            "umbral_salida_train": self._salir,
         }

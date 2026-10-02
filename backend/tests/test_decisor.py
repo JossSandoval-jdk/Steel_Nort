@@ -24,13 +24,23 @@ def test_zona_normal_warning_critica_por_score():
     assert d.alimentar(-2.5)["zona"] == CRITICA
 
 
-def test_histeresis_no_sale_de_critica_hasta_q10():
+def test_histeresis_sale_al_superar_salida_efectiva():
     d = dz(cooldown=0)
     d.alimentar(-2.5)            # entra CRITICA (< q01)
-    paso = d.alimentar(-1.5)     # q01 <= score < q10: debe SEGUIR CRITICA
-    assert paso["zona"] == CRITICA
-    paso2 = d.alimentar(-1.1)    # score >= q10: sale
+    paso = d.alimentar(-1.5)     # supera la salida efectiva, entra en zona gris
+    assert paso["zona"] == WARNING_ESCALA
+    paso2 = d.alimentar(-1.1)    # score >= q10: llega a NORMAL
     assert paso2["zona"] in (NORMAL, WARNING_ESCALA)
+
+
+def test_alerta_nueva_solo_se_emite_al_activar_el_estado():
+    d = dz(cooldown=0, n_alertar=2, m_alertar=3)
+    assert d.alimentar(-2.5)["alerta_nueva"] is False
+    segunda = d.alimentar(-2.5)
+    assert segunda["alerta_nueva"] is True
+    tercera = d.alimentar(-2.5)
+    assert tercera["es_anomalia"] is True
+    assert tercera["alerta_nueva"] is False
 
 
 # ---------------------------------------------------------------------------

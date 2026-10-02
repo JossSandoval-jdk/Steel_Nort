@@ -134,8 +134,7 @@ def _diagnosticar_causas(z: dict[str, float], valores: dict) -> list[dict]:
     return causas[:4]
 
 
-def _abrir_causas_raiz(db: Session, alerta: Alertas, prediccion: dict,
-                       origen: str) -> None:
+def _abrir_causas_raiz(db: Session, alerta: Alertas, prediccion: dict, origen: str, eventos: list = None) -> None:
     """Persiste el arbol Causas_Raiz de una alerta ML recien creada."""
     try:
         z = _contribuyentes_z(prediccion)
@@ -157,18 +156,27 @@ def _abrir_causas_raiz(db: Session, alerta: Alertas, prediccion: dict,
                 cra_nivel=causa["nivel"], cra_etiq=detalle[:200],
                 cra_tono=causa["tono"], reg_usu=origen,
             ))
+        
+        # Add events as root causes
+        if eventos:
+            eventos_relevantes = [
+                e for e in eventos 
+                if e.get("event_name") in ("xe.error_reported", "xe.xml_deadlock_report") 
+                or (e.get("event_name") in ("xe.sql_batch_completed", "xe.rpc_completed") and e.get("duration", 0) > 500000)
+            ][:5]
+            for e in eventos_relevantes:
+                evento_txt = f"Evento: {e.get('event_name')} - {e.get('sql_text', e.get('message', ''))}"
+                db.add(CausasRaiz(
+                    cra_alt=alerta.alt_cod, cra_padre=raiz.cra_cod,
+                    cra_nivel="warn", cra_etiq=evento_txt[:200],
+                    cra_tono="amarillo", reg_usu=origen,
+                ))
+
     except Exception:
         log.exception("Fallo el diagnostico de causa raiz; la alerta quedo creada")
 
 
-def persistir_prediccion(
-    db: Session,
-    nodo_nombre: str,
-    nodo_ip: str,
-    fec: datetime,
-    prediccion: dict,
-    origen: str = "telemetria",
-) -> dict | None:
+def persistir_prediccion(db: Session, nodo_nombre: str, nodo_ip: str, fec: datetime, prediccion: dict, origen: str = "telemetria", eventos: list = None) -> dict | None:
     """Persiste una prediccion ANOMALA en la sesion ya abierta ``db``.
 
     Crea (o reusa) el nodo, registra Predicciones_ML, mantiene UNA alerta
@@ -224,7 +232,7 @@ def persistir_prediccion(
         )
         db.add(alerta)
         db.flush()
-        _abrir_causas_raiz(db, alerta, prediccion, origen)
+        _abrir_causas_raiz(db, alerta, prediccion, origen, eventos)
     else:
         alerta = alerta_abierta
 
@@ -262,11 +270,7 @@ def persistir_prediccion(
     }
 
 
-def persistir_anomalia(
-    nodo_nombre: str,
-    nodo_ip: str,
-    prediccion: dict,
-) -> dict | None:
+def persistir_anomalia(nodo_nombre: str, nodo_ip: str, prediccion: dict, eventos: list = None) -> dict | None:
     """Guarda la anomalia detectada y devuelve la alerta creada (o None).
 
     Solo se llama cuando ``prediccion["es_anomalia"]`` es True. Abre su
@@ -277,9 +281,7 @@ def persistir_anomalia(
 
     db = SessionLocal()
     try:
-        resultado = persistir_prediccion(
-            db, nodo_nombre, nodo_ip, utc_now(), prediccion, origen="telemetria"
-        )
+        resultado = persistir_prediccion(db, nodo_nombre, nodo_ip, utc_now(), prediccion, origen="telemetria", eventos=eventos)
         db.commit()
         return resultado
     except Exception:

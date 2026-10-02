@@ -61,8 +61,10 @@ def setup_xe():
             "WHERE sqlserver.database_name = N'SteelNort'"
             "), "
             "ADD EVENT sqlserver.xml_deadlock_report, "
-            "ADD EVENT sqlserver.login, "
-            "ADD EVENT sqlserver.logout "
+            "ADD EVENT sqlserver.login(ACTION(sqlserver.session_id, sqlserver.username, "
+            "sqlserver.client_hostname, sqlserver.client_app_name)), "
+            "ADD EVENT sqlserver.logout(ACTION(sqlserver.session_id, sqlserver.username, "
+            "sqlserver.client_hostname, sqlserver.client_app_name)) "
             "ADD TARGET package0.event_file("
             "SET filename = N'/var/opt/mssql/log/steel_events.xel', "
             "max_file_size = 100, max_rollover_files = 5"
@@ -178,6 +180,8 @@ def map_xe_event(row):
         "database_name": row[9] or "SteelNort",
         "session_id": row[10],
         "username": row[11] or "unknown",
+        "client_hostname": row[12],
+        "client_app_name": row[13],
     }
 
     if event_name in ("sql_batch_completed", "rpc_completed"):
@@ -187,8 +191,6 @@ def map_xe_event(row):
         base["writes"] = row[5] or 0
         base["row_count"] = row[6] or 0
         base["sql_text"] = (row[7] or row[8] or "")[:500]
-        base["client_hostname"] = row[12]
-        base["client_app_name"] = row[13]
         base["result"] = row[14]
 
     elif event_name == "error_reported":

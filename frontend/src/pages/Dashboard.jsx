@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import {
   useDashboardHeatmap,
   useDashboardDisponibilidad,
+  useDashboardTransacciones,
   useDashboardAnomaliasResumen,
 } from '../hooks/useDashboardData.js'
 import '../css/Layout.css'
@@ -20,36 +21,60 @@ const DISP_PAD_B = 26
 const DISP_PLOT_W = DISP_CHART_W - DISP_PAD_L - DISP_PAD_R
 const DISP_PLOT_H = DISP_CHART_H - DISP_PAD_T - DISP_PAD_B
 
-const DISP_MIN = 99.8
-const DISP_MAX = 100.01
+const DISP_MIN = 0
+const DISP_MAX = 100
 
 function barChartData(data, min, max) {
-  return data.map((v, i) => ({
-    x: DISP_PAD_L + (i * DISP_PLOT_W) / (data.length - 1),
-    y: DISP_PAD_T + (1 - (v - min) / (max - min)) * DISP_PLOT_H,
-  }))
+  const n = Math.max(data.length, 2)
+  return data.map((v, i) => {
+    if (!Number.isFinite(v)) return null
+    return {
+      x: DISP_PAD_L + (i * DISP_PLOT_W) / (n - 1),
+      y: DISP_PAD_T + (1 - (Math.min(Math.max(v, min), max) - min) / (max - min)) * DISP_PLOT_H,
+    }
+  })
 }
 
-function BarChart({ data }) {
-  const safe = data.length >= 2 ? data : [100, 100, 100, 100, 100, 100, 100]
-  const pts = barChartData(safe, DISP_MIN, DISP_MAX)
-  const ptsStr = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
-  const last = pts[pts.length - 1]
-  const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+function BarChart({ data, etiquetas }) {
+  // Con datos reales la disponibilidad varia (no siempre 99.8-100), asi que
+  // el eje arranca en 0. Antes el rango fijo 99.8..100.01 aplastaba cualquier
+  // valor distinto de 100 contra el borde.
+  if (!data || data.length === 0) {
+    return (
+      <svg className="dash-disp-chart" viewBox={`0 0 ${DISP_CHART_W} ${DISP_CHART_H}`} role="img">
+        <text x={DISP_CHART_W / 2} y={DISP_CHART_H / 2} textAnchor="middle" fontSize="12" fill="#8a94a0">
+          Sin ventanas evaluadas
+        </text>
+      </svg>
+    )
+  }
+  const pts = barChartData(data, DISP_MIN, DISP_MAX)
+  if (!pts.some(Boolean)) {
+    return (
+      <svg className="dash-disp-chart" viewBox={`0 0 ${DISP_CHART_W} ${DISP_CHART_H}`} role="img">
+        <text x={DISP_CHART_W / 2} y={DISP_CHART_H / 2} textAnchor="middle" fontSize="12" fill="#8a94a0">
+          Sin ventanas evaluadas
+        </text>
+      </svg>
+    )
+  }
+  const noms = etiquetas && etiquetas.length === data.length
+    ? etiquetas
+    : data.map((_, i) => `${i + 1}`)
   return (
     <svg className="dash-disp-chart" viewBox={`0 0 ${DISP_CHART_W} ${DISP_CHART_H}`} role="img">
-      <defs>
-        <linearGradient id="grad-disp" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#0269a1" stopOpacity="0.22" />
-          <stop offset="100%" stopColor="#0269a1" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon points={`${DISP_PAD_L},${DISP_CHART_H - DISP_PAD_B} ${ptsStr} ${DISP_CHART_W - DISP_PAD_R},${DISP_CHART_H - DISP_PAD_B}`} fill="url(#grad-disp)" />
-      <polyline points={ptsStr} fill="none" stroke="#0269a1" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx={last.x} cy={last.y} r="4.5" fill="#0269a1" stroke="#ffffff" strokeWidth="2" />
-      {dias.map((d, i) => (
-        <text key={d} x={pts[i].x} y={DISP_CHART_H - 8} textAnchor="middle" fontSize="12" fill="#6b7683" fontWeight="500">
-          {d}
+      <line x1={DISP_PAD_L} y1={DISP_CHART_H - DISP_PAD_B} x2={DISP_CHART_W - DISP_PAD_R} y2={DISP_CHART_H - DISP_PAD_B} stroke="rgba(19,41,61,0.12)" />
+      {pts.map((p, i) => p && pts[i + 1] && (
+        <line key={`line-${i}`} x1={p.x} y1={p.y} x2={pts[i + 1].x} y2={pts[i + 1].y} stroke="#0269a1" strokeWidth="2.5" />
+      ))}
+      {pts.map((p, i) => p && (
+        <circle key={noms[i]} cx={p.x} cy={p.y} r="4.5" fill="#0269a1" stroke="#ffffff" strokeWidth="2">
+          <title>{`${data[i]}%`}</title>
+        </circle>
+      ))}
+      {noms.map((nombre, i) => (
+        <text key={nombre} x={DISP_PAD_L + (i * DISP_PLOT_W) / Math.max(data.length - 1, 1)} y={DISP_CHART_H - 8} textAnchor="middle" fontSize="12" fill="#6b7683" fontWeight="500">
+          {nombre}
         </text>
       ))}
     </svg>
@@ -65,25 +90,28 @@ const BARS_PAD_B = 26
 const BARS_PLOT_W = BARS_W - BARS_PAD_L - BARS_PAD_R
 const BARS_PLOT_H = BARS_H - BARS_PAD_T - BARS_PAD_B
 const BAR_W = 26
-const BAR_MAX = 500
 
-function BarraChart({ data }) {
-  const safe = data.length >= 2 ? data : [0, 0, 0, 0, 0, 0, 0]
+function BarraChart({ data, etiquetas }) {
+  const safe = data.length >= 1 ? data : [0]
   const n = safe.length
   const step = BARS_PLOT_W / n
-  const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+  const top = Math.max(1, ...safe.filter(Number.isFinite))
+  const nombres = etiquetas && etiquetas.length === n ? etiquetas : safe.map((_, i) => `#${i + 1}`)
   return (
     <svg className="dash-bar-chart" viewBox={`0 0 ${BARS_W} ${BARS_H}`} role="img">
+      <line x1={BARS_PAD_L} y1={BARS_H - BARS_PAD_B} x2={BARS_W - BARS_PAD_R} y2={BARS_H - BARS_PAD_B} stroke="rgba(19,41,61,0.12)" />
       {safe.map((v, i) => {
         const bw = Math.min(BAR_W, step * 0.6)
         const x = BARS_PAD_L + i * step + (step - bw) / 2
-        const h = (v / BAR_MAX) * BARS_PLOT_H
+        const valido = Number.isFinite(v)
+        const h = valido ? Math.max((v / top) * BARS_PLOT_H, v > 0 ? 2 : 0) : 0
         const y = BARS_H - BARS_PAD_B - h
         return (
-          <g key={dias[i] || i}>
-            <rect x={x} y={y} width={bw} height={h} rx="5" fill="#0269a1" />
+          <g key={`${i}-${nombres[i]}`}>
+            {valido && <rect x={x} y={y} width={bw} height={h} rx="5" fill="#0269a1" />}
+            <title>{valido ? `${Number(v).toFixed(2)} tx/s` : 'Sin datos'}</title>
             <text x={x + bw / 2} y={BARS_H - 8} textAnchor="middle" fontSize="12" fill="#6b7683" fontWeight="500">
-              {dias[i]}
+              {nombres[i]}
             </text>
           </g>
         )
@@ -111,18 +139,16 @@ const REC_PAD_B = 26
 const REC_PLOT_W = REC_W - REC_PAD_L - REC_PAD_R
 const REC_PLOT_H = REC_H - REC_PAD_T - REC_PAD_B
 
-const REC_HORAS = [
-  [0, '00:00'],
-  [4, '04:00'],
-  [8, '08:00'],
-  [12, '12:00'],
-  [16, '16:00'],
-  [20, '20:00'],
-  [23, '23:00'],
-]
-
 function recPts(data) {
-  if (data.length < 2) data = [0, 0]
+  if (!data || data.length === 0) {
+    return [{ x: REC_PAD_L + REC_PLOT_W, y: REC_H - REC_PAD_B }]
+  }
+  if (data.length === 1) {
+    return [{
+      x: REC_PAD_L + REC_PLOT_W,
+      y: REC_PAD_T + (1 - Number(data[0] || 0) / 100) * REC_PLOT_H,
+    }]
+  }
   return data.map((v, i) => ({
     x: REC_PAD_L + (i * REC_PLOT_W) / (data.length - 1),
     y: REC_PAD_T + (1 - v / 100) * REC_PLOT_H,
@@ -145,16 +171,16 @@ function recGrid() {
           </g>
         )
       })}
-      {REC_HORAS.map(([i, label]) => (
-        <text key={label} x={REC_PAD_L + (i * REC_PLOT_W) / 23} y={REC_H - 7} textAnchor="middle" fontSize="8" fill="#8a94a0">
-          {label}
-        </text>
-      ))}
     </g>
   )
 }
 
 function RecursoChart({ series }) {
+  // El eje X del grid marca 00:00..23:00, pero la serie son las ultimas N
+  // muestras en tiempo real (cada 3s), no 24 horas. Se relabelean las marcas
+  // como "hace N muestras" para no mentir sobre el eje.
+  const total = Math.max(...series.map((s) => s.data.length), 1)
+  const marcas = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(f * (total - 1)))
   return (
     <svg className="dash-rec-chart" viewBox={`0 0 ${REC_W} ${REC_H}`} role="img">
       <defs>
@@ -192,6 +218,18 @@ function RecursoChart({ series }) {
           </g>
         )
       })}
+      {marcas.map((idx, i) => (
+        <text
+          key={i}
+          x={REC_PAD_L + (idx * REC_PLOT_W) / Math.max(total - 1, 1)}
+          y={REC_H - 7}
+          textAnchor={i === 0 ? 'start' : i === marcas.length - 1 ? 'end' : 'middle'}
+          fontSize="8"
+          fill="#8a94a0"
+        >
+          {`#${idx + 1}`}
+        </text>
+      ))}
     </svg>
   )
 }
@@ -259,9 +297,12 @@ function Dashboard() {
   const { actual } = useSystemMetrics(3000, 80)
   const { muestras, ultimaMuestra, serie } = useTelemetria(80)
   const { datos: heatmapDatos } = useDashboardHeatmap(60000)
-  const { dias: dispDias, promedio: dispPromedio } = useDashboardDisponibilidad(300000)
+  const { dias: dispDias, promedio: dispPromedio, etiquetas: dispEtiquetas, conDatos: dispConDatos } = useDashboardDisponibilidad(300000, 1)
+  const { dias: transaccionesDias, promedio: transaccionesPromedio, etiquetas: transaccionesEtiquetas, conDatos: transaccionesConDatos } = useDashboardTransacciones(300000, 1)
   const { hora_actual_cant, alertas_activas } = useDashboardAnomaliasResumen(30000)
   const { user } = useAuth()
+
+  
 
   // Nodo real: el primero con muestras en el buffer; fallback al nombre por defecto.
   const nodosTele = Object.keys(muestras)
@@ -269,27 +310,28 @@ function Dashboard() {
   const muestra = ultimaMuestra(nodo) || {}
   const serieNodo = serie(nodo, 80)
 
-  const cpuActual = actual?.cpu ?? 0
+  const leerCpu = (m) => Number(m?.cpu_usr ?? 0) + Number(m?.cpu_sys ?? 0)
+  const cpuActual = serieNodo.length > 0
+    ? leerCpu(serieNodo[serieNodo.length - 1]?.muestra)
+    : actual?.cpu ?? 0
   const memActual = actual?.mem ?? 0
 
   const cpuData = serieNodo.length > 0
-    ? serieNodo.map((m) => m.muestra?.cpu_usr ?? m.muestra?.cpu_idl ?? 0)
+    ? serieNodo.map((m) => Number(leerCpu(m?.muestra)))
     : []
   const memData = serieNodo.length > 0
-    ? serieNodo.map((m) => m.muestra?.memory_percent ?? 0)
+    ? serieNodo.map((m) => Number(m?.muestra?.memory_percent ?? 0))
     : []
 
-  const activas = muestra.active_sessions ?? 0
-  const inactivas = muestra.idle_sessions ?? 0
+  // Leemos las sesiones directamente desde el hook unificado actual, con respaldo al buffer
+  const activas = actual?.active_sessions ?? Number(muestra.active_sessions ?? muestra.active_requests ?? 0)
+  const inactivas = actual?.idle_sessions ?? Number(muestra.idle_sessions ?? muestra.long_queries ?? 0)
 
-  const durationData = serieNodo.length > 0
-    ? serieNodo.map((m) => m.muestra?.duration_avg_ms ?? 0)
-    : []
-  const duracionPromedio = durationData.length > 0
-    ? Math.round(durationData.reduce((a, b) => a + b, 0) / durationData.length)
-    : 0
+  const transaccionesActuales = serieNodo.length
+    ? Number(serieNodo[serieNodo.length - 1]?.muestra?.transactions_per_sec ?? 0)
+    : null
 
-  const tasaAnomalias = hora_actual_cant > 0
+  const tasaAnomalias = (hora_actual_cant || 0) > 0
     ? `${hora_actual_cant}/h`
     : '0/h'
 
@@ -305,12 +347,14 @@ function Dashboard() {
                 <div className="dash-disp-top">
                   <div className="dash-disp-text">
                     <h3 className="card-title">
-                      Disponibilidad del sistema{' '}
-                      <span className="dash-disp-sub">(Últimos 7 días)</span>
+                      Disponibilidad estimada{' '}
+                      <span className="dash-disp-sub">(ventanas normales, hoy)</span>
                     </h3>
-                    <span className="dash-disp-value">{dispPromedio}<small>%</small></span>
+                    <span className="dash-disp-value">
+                      {dispConDatos ? dispPromedio : '—'}{dispConDatos && <small>%</small>}
+                    </span>
                   </div>
-                  <BarChart data={dispDias} />
+                  <BarChart data={dispDias} etiquetas={dispEtiquetas} />
                 </div>
               </article>
 
@@ -336,17 +380,24 @@ function Dashboard() {
                 <div className="dash-disp-top">
                   <div className="dash-disp-text">
                     <h3 className="card-title">
-                      Rendimiento por consultas <span className="dash-disp-sub">(Promedio)</span>
+                      Transacciones SQL <span className="dash-disp-sub">(hoy)</span>
                     </h3>
-                    {durationData.length > 0 ? (
-                      <>
-                        <span className="dash-rend-value">{duracionPromedio}<small>ms</small></span>
-                        <BarraChart data={durationData.slice(-7)} />
-                      </>
-                    ) : (
-<p>0 ms - sin consultas</p>
-                    )}
+                    <span className="dash-rend-value">
+                      {transaccionesActuales === null ? '—' : transaccionesActuales.toFixed(2)}
+                      {transaccionesActuales !== null && <small> tx/s</small>}
+                    </span>
+                    <span className="dash-disp-sub">
+                      {transaccionesConDatos
+                        ? `Promedio de hoy: ${transaccionesPromedio.toFixed(2)} tx/s`
+                        : 'Sin muestras de hoy todavía'}
+                    </span>
                   </div>
+                  {transaccionesDias.length === 7 ? (
+                    <BarraChart
+                      data={transaccionesDias}
+                      etiquetas={transaccionesEtiquetas}
+                    />
+                  ) : <p className="dash-chart-empty">Cargando...</p>}
                 </div>
               </article>
 
@@ -385,7 +436,7 @@ function Dashboard() {
               <article className="card dash-mapa-anom">
                 <h3 className="card-title">
                   Mapa de anomalías temporales{' '}
-                  <span className="dash-disp-sub">(Día)</span>
+                  <span className="dash-disp-sub">(hoy)</span>
                 </h3>
                 <MapaAnomalias datos={heatmapDatos} />
               </article>
@@ -398,3 +449,4 @@ function Dashboard() {
 }
 
 export default Dashboard
+

@@ -1,68 +1,87 @@
 // Contexto de autenticacion del frontend (estado global de sesion).
 //
-// Estrategia de seguridad del token:
-//   - access_token (JWT): se mantiene SOLO en memoria (no en
-//     localStorage) para minimizar superficie de exposicion. Al
-//     recargar la pagina se pierde y hay que volver a autenticarse.
-//   - csrf_token: se guarda en localStorage (clave 'steelnort_csrf');
-//     no es secreto de sesion por si solo, se usa para la validacion
-//     de doble coincidencia en requests de escritura.
+// Como funciona en la v2:
+//   - access_token (JWT): vive SOLO en memoria, en este archivo. Al recargar
+//     la pagina se pierde y hay que volver a iniciar sesion. No se guarda en
+//     localStorage ni en sessionStorage.
+//   - el backend devuelve ademas "rol" y "permisos" (lista de "modulo:accion").
+//     Esos permisos son los que decide que pantallas y que botones ve cada
+//     uno; se guardan aqui para no tener que pedirlos en cada pantalla.
+//   - la v2 no usa token CSRF: el JWT va en la cabecera "Authorization", que el
+//     navegador no envia solo, asi que no hace falta la doble coincidencia.
 //
-// Provee a toda la aplicacion: usuario autenticado, estado de carga,
-// y funciones login()/logout(). Escalable: aqui se conectan los demas
-// modulos que necesiten conocer al usuario actual.
-import { createContext, useCallback, useContext, useState } from 'react'
+// Provee: user, accessToken, rol, permisos, loading, login(), logout(),
+// isAuthenticated y tiene(permiso).
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import api from '../services/api.js'
-import { STORAGE_KEYS } from '../config.js'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  // usuario: objeto devuelto por el backend o null si no hay sesion.
+  // Usuario devuelto por el backend, o null si no hay sesion.
   const [user, setUser] = useState(null)
-  // accessToken se almacena SOLO en memoria.
+  // JWT: solo en memoria.
   const [accessToken, setAccessToken] = useState(null)
-  // Estado de carga para saber si el login esta en curso.
+  // Rol y permisos que decide que ve cada uno.
+  const [rol, setRol] = useState('')
+  const [permisos, setPermisos] = useState([])
+  // Estado de carga del login.
   const [loading, setLoading] = useState(false)
 
-  // Inicia sesion llamando al backend y persistiendo los tokens.
-  const login = useCallback(async ({ email, password }) => {
+  // Inicia sesion. El backend espera { usuario, clave } (usuario = usu_log,
+  // no el correo) y devuelve el token con los datos del usuario y sus
+  // permisos.
+  const login = useCallback(async ({ usuario, clave }) => {
     setLoading(true)
     try {
-      const data = await api.post('/auth/login', { email, password })
-      // Guarda el access token en memoria.
+      const data = await api.post('/auth/login', { usuario, clave })
       setAccessToken(data.access_token)
-      // Guarda el csrf token en localStorage.
-      localStorage.setItem(STORAGE_KEYS.csrf, data.csrf_token)
       setUser(data.usuario)
+      setRol(data.rol)
+      // El Administrador trae ["*:*"] porque puede hacer todo.
+      setPermisos(data.permisos || [])
       return data.usuario
     } finally {
       setLoading(false)
     }
   }, [])
 
-  // Cierra sesion notificando al backend y limpiando el estado local.
+  // Cierra sesion en el backend y limpia el estado local.
   const logout = useCallback(async () => {
     try {
-      const csrf = api.getCsrfToken()
-      await api.post('/auth/logout', {}, { token: accessToken, csrf })
+      await api.post('/auth/logout', {}, { token: accessToken })
     } catch {
-      // Si falla el servidor, igual limpiamos el estado local.
+      // Si el servidor no responde, igual se limpia el estado local.
     } finally {
       setAccessToken(null)
       setUser(null)
-      localStorage.removeItem(STORAGE_KEYS.csrf)
+      setRol('')
+      setPermisos([])
     }
   }, [accessToken])
 
-  const value = {
-    user,
-    accessToken,
-    loading,
-    login,
-    logout,
-    isAuthenticated: Boolean(accessToken && user),
-  }
+  // Comprueba si el usuario actual tiene un permiso ("modulo:accion").
+  // El Administrador lo tiene todo, por eso el "*:*".
+  const tiene = useCallback(
+    (permiso) => permisos.includes('*:*') || permisos.includes(permiso),
+    [permisos],
+  )
+
+  const value = useMemo(
+    () => ({
+      user,
+      accessToken,
+      rol,
+      permisos,
+      loading,
+      login,
+      logout,
+      tiene,
+      esAdmin: permisos.includes('*:*'),
+      isAuthenticated: Boolean(accessToken && user),
+    }),
+    [user, accessToken, rol, permisos, loading, login, logout, tiene],
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

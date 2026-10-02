@@ -1,12 +1,3 @@
-// Hook de metricas del sistema (CPU y RAM) en tiempo real.
-//
-// Consume los endpoints del backend:
-//   GET /metrics/sistema   -> estado puntual (tarjetas "en vivo").
-//   GET /metrics/historial -> serie temporal en memoria (graficos).
-//
-// Hace un polling periodico (cada `intervaloMs`) y mantiene una ventana
-// de historico en el frontend para alimentar los graficos "minuto a
-// minuto". Usa el access token del AuthContext para autenticarse.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import api from '../services/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -14,43 +5,54 @@ import { useAuth } from '../context/AuthContext.jsx'
 export function useSystemMetrics(intervaloMs = 3000, ventana = 80) {
   const { accessToken } = useAuth()
 
-  // Estado puntual actual (para las tarjetas).
   const [actual, setActual] = useState(null)
-  // Serie historica: { ts, cpuTotal, memPercent, nucleos }.
   const [historico, setHistorico] = useState([])
   const [error, setError] = useState(null)
   const timerRef = useRef(null)
-
-  // Muestra puntual que se ejecuta en cada tick del polling.
-  const tick = useCallback(async () => {
+const tick = useCallback(async () => {
     if (!accessToken) return
     try {
-      const data = await api.get('/metrics/sistema', { token: accessToken })
-      setActual({
-        cpu: data.cpu.total,
-        nucleos: data.cpu.nucleos,
-        conteo: data.cpu.conteo,
-        mem: data.mem.percent,
-        memUsed: data.mem.used_mb,
-        memTotal: data.mem.total_mb,
-      })
-      setError(null)
-      // Acumula la muestra en la ventana del frente.
-      setHistorico((prev) => {
-        const next = prev.concat([{
-          ts: data.ts,
-          cpuTotal: data.cpu.total,
-          memPercent: data.mem.percent,
-          nucleos: data.cpu.nucleos,
-        }])
-        return next.length > ventana ? next.slice(next.length - ventana) : next
-      })
+      const data = await api.get('/telemetria/actual', { token: accessToken })
+      
+      // Validamos y extraemos las métricas directamente del objeto que retorna /actual
+      if (data.estado === 'ok') {
+        const muestra = data.metricas || data.data?.muestra || {}
+        
+        const cpuVal = Math.round(Number(muestra.cpu_usr || 0) + Number(muestra.cpu_sys || 0));
+        const memVal = Math.round(Number(muestra.memory_percent || 0));
+        const memUsedVal = Number(muestra.memory_used_mb || 0);
+        const memTotalVal = memVal > 0 ? memUsedVal / (memVal / 100) : 0; 
+        const timestamp = data.fecha_str || new Date().toISOString()
+
+        setActual({
+          cpu: cpuVal,
+          nucleos: muestra.nucleos || 4,
+          conteo: muestra.conteo || 1,
+          mem: memVal,
+          memUsed: memUsedVal,
+          memTotal: memTotalVal,
+          // Agregamos las métricas transaccionales aquí para tenerlas disponibles globalmente:
+          active_sessions: Number(muestra.active_sessions || muestra.active_requests || 0),
+          idle_sessions: Number(muestra.idle_sessions || muestra.long_queries || 0),
+          api_latency_ms: Number(muestra.api_latency_ms || muestra.duration_avg_ms || 0)
+        })
+        setError(null)
+
+        setHistorico((prev) => {
+          const next = prev.concat([{
+            ts: timestamp,
+            cpuTotal: cpuVal,
+            memPercent: memVal,
+            nucleos: muestra.nucleos || 4,
+          }])
+          return next.length > ventana ? next.slice(next.length - ventana) : next
+        })
+      }
     } catch (e) {
-      setError(e.message || 'No se pudo obtener metricas del sistema')
+      setError(e.message || 'No se pudo obtener la telemetría del sistema')
     }
   }, [accessToken, ventana])
 
-  // Carga inicial del historial y arranque/parada del polling.
   useEffect(() => {
     if (!accessToken) return undefined
     const primerTick = setTimeout(tick, 0)

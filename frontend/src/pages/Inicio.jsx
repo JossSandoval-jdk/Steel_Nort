@@ -3,12 +3,14 @@ import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useSystemMetrics } from '../hooks/useSystemMetrics.js'
-import { useTelemetria } from '../hooks/useTelemetria.js'
+//import { useTelemetria } from '../hooks/useTelemetria.js'
 import {
+  rangoHoyUtc,
   useDashboardHeatmap,
   useDashboardAnomaliasResumen,
 } from '../hooks/useDashboardData.js'
 import api from '../services/api.js'
+import { alertasDesdePagina, severidad as severidadDeAlerta } from '../services/severidad.js'
 import '../css/Layout.css'
 import '../css/Inicio.css'
 
@@ -78,7 +80,6 @@ function IconSesiones() {
   )
 }
 
-// Formatea un timestamp ISO a HH:MM:SS local.
 function fmtHora(ts) {
   if (!ts) return ''
   const d = new Date(ts)
@@ -86,7 +87,6 @@ function fmtHora(ts) {
   return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
 }
 
-// Formatea un timestamp ISO a HH:MM (para marcas del eje X).
 function fmtHoraMinuto(ts) {
   if (!ts) return ''
   const d = new Date(ts)
@@ -94,7 +94,6 @@ function fmtHoraMinuto(ts) {
   return `${p(d.getHours())}:${p(d.getMinutes())}`
 }
 
-// Construye los puntos del grafico a partir de un array de valores 0..max.
 function buildPoints(data, max) {
   if (!data || data.length < 2) return [[]]
   return [data.map((v, i) => ({
@@ -105,7 +104,6 @@ function buildPoints(data, max) {
 
 const fmtPoint = (p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`
 
-// Eje Y simple de fondo.
 function PintarEjes({ max }) {
   const levels = [0, max / 2, max]
   return (
@@ -125,7 +123,6 @@ function PintarEjes({ max }) {
   )
 }
 
-// Grafico de linea unico para las series en vivo.
 function LineChart({ id, data, labels, max = 100, estado }) {
   const [pts] = buildPoints(data, max)
   if (!pts.length) {
@@ -137,7 +134,6 @@ function LineChart({ id, data, labels, max = 100, estado }) {
   }
   const ptsStr = pts.map(fmtPoint).join(' ')
   const last = pts[pts.length - 1]
-  // Ticks de hora: toma hasta 4 marcas distribuidas en el historial.
   const tickIdxs = []
   for (let i = 0; i < 5; i += 1) {
     const idx = Math.round((i * (data.length - 1)) / 4)
@@ -172,6 +168,9 @@ function LineChart({ id, data, labels, max = 100, estado }) {
 }
 
 function AnomalyChart({ data }) {
+  if (!data || data.length < 2) {
+    return <div className="chart-empty">Sin datos de anomalías…</div>
+  }
   const max = Math.max(...data) + 2
   const pts = buildPoints(data, max)[0]
   const peakIdx = data.indexOf(Math.max(...data))
@@ -210,92 +209,87 @@ function AnomalyChart({ data }) {
       <polyline points={peakStr} fill="none" stroke="#dc2626" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
       <line x1={peak.x} y1={peak.y + 6} x2={peak.x} y2={CHART_H - PAD_B} stroke="#dc2626" strokeDasharray="4 4" strokeWidth="1.5" />
       <circle cx={peak.x} cy={peak.y} r="6" fill="#dc2626" stroke="#ffffff" strokeWidth="2.5" />
-      <text x={labelX} y={peak.y - 14} textAnchor="middle" fontSize="13" fontWeight="700" fill="#dc2626">
+      <text x={labelX} y={Math.max(18, peak.y - 14)} textAnchor="middle" fontSize="13" fontWeight="700" fill="#dc2626">
         {`${data[peakIdx]} picos · ${hora}`}
       </text>
     </svg>
   )
 }
 
-const SEVERIDADES = {
-  critica: 'critica',
-  alta: 'alta',
-  media: 'media',
-  baja: 'baja',
-}
+// Las alertas llegan ya normalizadas por alertasDesdePagina(): alt_sev ya es
+// una palabra. severidadDeAlerta solo queda como red de seguridad para el
+// valor por defecto.
 
 function Inicio() {
   const { actual, historico, error } = useSystemMetrics(3000, 80)
   const { user, accessToken } = useAuth()
 
-  // Telemetria en vivo: sesiones activas/inactivas por nodo.
-  const { muestras: teleMuestras, conectado } = useTelemetria(80)
-
-  // Resumen de anomalias del dia (tarjetas).
   const { total_hoy, alertas_activas } = useDashboardAnomaliasResumen(30000)
-
-  // Heatmap de anomalias por hora (grafico 24h).
   const { datos: heatmapDatos } = useDashboardHeatmap(60000)
 
-  // Alertas recientes (top 4).
   const [alertas, setAlertas] = useState([])
   const [alertasError, setAlertasError] = useState(null)
 
   useEffect(() => {
     if (!accessToken) return
     let activo = true
-    api
-      .get('/alertas', { token: accessToken })
-      .then((data) => {
-        if (activo) setAlertas(data)
+    const cargarAlertas = () => {
+      const rango = rangoHoyUtc()
+      const parametros = new URLSearchParams({
+        pagina: '1',
+        tamano: '100',
+        orden: '-alt_fec',
+        desde: rango.desde,
+        hasta: rango.hasta,
       })
-      .catch((err) => {
-        if (activo) setAlertasError(err.message || 'No se pudieron cargar las alertas.')
-      })
+      api
+        .get(`/deteccion/alertas?${parametros.toString()}`, { token: accessToken })
+        .then((data) => {
+          if (activo) setAlertas(alertasDesdePagina(data))
+        })
+        .catch((err) => {
+          if (activo) setAlertasError(err.message || 'No se pudieron cargar las alertas.')
+        })
+    }
+    cargarAlertas()
+    const timer = setInterval(cargarAlertas, 30000)
     return () => {
       activo = false
+      clearInterval(timer)
     }
   }, [accessToken])
 
-  // Suma por hora (0..23) del heatmap para el grafico de anomalias.
   const anomaliasData = Array.from({ length: 24 }, (_, hora) =>
     (heatmapDatos || [])
       .filter((d) => d.hora === hora)
       .reduce((acc, d) => acc + (Number(d.cantidad) || 0), 0)
   )
 
-  // Sesiones activas/inactivas sumando la ultima muestra de cada nodo.
-  let sesionesActivas = 0
-  let sesionesInactivas = 0
-  for (const arr of Object.values(teleMuestras)) {
-    if (!arr || arr.length === 0) continue
-    const m = arr[arr.length - 1].muestra || {}
-    sesionesActivas += Number(m.active_sessions) || 0
-    sesionesInactivas += Number(m.idle_sessions) || 0
-  }
+  const cpuActual = actual?.cpu ?? null
+  const memActual = actual?.mem ?? null
 
-  // Top 4 alertas recientes desde el backend.
+  // Extracción directa de las sesiones activas desde la telemetría actual en memoria
+  const sesionesActivas = actual?.active_sessions ?? 0
+
   const alertasRecientes = alertas
-    .slice(0, 4)
+    .slice(0, 20)
     .map((a) => ({
-      severidad: SEVERIDADES[a.alt_sev] || 'media',
+      severidad: severidadDeAlerta(a.alt_sev),
       titulo: a.alt_titulo,
-      meta: a.alt_diag || a.alt_tipo || '',
+      meta: a.alt_tipo === 'anomalia_ml'
+        ? `Detección ML · ${severidadDeAlerta(a.alt_sev)}`
+        : a.alt_diag || a.alt_tipo || '',
+      diagnostico: a.alt_diag || '',
       hora: fmtHoraMinuto(a.alt_fec),
     }))
 
   const sesionesTxt = sesionesActivas > 0 ? String(sesionesActivas) : '—'
-  const sesionesTrend = conectado
-    ? `${sesionesInactivas} inactivas`
-    : 'Sin telemetría en vivo'
+  const sesionesTrend = actual ? 'Telemetría en vivo OK' : 'Sin telemetría en vivo'
 
-  // Series listas para los graficos.
   const cpuSerie = historico.map((h) => h.cpuTotal)
   const memSerie = historico.map((h) => h.memPercent)
   const labels = historico.map((h) => fmtHoraMinuto(h.ts))
 
-  // Promedios mostrados en las insignias.
-  const cpuProm = cpuSerie.length ? Math.round(cpuSerie.reduce((a, b) => a + b, 0) / cpuSerie.length) : 0
   const memProm = memSerie.length ? Math.round(memSerie.reduce((a, b) => a + b, 0) / memSerie.length) : 0
   const ultimaTs = historico.length ? fmtHora(historico[historico.length - 1].ts) : '—'
 
@@ -303,18 +297,18 @@ function Inicio() {
     {
       id: 'cpu',
       label: 'CPU',
-      value: actual ? String(actual.cpu) : '—',
+      value: cpuActual !== null ? String(cpuActual) : '—',
       unit: '%',
-      trend: actual ? `Última lectura ${ultimaTs}` : 'Conectando…',
+      trend: cpuActual !== null ? `Última lectura ${ultimaTs}` : 'Conectando…',
       icon: IconCpu,
       tone: 'blue',
     },
     {
       id: 'memoria',
       label: 'Memoria',
-      value: actual ? String(actual.mem) : '—',
+      value: memActual !== null ? String(memActual) : '—',
       unit: '%',
-      trend: actual ? `${Math.round(actual.memUsed)} / ${Math.round(actual.memTotal)} MB` : 'Conectando…',
+      trend: memActual !== null ? 'Uso actual del sistema' : 'Conectando…',
       icon: IconMemoria,
       tone: 'green',
     },
@@ -329,7 +323,7 @@ function Inicio() {
     },
     {
       id: 'sesiones',
-      label: 'Sesiones activas',
+      label: 'Sesiones conexioes',
       value: sesionesTxt,
       unit: '',
       trend: sesionesTrend,
@@ -349,7 +343,7 @@ function Inicio() {
 
             <section className="stats-row">
               {stats.map(({ id, label, value, unit, trend, icon: Icon, tone }) => (
-                <article key={id} className="card stat-card">
+                <article key={id} className={`card stat-card${id === 'anomalias' && total_hoy > 0 ? ' con-anomalias' : ''}`}>
                   <div className="stat-head">
                     <span className="stat-label">{label}</span>
                     <span className={`stat-icon ${tone}`}>
@@ -369,7 +363,7 @@ function Inicio() {
               <article className="card">
                 <div className="card-head">
                   <h3 className="card-title">Uso de CPU</h3>
-                  <span className="chart-badge blue">Promedio {cpuProm}%</span>
+                  <span className="chart-badge blue">Actual {cpuActual ?? '—'}%</span>
                 </div>
                 <LineChart
                   id="cpu"
@@ -398,7 +392,7 @@ function Inicio() {
             <section className="bottom-row">
               <article className="card">
                 <div className="card-head">
-                  <h3 className="card-title">Anomalías</h3>
+                  <h3 className="card-title">Anomalías de hoy</h3>
                   <span className="chart-badge red">Total hoy: {total_hoy}</span>
                 </div>
                 <AnomalyChart data={anomaliasData} />
@@ -408,28 +402,32 @@ function Inicio() {
                 <div className="card-head">
                   <h3 className="card-title">Alertas recientes</h3>
                 </div>
-                {alertasError ? (
-                  <p className="metrics-error">{alertasError}</p>
-                ) : alertasRecientes.length === 0 ? (
-                  <ul className="alert-list">
-                    <li className="alert-item">
-                      <span className="status-desc">No hay alertas registradas.</span>
-                    </li>
-                  </ul>
-                ) : (
-                  <ul className="alert-list">
-                    {alertasRecientes.map((a) => (
-                      <li key={`${a.hora}-${a.titulo}`} className="alert-item">
-                        <span className={`alert-dot ${a.severidad}`} />
-                        <div className="alert-body">
-                          <span className="alert-title">{a.titulo}</span>
-                          <span className="alert-meta">{a.meta}</span>
-                        </div>
-                        <span className="alert-time">{a.hora}</span>
+                <div className="alert-list-scroll">
+                  {alertasError ? (
+                    <p className="metrics-error">{alertasError}</p>
+                  ) : alertasRecientes.length === 0 ? (
+                    <ul className="alert-list">
+                      <li className="alert-item">
+                        <span className="status-desc">No hay alertas registradas.</span>
                       </li>
-                    ))}
-                  </ul>
-                )}
+                    </ul>
+                  ) : (
+                    <ul className="alert-list">
+                      {alertasRecientes.map((a) => (
+                        <li key={`${a.hora}-${a.titulo}`} className="alert-item">
+                          <span className={`alert-severity ${a.severidad}`}>
+                            {a.severidad === 'critica' ? 'Crítica' : a.severidad}
+                          </span>
+                          <div className="alert-body">
+                            <span className="alert-title">{a.titulo}</span>
+                            <span className="alert-meta" title={a.diagnostico}>{a.meta}</span>
+                          </div>
+                          <span className="alert-time">{a.hora}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </article>
             </section>
           </div>

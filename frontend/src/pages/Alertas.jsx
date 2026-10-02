@@ -1,9 +1,14 @@
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import api from '../services/api.js'
-import { useDashboardAnomaliasResumen, useDashboardHeatmap } from '../hooks/useDashboardData.js'
+import { alertasDesdePagina } from '../services/severidad.js'
+import {
+  rangoHoyUtc,
+  useDashboardAnomaliasResumen,
+  useDashboardHeatmap,
+} from '../hooks/useDashboardData.js'
 import '../css/Layout.css'
 import '../css/Alertas.css'
 
@@ -97,7 +102,7 @@ function TendenciaChart({ dias, tendencia }) {
           </g>
         )
       })}
-      {dias.map((d, i) => (
+      {dias.map((d, i) => d && (
         <text key={d + i} x={PAD_L + i * stepX} y={H - 8} textAnchor="middle" fontSize="11" fill="#8a94a0">
           {d}
         </text>
@@ -136,57 +141,175 @@ function formatearFecha(iso, incluirFecha) {
   return `${d.toLocaleDateString('es', { day: '2-digit', month: 'short' })} ${hora}`
 }
 
+function formatearValor(valor, unidad = '') {
+  const numero = Number(valor)
+  if (!Number.isFinite(numero)) return valor ?? '—'
+  return `${new Intl.NumberFormat('es', { maximumFractionDigits: 2 }).format(numero)}${unidad}`
+}
+
+function etiquetaSeveridad(severidad) {
+  return { critica: 'Crítica', alta: 'Alta', media: 'Media', baja: 'Baja' }[severidad] || 'Media'
+}
+
+// Informe para operaciones: resume la señal y conecta eventos, sesiones y logs.
+function DetalleAlerta({ alerta, informe }) {
+  const explicacion = informe?.explicacion
+  const variables = informe?.variables || []
+  const eventos = informe?.eventos || []
+  const logs = informe?.logs_sql || []
+  const prediccion = informe?.prediccion
+  const severidad = alerta?.alt_sev || 'media'
+
+  return (
+    <div className="detalle-alerta">
+      <div className="detalle-seccion detalle-explicacion">
+        <div className="detalle-explicacion-cabecera">
+          <div>
+            <h4 className="detalle-titulo">Qué ocurrió</h4>
+            <p className="detalle-diag">
+              {explicacion?.texto || 'El sistema observó un cambio sostenido en el comportamiento habitual del servidor.'}
+            </p>
+          </div>
+          <span className={`rol-pill ${severidad}`}>{etiquetaSeveridad(severidad)}</span>
+        </div>
+        {explicacion?.sospecha && (
+          <div className="detalle-sospecha">
+            <strong>Posible causa</strong>
+            <p>{explicacion.sospecha}</p>
+          </div>
+        )}
+        {prediccion && (
+          <p className="detalle-vacio">
+            Periodo observado: {formatearFecha(prediccion.inicio, true)} – {formatearFecha(prediccion.fin, true)}
+          </p>
+        )}
+      </div>
+
+      <div className="detalle-seccion">
+        <h4 className="detalle-titulo">Indicadores fuera de su nivel habitual</h4>
+        {variables.length ? variables.slice(0, 5).map((variable) => (
+          <div className="indicador-explicado" key={variable.alv_cod}>
+            <strong>{variable.etiqueta}</strong>
+            <span>{formatearValor(variable.alv_valor, variable.unidad)}</span>
+            <small>{variable.interpretacion}</small>
+          </div>
+        )) : <p className="detalle-vacio">No hay indicadores adicionales para esta alerta.</p>}
+      </div>
+
+      <div className="detalle-seccion detalle-evidencia">
+        <h4 className="detalle-titulo">Actividad SQL relacionada ({eventos.length})</h4>
+        {eventos.length ? eventos.map((evento, indice) => (
+          <article className="evento-explicado" key={`${evento.fecha}-${indice}`}>
+            <div className="evento-explicado-cabecera">
+              <strong>{evento.actividad}</strong>
+              <time>{formatearFecha(evento.fecha, true)}</time>
+            </div>
+            <p className="detalle-vacio">
+              {evento.duracion != null && `Duración: ${formatearValor(evento.duracion / 1000, ' ms')}`}
+              {evento.lecturas != null && ` · Lecturas: ${formatearValor(evento.lecturas)}`}
+            </p>
+            {evento.sesion ? (
+              <p className="evento-sesion">
+                Sesión {evento.sesion.id}
+                {evento.sesion.usuario && ` · Usuario ${evento.sesion.usuario}`}
+                {evento.sesion.equipo && ` · Equipo ${evento.sesion.equipo}`}
+                {evento.sesion.aplicacion && ` · Aplicación ${evento.sesion.aplicacion}`}
+              </p>
+            ) : (
+              <p className="detalle-vacio">No se identificó una sesión para esta actividad.</p>
+            )}
+            {evento.sql && (
+              <details className="evento-sql">
+                <summary>Ver detalle de la consulta</summary>
+                <pre>{evento.sql}</pre>
+              </details>
+            )}
+          </article>
+        )) : <p className="detalle-vacio">No se registraron eventos SQL en el periodo de esta alerta.</p>}
+      </div>
+
+      <div className="detalle-seccion detalle-evidencia">
+        <h4 className="detalle-titulo">Registros de error SQL ({logs.length})</h4>
+        {logs.length ? logs.map((registro, indice) => (
+          <article className="log-explicado" key={`${registro.fecha}-${indice}`}>
+            <span className={`log-nivel ${registro.nivel || ''}`}>{registro.nivel_texto || 'Registro'}</span>
+            <time>{formatearFecha(registro.fecha, true)}</time>
+            <p>{registro.mensaje}</p>
+          </article>
+        )) : <p className="detalle-vacio">SQL Server no reportó errores en el periodo de esta alerta.</p>}
+      </div>
+    </div>
+  )
+}
+
 function Alertas() {
   const { user, accessToken } = useAuth()
   const [alertas, setAlertas] = useState([])
   const [resumen, setResumen] = useState([])
-  const [tendencia, setTendencia] = useState({ dias: [], criticas: [], advertencia: [], informacion: [] })
   const [error, setError] = useState('')
+  // Detalle de la alerta desplegada: variables anomalas y arbol de causa raiz.
+  const [detalle, setDetalle] = useState(null)
+  const [detalleCargando, setDetalleCargando] = useState(false)
+  const [detalleError, setDetalleError] = useState('')
   const { datos: heatmapDatos } = useDashboardHeatmap(60000)
   const { hora_actual_cant } = useDashboardAnomaliasResumen(60000)
 
   useEffect(() => {
     let activo = true
-    api.get('/alertas', { token: accessToken })
-      .then((data) => {
+    const cargarAlertas = () => {
+      const rangoHoy = rangoHoyUtc()
+      const parametros = new URLSearchParams({
+        pagina: '1',
+        tamano: '200',
+        orden: '-alt_fec',
+        desde: rangoHoy.desde,
+        hasta: rangoHoy.hasta,
+      })
+      api.get(`/deteccion/alertas?${parametros.toString()}`, { token: accessToken })
+        .then((hoy) => {
         if (!activo) return
-        const ordenadas = (data || []).slice().sort((a, b) => new Date(b.alt_fec) - new Date(a.alt_fec))
-        setAlertas(ordenadas)
-
-        const limite = Date.now() - 24 * 3600 * 1000
-        const veinticuatro = ordenadas.filter((a) => new Date(a.alt_fec).getTime() >= limite)
+        const alertasHoy = alertasDesdePagina(hoy).sort((a, b) => new Date(b.alt_fec) - new Date(a.alt_fec))
+        setAlertas(alertasHoy)
 
         setResumen([
-          { id: 'criticas', label: 'Críticas', valor: veinticuatro.filter((a) => a.alt_sev === 'critica').length, tone: 'criticas' },
-          { id: 'advertencia', label: 'Advertencia', valor: veinticuatro.filter((a) => a.alt_sev === 'alta' || a.alt_sev === 'media').length, tone: 'advertencia' },
-          { id: 'informacion', label: 'Información', valor: veinticuatro.filter((a) => a.alt_sev === 'baja').length, tone: 'informacion' },
+          { id: 'criticas', label: 'Críticas', valor: alertasHoy.filter((a) => a.alt_sev === 'critica').length, tone: 'criticas' },
+          { id: 'advertencia', label: 'Advertencia', valor: alertasHoy.filter((a) => a.alt_sev === 'alta' || a.alt_sev === 'media').length, tone: 'advertencia' },
+          { id: 'informacion', label: 'Información', valor: alertasHoy.filter((a) => a.alt_sev === 'baja').length, tone: 'informacion' },
         ])
 
-        const diasArr = []
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date()
-          d.setDate(d.getDate() - i)
-          diasArr.push(d)
-        }
-        const clave = (f) => {
-          const d = new Date(f)
-          return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
-        }
-        const claves = diasArr.map(clave)
-        const contar = (fn) => claves.map((k) => ordenadas.filter((a) => clave(a.alt_fec) === k && fn(a.alt_sev)).length)
-
-        setTendencia({
-          dias: diasArr.map((d, i) => (i === 6 ? 'Hoy' : d.toLocaleDateString('es', { weekday: 'short' }))),
-          criticas: contar((s) => s === 'critica'),
-          advertencia: contar((s) => s === 'alta' || s === 'media'),
-          informacion: contar((s) => s === 'baja'),
-        })
       })
       .catch((err) => {
         if (activo) setError(err.message || 'No se pudieron cargar las alertas.')
       })
-    return () => { activo = false }
+    }
+    cargarAlertas()
+    const timer = setInterval(cargarAlertas, 30000)
+    return () => {
+      activo = false
+      clearInterval(timer)
+    }
   }, [accessToken])
+
+  // Toggle: volver a pulsar la misma fila la cierra.
+  const alternarDetalle = (alerta) => {
+    if (detalle && detalle.alerta.alt_cod === alerta.alt_cod) {
+      setDetalle(null)
+      return
+    }
+    setDetalle({ alerta, informe: null })
+    setDetalleCargando(true)
+    setDetalleError('')
+    const cod = alerta.alt_cod
+    api.get(`/deteccion/alertas/${cod}/informe`, { token: accessToken })
+      .then((informe) => {
+        setDetalle({ alerta, informe })
+        setDetalleCargando(false)
+      })
+      .catch((err) => {
+        setDetalleError(err.message || 'No se pudo cargar el detalle de la alerta.')
+        setDetalleCargando(false)
+      })
+  }
 
   const porHora = useMemo(() => {
     const arr = Array.from({ length: 24 }, () => 0)
@@ -198,9 +321,28 @@ function Alertas() {
     return arr
   }, [heatmapDatos])
 
+  const tendenciaHoy = useMemo(() => {
+    const horas = Array.from({ length: 24 }, (_, hora) => hora)
+    const resultado = {
+      dias: horas.map((hora) => ([0, 6, 12, 18, 23].includes(hora) ? `${String(hora).padStart(2, '0')}:00` : '')),
+      criticas: Array(24).fill(0),
+      advertencia: Array(24).fill(0),
+      informacion: Array(24).fill(0),
+    }
+    for (const alerta of alertas) {
+      const fechaAlerta = new Date(alerta.alt_fec)
+      if (Number.isNaN(fechaAlerta.getTime())) continue
+      const hora = fechaAlerta.getUTCHours()
+      if (alerta.alt_sev === 'critica') resultado.criticas[hora] += 1
+      else if (alerta.alt_sev === 'alta' || alerta.alt_sev === 'media') resultado.advertencia[hora] += 1
+      else if (alerta.alt_sev === 'baja') resultado.informacion[hora] += 1
+    }
+    return resultado
+  }, [alertas])
+
   const nombre = user?.usu_nom || 'Nombre Usuario'
   const cargo = user?.usu_rol || 'Cargo'
-  const visibles = alertas.slice(0, 12)
+  const visibles = alertas.slice(0, 20)
 
   return (
     <div className="layout">
@@ -210,7 +352,7 @@ function Alertas() {
         <main className="layout-content">
           <div className="alertas">
             <article className="card">
-              <div className="resumen-title">Resumen de alertas (24 horas)</div>
+              <div className="resumen-title">Resumen de alertas de hoy</div>
 
               <div className="resumen-celdas">
                 {resumen.map((r) => (
@@ -249,41 +391,60 @@ function Alertas() {
                 <div className="card-head">
                   <h3 className="card-title">Alertas recientes</h3>
                 </div>
-                <table className="alerts-table">
-                  <thead>
-                    <tr>
-                      <th>Hora</th>
-                      <th>Alerta</th>
-                      <th>Severidad</th>
-                      <th>Diagnóstico</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibles.map((a) => (
-                      <tr key={a.alt_cod}>
-                        <td className="t-marca">{formatearFecha(a.alt_fec, true)}</td>
-                        <td>
-                          {a.alt_titulo}
-                          {a.alt_tipo && <small> · {TIPO_ALERTA[a.alt_tipo] || a.alt_tipo}</small>}
-                        </td>
-                        <td><span className={`rol-pill ${a.alt_sev}`}>{a.alt_sev}</span></td>
-                        <td className="t-diagnostico">{a.alt_diag || 'Sin diagnóstico'}</td>
-                      </tr>
-                    ))}
-                    {visibles.length === 0 && (
+                <div className="alerts-table-scroll">
+                  <table className="alerts-table">
+                    <thead>
                       <tr>
-                        <td colSpan="4" className="t-diagnostico">{error || 'Sin alertas registradas'}</td>
+                        <th>Hora</th>
+                        <th>Alerta</th>
+                        <th>Severidad</th>
+                        <th>Diagnóstico</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {visibles.map((a) => (
+                        <Fragment key={a.alt_cod}>
+                          <tr
+                            className={`fila-alerta${detalle && detalle.alerta.alt_cod === a.alt_cod ? ' abierta' : ''}`}
+                            onClick={() => alternarDetalle(a)}
+                            onKeyDown={(evento) => {
+                              if (evento.key === 'Enter' || evento.key === ' ') {
+                                evento.preventDefault()
+                                alternarDetalle(a)
+                              }
+                            }}
+                            tabIndex={0}
+                            aria-expanded={Boolean(detalle && detalle.alerta.alt_cod === a.alt_cod)}
+                          >
+                            <td className="t-marca">{formatearFecha(a.alt_fec, true)}</td>
+                            <td>
+                              {a.alt_titulo}
+                              {a.alt_tipo && <small> · {TIPO_ALERTA[a.alt_tipo] || a.alt_tipo}</small>}
+                            </td>
+                            <td><span className={`rol-pill ${a.alt_sev}`}>{etiquetaSeveridad(a.alt_sev)}</span></td>
+                            <td className="t-diagnostico">
+                              {a.alt_tipo === 'anomalia_ml'
+                                ? 'Cambio sostenido en el comportamiento del servidor.'
+                                : a.alt_diag || 'Sin diagnóstico'}
+                            </td>
+                          </tr>
+                        </Fragment>
+                      ))}
+                      {visibles.length === 0 && (
+                        <tr>
+                          <td colSpan="4" className="t-diagnostico">{error || 'Sin alertas registradas'}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </article>
 
               <article className="card tendencia-card">
                 <div className="card-head">
-                  <h3 className="card-title">Tendencia de severidad</h3>
+                  <h3 className="card-title">Severidad por hora · hoy</h3>
                 </div>
-                <TendenciaChart dias={tendencia.dias} tendencia={tendencia} />
+                <TendenciaChart dias={tendenciaHoy.dias} tendencia={tendenciaHoy} />
                 <div className="tendencia-leyenda">
                   <span className="leyenda-item criticas">Críticas</span>
                   <span className="leyenda-item advertencia">Advertencia</span>
@@ -291,6 +452,36 @@ function Alertas() {
                 </div>
               </article>
             </div>
+            {detalle && (
+              <div className="detalle-modal-fondo" onClick={() => setDetalle(null)}>
+                <section
+                  className="detalle-modal"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="detalle-modal-titulo"
+                  onClick={(evento) => evento.stopPropagation()}
+                >
+                  <header className="detalle-modal-cabecera">
+                    <div>
+                      <h2 id="detalle-modal-titulo">{detalle.alerta.alt_titulo}</h2>
+                      <p>{formatearFecha(detalle.alerta.alt_fec, true)} · {etiquetaSeveridad(detalle.alerta.alt_sev)}</p>
+                    </div>
+                    <button type="button" className="detalle-modal-cerrar" onClick={() => setDetalle(null)}>
+                      Cerrar
+                    </button>
+                  </header>
+                  <div className="detalle-modal-contenido">
+                    {detalleCargando && <p className="detalle-vacio">Preparando el informe…</p>}
+                    {!detalleCargando && detalleError && (
+                      <p className="detalle-vacio error">{detalleError}</p>
+                    )}
+                    {!detalleCargando && !detalleError && (
+                      <DetalleAlerta alerta={detalle.alerta} informe={detalle.informe} />
+                    )}
+                  </div>
+                </section>
+              </div>
+            )}
           </div>
         </main>
       </div>

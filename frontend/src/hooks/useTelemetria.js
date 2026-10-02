@@ -1,133 +1,78 @@
-// Hook de telemetria en tiempo real via SSE.
+// Hook de telemetria en tiempo real.
 //
-// Consume GET /telemetria/live usando fetch + ReadableStream para
-// poder enviar Authorization Bearer (EventSource nativo no soporta
-// headers custom). Parsea el protocolo SSE manualmente.
+// ANTES: consumia GET /telemetria/live por SSE. Esa ruta es de la v1 y la v2
+// no la expone, asi que el fetch devolvia 404 y `muestras` se quedaba SIEMPRE
+// vacio. De ahi que los graficos de CPU, memoria y latencia salieran planos:
+// la serie nunca tenia datos.
 //
-// Acumula las ultimas ``ventana`` muestras por nodo en state.
+// AHORA: sondea GET /telemetria/actual (la ruta que la v2 si expone) cada
+// `intervaloMs` y acumula las ultimas `ventana` muestras por nodo. La
+// respuesta trae `metricas` con el estado del instante.
+//
 // Devuelve helper ``ultimaMuestra(nodo)`` y ``serie(nodo, n)`` para
 // que los componentes grafiquen datos en vivo.
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { API_BASE_URL } from '../config.js'
+import api from '../services/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
-export function useTelemetria(ventana = 80) {
+export function useTelemetria(ventana = 80, intervaloMs = 3000) {
   const { accessToken } = useAuth()
   const [muestras, setMuestras] = useState({})
   const [conectado, setConectado] = useState(false)
   const [error, setError] = useState(null)
-  const abortRef = useRef(null)
+  const timerRef = useRef(null)
 
-  const cerrar = useCallback(() => {
-    if (abortRef.current) {
-      abortRef.current.abort()
-      abortRef.current = null
+  const tick = useCallback(async () => {
+    if (!accessToken) return
+    try {
+      const data = await api.get('/telemetria/actual', { token: accessToken })
+
+      const metricas = data?.metricas || data?.data?.muestra || null
+      if (!metricas) {
+        setConectado(false)
+        return
+      }
+
+      const nodo = data.nodo || data.nodo_nom || 'Servidor Negocio'
+      const punto = {
+        nodo,
+        seq: data.seq,
+        muestra: metricas,
+        ts: data.fecha_str || new Date().toISOString(),
+      }
+
+      setMuestras((prev) => {
+        const arr = prev[nodo] || []
+        const next = [...arr, punto]
+        return {
+          ...prev,
+          [nodo]: next.length > ventana ? next.slice(next.length - ventana) : next,
+        }
+      })
+      setConectado(true)
+      setError(null)
+    } catch (e) {
+      setConectado(false)
+      setError(e.message || 'No se pudo obtener la telemetria')
     }
-    setConectado(false)
-  }, [])
+  }, [accessToken, ventana])
 
   useEffect(() => {
     if (!accessToken) {
-      cerrar()
-      return undefined
+      const t = setTimeout(() => setConectado(false), 0)
+      return () => clearTimeout(t)
     }
-
-    const ac = new AbortController()
-    abortRef.current = ac
-
-    let buffer = ''
-    let seq = 0
-    let activo = true
-
-    const url = `${API_BASE_URL}/telemetria/live?token=${encodeURIComponent(accessToken)}`
-
-    async function conectar() {
-      while (activo && !ac.signal.aborted) {
-        try {
-          setConectado(false)
-          const resp = await fetch(url, {
-            headers: { Accept: 'text/event-stream' },
-            credentials: 'include',
-            signal: ac.signal,
-          })
-
-          if (!resp.ok) {
-            if (resp.status === 401 || resp.status === 403) {
-              setError('Sesion expirada. Inicie sesion nuevamente.')
-              break
-            }
-            setError(`Error SSE: ${resp.status}`)
-            break
-          }
-
-          setConectado(true)
-          setError(null)
-          buffer = ''
-          const reader = resp.body.getReader()
-          const decoder = new TextDecoder()
-
-          while (activo && !ac.signal.aborted) {
-            const { done, value } = await reader.read()
-            if (done) break
-
-            buffer += decoder.decode(value, { stream: true })
-            const lineas = buffer.split('\n')
-            buffer = lineas.pop()
-
-            let tipoEvento = null
-            let dataLinea = ''
-
-            for (const linea of lineas) {
-              if (linea.startsWith('event:')) {
-                tipoEvento = linea.slice(6).trim()
-              } else if (linea.startsWith('data:')) {
-                dataLinea = linea.slice(5).trim()
-              } else if (linea === '' && tipoEvento) {
-                if (tipoEvento === 'muestra' && dataLinea) {
-                  try {
-                    const parsed = JSON.parse(dataLinea)
-                    const nodo = parsed.nodo || 'default'
-                    seq = parsed.seq || seq
-
-                    setMuestras((prev) => {
-                      const arr = prev[nodo] || []
-                      const next = [...arr, parsed]
-                      return {
-                        ...prev,
-                        [nodo]: next.length > ventana
-                          ? next.slice(next.length - ventana)
-                          : next,
-                      }
-                    })
-                  } catch {
-                    // SSE linea malformada, ignorar
-                  }
-                }
-                tipoEvento = null
-                dataLinea = ''
-              }
-            }
-          }
-        } catch (e) {
-          if (ac.signal.aborted) break
-          setError(e.message || 'Conexion SSE perdida')
-        }
-
-        setConectado(false)
-        if (activo && !ac.signal.aborted) {
-          await new Promise((r) => setTimeout(r, 3000))
-        }
+    const primerTick = setTimeout(tick, 0)
+    timerRef.current = setInterval(tick, intervaloMs)
+    return () => {
+      clearTimeout(primerTick)
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
       }
     }
-
-    conectar()
-
-    return () => {
-      activo = false
-      ac.abort()
-    }
-  }, [accessToken, ventana, cerrar])
+  }, [accessToken, intervaloMs, tick])
 
   const ultimaMuestra = useCallback(
     (nodo) => {
