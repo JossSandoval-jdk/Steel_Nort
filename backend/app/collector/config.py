@@ -21,7 +21,7 @@ AUDIT_POLL_INTERVAL = int(os.getenv("AUDIT_POLL_INTERVAL", "5"))
 # ---------------------------------------------------------------------
 # STREAM: coleccion continua hacia la API web (daemon de streaming).
 # ---------------------------------------------------------------------
-STREAM_API_URL = os.getenv("STREAM_API_URL", "http://localhost:8089")
+STREAM_API_URL = os.getenv("STREAM_API_URL", "http://localhost:8200/api/v2")
 STREAM_USER = os.getenv("STREAM_USER", "")
 STREAM_PASSWORD = os.getenv("STREAM_PASSWORD", "")
 STREAM_INTERVAL = int(os.getenv("STREAM_INTERVAL", "7"))
