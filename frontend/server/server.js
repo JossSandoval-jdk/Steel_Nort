@@ -1,5 +1,5 @@
 // Servidor Express que actua como capa de middleware entre el
-// frontend React y el backend FastAPI (puerto 8089).
+// frontend React y el backend FastAPI (puerto 8200).
 import http from 'node:http'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -40,9 +40,9 @@ app.use(denySensitiveFiles)
 app.use(protectModel)
 
 // 3. Rate limiting por IP.
-app.use('/api/auth', authLimiter)
-app.use('/api/dominio/ml', modelLimiter)
-app.use('/api/telemetria/muestras', ingestLimiter)
+app.use('/api/v2/auth', authLimiter)
+app.use('/api/v2/modelo', modelLimiter)
+app.use('/api/v2/telemetria/push', ingestLimiter)
 app.use('/api', apiLimiter)
 
 // 4. Health check: visible para infraestructura/orquestadores.
@@ -89,5 +89,5 @@ initWebSocket(io)
 
 server.listen(PORT, () => {
   logger.info(`Servidor Express escuchando en http://localhost:${PORT}`)
-  logger.info(`Proxy API -> ${process.env.BACKEND_URL || 'http://localhost:8089'}`)
+  logger.info(`Proxy API -> ${process.env.BACKEND_URL || 'http://localhost:8200'}`)
 })

@@ -55,7 +55,7 @@ CONTEXTO = {
 
 
 def _login():
-    body = json.dumps({"email": STREAM_USER, "password": STREAM_PASSWORD}).encode()
+    body = json.dumps({"usuario": STREAM_USER, "clave": STREAM_PASSWORD}).encode()
     req = urllib.request.Request(
         f"{STREAM_API_URL}/auth/login", data=body,
         headers={"Content-Type": "application/json"})
@@ -64,8 +64,9 @@ def _login():
 
 
 def _estado(token):
+    """Ultima muestra publicada por el daemon (cache en RAM de la API v2)."""
     req = urllib.request.Request(
-        f"{STREAM_API_URL}/telemetria/estado",
+        f"{STREAM_API_URL}/telemetria/actual",
         headers={"Authorization": f"Bearer {token}"})
     with urllib.request.urlopen(req, timeout=10) as r:
         return json.loads(r.read())
@@ -78,14 +79,23 @@ def _columnas_datos():
 
 
 def _nodo(estado):
-    nodos = estado.get("nodos", {})
-    if STREAM_NDO_NOM in nodos and nodos[STREAM_NDO_NOM].get("ultima"):
-        return STREAM_NDO_NOM
-    for nombre, info in nodos.items():
-        if info.get("ultima"):
-            return nombre
-    raise RuntimeError("No hay nodos con muestra en /telemetria/estado. "
+    if estado.get("muestra"):
+        return estado.get("nodo", STREAM_NDO_NOM)
+    raise RuntimeError("No hay muestra en /telemetria/actual. "
                        "Revisa que el daemon este corriendo.")
+
+
+def _segundos_desde(fecha_str):
+    """Antiguedad de la ultima muestra en segundos (None si no se pudo leer)."""
+    if not fecha_str:
+        return None
+    try:
+        ult = datetime.datetime.fromisoformat(str(fecha_str))
+        if ult.tzinfo is not None:
+            ult = ult.astimezone().replace(tzinfo=None)
+        return (datetime.datetime.now() - ult).total_seconds()
+    except Exception:
+        return None
 
 
 def main():
@@ -125,9 +135,9 @@ def main():
                     est = _estado(token)
                 else:
                     print(f"[CAPTURA] error estado: {e}", flush=True)
-            muestra = est["nodos"][nodo]["ultima"] or {}
-            hace = float(est["nodos"][nodo].get("hace_seg", 999) or 999)
-            if hace > 40 and not avisado:
+            muestra = est.get("muestra") or {}
+            hace = _segundos_desde(est.get("fecha_str"))
+            if hace is not None and hace > 40 and not avisado:
                 print("[CAPTURA] AVISO: el nodo no se actualiza "
                       f"(hace {hace:.0f}s). ¿El daemon sigue corriendo?",
                       flush=True)

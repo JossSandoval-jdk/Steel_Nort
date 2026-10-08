@@ -27,7 +27,7 @@ export const apiLimiter = rateLimit({
   ...baseOptions,
   windowMs,
   limit: getLimit(process.env.RATE_LIMIT_API_MAX, 1000),
-  skip: (req) => req.path.startsWith('/api/telemetria/muestras'),
+  skip: (req) => req.originalUrl.startsWith('/api/v2/telemetria/push'),
   handler: jsonHandler(
     'Demasiadas peticiones a la API. Intente de nuevo mas tarde.'
   ),

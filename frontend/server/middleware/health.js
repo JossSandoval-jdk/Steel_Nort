@@ -5,7 +5,7 @@ import https from 'node:https' // Añadido soporte seguro para HTTPS
 import { logger } from './logger.js'
 
 // Validación estricta y segura del entorno para prevenir SSRF básico
-const RAW_BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8089'
+const RAW_BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8200'
 
 let VALID_BACKEND_URL
 try {
@@ -16,7 +16,7 @@ try {
   VALID_BACKEND_URL = parsed
 } catch (err) {
   logger.error(`[Security] BACKEND_URL inválida o insegura: ${err.message}`)
-  VALID_BACKEND_URL = new URL('http://localhost:8089') // Fallback seguro
+  VALID_BACKEND_URL = new URL('http://localhost:8200') // Fallback seguro
 }
 
 function checkBackend() {

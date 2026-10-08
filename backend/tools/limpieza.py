@@ -43,6 +43,8 @@ PLAN: list[tuple[int, str, str, list[str]]] = [
     (1, "frontend/src/components/AnomaliasTable.jsx", "no rutado en App.jsx, consume /anomalias/diagnostico (v1)", []),
     (1, "frontend/src/pages/RolesPermisos.jsx", "no rutado en App.jsx, consume /roles (v1)", []),
     (1, "frontend/src/components/IconRefresh.jsx", "solo lo usaba AnomaliasTable", []),
+    # ---------------------------------------------------------------- Fase 3
+    (3, "backend/tools/simular_carga.py", "duplicado obsoleto: features v1 y API v1; su validacion paso a tests/simular_telemetria.py", []),
     # ---------------------------------------------------------------- Fase 4
     (4, "backend/training/output/inventario", "historico v1, regenerable", []),
     (4, "backend/training/output/limpio", "historico v1, regenerable", []),

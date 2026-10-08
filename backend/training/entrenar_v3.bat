@@ -11,7 +11,7 @@ REM                            dataset v3 (si ya lo corriste antes)
 REM          saltar_pipeline = 1 para NO re-ejecutar 01-05 (si ya corrieron)
 REM
 REM  El daemon y el backend deben estar corriendo: la captura lee el
-REM  estado LIVE que empuja el daemon al backend (127.0.0.1:8089).
+REM  estado LIVE que empuja el daemon al backend (127.0.0.1:8200/api/v2).
 REM =====================================================================
 
 set "PYTHON=D:\SteelNort_web\backend\.venv\Scripts\python.exe"
