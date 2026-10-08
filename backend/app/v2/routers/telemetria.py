@@ -105,7 +105,7 @@ def obtener_actual():
         "ip": data_nodo.get("ip", "127.0.0.1"),
         "fecha_str": data_nodo.get("fecha_str"),
         # Muestra cruda completa: la usan las utilidades de captura
-        # (training/capturar_live_v3.py) para armar el dataset de reentreno.
+        # (training/capturar_live.py) para armar el dataset de reentreno.
         "muestra": muestra,
         "metricas": {
             # Métricas básicas del sistema

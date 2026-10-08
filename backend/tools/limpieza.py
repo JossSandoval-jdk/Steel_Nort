@@ -46,14 +46,15 @@ PLAN: list[tuple[int, str, str, list[str]]] = [
     # ---------------------------------------------------------------- Fase 3
     (3, "backend/tools/simular_carga.py", "duplicado obsoleto: features v1 y API v1; su validacion paso a tests/simular_telemetria.py", []),
     # ---------------------------------------------------------------- Fase 4
-    (4, "backend/training/output/inventario", "historico v1, regenerable", []),
-    (4, "backend/training/output/limpio", "historico v1, regenerable", []),
-    (4, "backend/training/output/integrado", "historico v1, regenerable", []),
-    (4, "backend/training/output/modelado", "historico v1, regenerable", []),
-    (4, "backend/training/output/inventario_v2", "historico, historia en git", []),
-    (4, "backend/training/output/limpio_v2", "historico, historia en git", []),
-    (4, "backend/training/output/integrado_v2", "historico, historia en git", []),
+    # Las carpetas *_v2 pasan a llamarse sin sufijo (git mv): inventario,
+    # limpio e integrado conservan el contenido v2. modelado se queda con
+    # su contenido v1 (es el fixture que usa tests/test_validacion.py).
+    (4, "backend/training/output/inventario", "historico v1; lo reemplaza inventario_v2 (se renombra)", []),
+    (4, "backend/training/output/limpio", "historico v1; lo reemplaza limpio_v2 (se renombra)", []),
+    (4, "backend/training/output/integrado", "historico v1; lo reemplaza integrado_v2 (se renombra)", []),
+    (4, "backend/training/output/integrado_v3", "derivable: construir_dataset.py lo regenera; historia en git", []),
     (4, "backend/training/output/modelado_v2", "historico, historia en git", []),
+    (4, "backend/training/output/modelado_v3", "derivable: entrenar.bat lo regenera; historia en git", []),
     (4, "backend/ml/backups", "backups .bak_old de artefactos", []),
     (4, "backend/training/nucleo/legacy", "carpeta vacia", []),
 ]

@@ -5,7 +5,7 @@
 Paso 5: concatena las corridas transformadas en un único dataset.
 
 Salida:
-    output/integrado_v2/
+    output/integrado/
         dataset_steelnort_preparado.csv
         reporte_calidad_datos.csv
         metadata_transformaciones.json

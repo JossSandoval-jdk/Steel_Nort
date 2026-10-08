@@ -443,14 +443,14 @@ def paso_preparacion(cfg: dict):
         run_proceso([sys.executable, "-u", str(PREP_DIR / script)],
                     env_extra=env, cwd=PREP_DIR, prefijo=f"[{script}] ")
 
-    ds = root / "integrado" / "dataset_carga_principales.csv"
+    ds = root / "integrado" / "dataset_steelnort_preparado.csv"
     if ds.is_file():
         n = sum(1 for _ in ds.open(encoding="utf-8-sig", errors="replace")) - 1
         ok(f"Dataset preparado: {ds} ({max(n, 0)} filas)")
         cols = ds.open(encoding="utf-8-sig").readline().strip().replace(",", ", ")
         info(f"Columnas: {cols[:200]}...")
     else:
-        warn("No se encontro dataset_carga_principales.csv")
+        warn("No se encontro dataset_steelnort_preparado.csv")
     return True
 
 

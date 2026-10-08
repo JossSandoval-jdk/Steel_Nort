@@ -17,17 +17,6 @@ DIR_ANOMALIAS  = OUTPUT_BASE_DIR / "anomalias"
 DIR_MODELADO   = OUTPUT_BASE_DIR / "modelado"
 
 # ==========================================
-# 1.b MODO PRUEBA — carpetas v2
-# ==========================================
-# Descomenta estas 4 líneas para probar sin tocar las carpetas originales.
-# Al terminar de validar, vuelve a comentarlas y todo vuelve a la normalidad.
-
-DIR_INVENTARIO = OUTPUT_BASE_DIR / "inventario_v2"
-DIR_LIMPIO     = OUTPUT_BASE_DIR / "limpio_v2"
-DIR_INTEGRADO  = OUTPUT_BASE_DIR / "integrado_v2"
-DIR_MODELADO   = OUTPUT_BASE_DIR / "modelado_v2"
-
-# ==========================================
 # 2. NOMBRES DE ARCHIVOS
 # ==========================================
 NOMBRE_METRICAS       = "metrics.log"
