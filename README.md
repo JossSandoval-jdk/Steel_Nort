@@ -19,28 +19,34 @@ real, visualizándolas en un dashboard web.
 SteelNort_web/
 ├── backend/              # Python 3.12 + FastAPI
 │   ├── app/
-│   │   ├── main.py           # Arranque de la API + routers
-│   │   ├── routers/          # auth, usuarios, anomalias, metricas,
-│   │   │                     # telemetria, dashboard, reentrenamiento, dominio
-│   │   ├── services/         # logica de negocio (anomalias, telemetria, nodos...)
+│   │   ├── v2/               # API v2 (unica expuesta, prefijo /api/v2)
+│   │   │   ├── main.py       #   arranque + lifespan (esquema, semilla, detector)
+│   │   │   ├── routers/      #   auth, acceso, nodos, modelo, deteccion,
+│   │   │   │                 #   datos, sistema, estado, telemetria
+│   │   │   ├── services/     #   logica de negocio
+│   │   │   ├── models/       #   ORM (21 tablas: usuarios, alertas, modelos_ml...)
+│   │   │   └── schemas/      #   DTOs Pydantic
 │   │   ├── collector/        # telemetria: metrics, log_event, xe, stream_daemon
-│   │   ├── ml/detector.py    # evaluacion online con los artefactos del modelo
-│   │   ├── models/           # ORM (Usuarios, Alertas, Modelos_ML, Nodos_SCADA...)
-│   │   ├── schemas/          # DTOs Pydantic
-│   │   └── middleware/       # rate limit, seguridad, protección del modelo
+│   │   ├── ml/               # detector/decisor/ensamble online
+│   │   └── security.py       # bcrypt, JWT y CSRF
 │   ├── training/
 │   │   ├── nucleo/
 │   │   │   ├── data_preparation/   # pipeline 00→04 (inventario, selección,
 │   │   │   │                       # limpieza, transformación, integración)
 │   │   │   └── modeling/           # pipeline 01→05 (muestras, correlación,
 │   │   │                           # Isolation Forest, reglas motor, diagnóstico)
-│   │   ├── captures/         # capturas de telemetría por corrida
-│   │   └── output/           # corridas (baseline/anomalias) + datasets generados
+│   │   ├── captures/         # capturas de telemetría por corrida + spool
+│   │   ├── output/           # inventario/limpio/integrado/modelado + corridas
+│   │   ├── entrenar.bat      # reentreno end-to-end (captura live → promover)
+│   │   └── *.py              # capturar_live, construir_dataset, generar_copod,
+│   │                         # promover, reentrenar_capturas
 │   ├── ml/artifacts/         # artefactos desplegados (modelo, scaler, features)
-│   └── tools/                # menu_pipeline, simular_carga, generar_carga,
-│                             # inyectar_anomalias
+│   ├── tests/                # pytest + simular_telemetria (end-to-end)
+│   └── tools/                # menu_pipeline, menu_laboratorio, generar_carga,
+│                             # inyectar_anomalias, limpieza
 ├── frontend/             # React 19 + Vite (dashboard) + Express proxy + Socket.IO
 ├── database/             # Maestro: schema.sql + diccionario_datos.sql (SQL Server)
+├── docs/                 # ARQUITECTURA.md, FUNCIONALIDADES_PRINCIPALES.md
 └── README.md             # este documento
 ```
 
@@ -89,14 +95,14 @@ SteelNort_web/
 # Base de datos
 #  · ejecutar database/schema.sql en SQL Server
 
-# Backend
+# Backend (API v2 en :8200; requiere SQL Server con bdSteelNort_v2)
 cd backend
 py -3.12 -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-copy .env.example .env        # ajustar DATABASE_URL, SECRET_KEY, SEED_ADMIN_*
-uvicorn app.main:app --reload --port 8000
-# API: http://localhost:8000  ·  docs: http://localhost:8000/docs
+copy .env.example .env        # ajustar DATABASE_URL, SECRET_KEY, STREAM_*
+python crear_admin_v2.py      # crea el usuario administrador (una sola vez)
+run_backend.bat               # API: http://127.0.0.1:8200/api/v2 · docs: /docs
 
 # Frontend
 cd frontend
@@ -106,8 +112,10 @@ npm run dev
 
 ## Documentación por módulo
 
-- [Backend (API)](backend/README.md) — instalación, configuración, endpoints de
-  autenticación/usuarios y notas de seguridad.
+- [Arquitectura y navegación](docs/ARQUITECTURA.md) — índice del repositorio:
+  API v2, flujo de telemetría, pipeline CRISP-DM y artefactos.
+- [Backend (API)](backend/README.md) — instalación, configuración, endpoints y
+  notas de seguridad.
 - [Preparación de datos (núcleo)](backend/training/nucleo/data_preparation/README.md)
   — pipeline 00→04, variables, fuentes y decisiones.
 - Preparación de datos standalone (fase 2): repositorio `Fase_2_Prepacion _datos`

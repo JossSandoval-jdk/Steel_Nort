@@ -1,8 +1,10 @@
 # SteelNort — Backend (API)
 
-Backend de la plataforma SteelNort escrito en **Python + FastAPI**. De
-momento expone el modulo de **autenticacion** (login con doble token);
-esta disenado para escalar agregando nuevos routers y modelos.
+Backend de la plataforma SteelNort escrito en **Python + FastAPI**. La unica
+API expuesta es la **v2** (`app/v2/`), que monta sus routers bajo el prefijo
+`/api/v2` en el puerto **8200** (la v1 fue eliminada; ver rama
+`limpieza/organizacion`). Incluye autenticacion de doble token, telemetria en
+vivo, deteccion de anomalías, modelos ML, usuarios/roles y sistema.
 
 ## Requisitos
 
@@ -45,32 +47,35 @@ copy .env.example .env
 
 ## Ejecucion
 
-```bash
-uvicorn app.main:app --reload --port 8000
-```
-
-### Pruebas locales sin SQL Server
-
-Desde la carpeta `backend`, ejecute:
-
 ```bat
-run_backend.bat test
+run_backend.bat          :: API v2 en http://127.0.0.1:8200/api/v2
+run_backend.bat dev      :: con recarga automatica
 ```
 
-Usa `backend/.venv`, SQLite local (`steelnort_test.db`) y deja la API en
-`http://127.0.0.1:8000`. Usuario inicial: `admin@steelnort.com` / `Admin123!`.
-Para el frontend: `cd frontend` y ejecute `npm run dev`.
+Equivalente directo: `.venv\Scripts\python -m uvicorn app.v2.main:app --host 127.0.0.1 --port 8200`.
 
-La API queda en `http://localhost:8000`, y la documentacion interactiva
-en `http://localhost:8000/docs`.
+La documentacion interactiva queda en `http://127.0.0.1:8200/docs`.
 
-## Endpoints (login)
+### Base de datos y primer arranque
+
+- Requiere **SQL Server** con la base `bdSteelNort_v2` (esquema de
+  `database/schema.sql` + triggers de `database/instalar_disparadores.sql`).
+- El lifespan verifica las 21 tablas y siembra roles/permisos (idempotente).
+- El administrador NO se crea solo: ejecute `python crear_admin_v2.py`
+  una vez.
+- Salud: `GET /api/v2/salud` (BD + esquema).
+
+## Endpoints (prefijo `/api/v2`)
 
 | Metodo | Ruta            | Descripcion                                   |
 |--------|-----------------|-----------------------------------------------|
 | POST   | `/auth/login`   | Autentica y devuelve `{access_token, csrf_token, usuario}` + cookie `csrf_token`. |
 | GET    | `/auth/me`      | Devuelve el usuario del token (Bearer).       |
 | POST   | `/auth/logout`  | Cierra la sesion y borra la cookie (exige CSRF). |
+| GET    | `/auth/permisos`| Permisos del usuario actual.                  |
+| POST   | `/telemetria/push` | Inserta una muestra del daemon (sin auth, rate limit aparte). |
+| GET    | `/telemetria/actual` | Ultima muestra publicada por nodo.       |
+| GET    | `/salud`        | Estado de la API, BD y esquema.               |
 
 ### Usuarios y permisos
 
@@ -84,12 +89,12 @@ Los permisos se derivan de `Usuarios.usu_rol`, sin tablas adicionales:
 
 | Metodo | Ruta | Descripcion |
 |--------|------|-------------|
-| GET | `/usuarios` | Lista usuarios activos |
-| GET | `/usuarios/roles/permisos` | Consulta permisos agrupados por rol |
-| GET | `/usuarios/me/permisos` | Consulta permisos del usuario actual |
-| POST | `/usuarios` | Crea un usuario (Administrador + CSRF) |
-| PATCH | `/usuarios/{usuario_id}` | Edita un usuario (Administrador + CSRF) |
-| DELETE | `/usuarios/{usuario_id}` | Baja logica (Administrador + CSRF) |
+| GET | `/api/v2/usuarios` | Lista usuarios activos |
+| GET | `/api/v2/roles-permisos` | Consulta permisos agrupados por rol |
+| GET | `/auth/permisos` | Consulta permisos del usuario actual |
+| POST | `/api/v2/usuarios` | Crea un usuario (Administrador + CSRF) |
+| PATCH | `/api/v2/usuarios/{cod}` | Edita un usuario (Administrador + CSRF) |
+| DELETE | `/api/v2/usuarios/{cod}` | Baja logica (Administrador + CSRF) |
 
 Las contrasenas se almacenan con bcrypt y las bajas usan `usu_act`/`fec_eli`.
 
@@ -110,43 +115,49 @@ Las contrasenas se almacenan con bcrypt y las bajas usan `usu_act`/`fec_eli`.
 ```
 backend/
 ├── app/
-│   ├── main.py          # Arranque FastAPI + CORS + routers
-│   ├── config.py        # Configuracion central (.env, tipada)
-│   ├── database.py      # SQLAlchemy engine + sesion + init
-│   ├── security.py      # bcrypt, JWT y CSRF
-│   ├── seed.py          # Seed del usuario admin si la BD esta vacia
-│   ├── models/          # Modelos ORM (uno por dominio)
-│   │   ├── __init__.py          # Importa todos los modelos
-│   │   └── model_usuario.py     # Usuarios + Sesiones
-│   ├── schemas/         # DTOs Pydantic (LoginRequest, TokenResponse...)
-│   └── routers/
-│       ├── auth.py      # /auth/login, /auth/me, /auth/logout
+│   ├── v2/               # API v2 (unica app)
+│   │   ├── main.py       # Arranque + lifespan (esquema, semilla, detector)
+│   │   ├── config.py     # Settings tipados (.env)
+│   │   ├── database.py   # SQLAlchemy engine + init_db + verificar_esquema
+│   │   ├── seguridad.py  # bcrypt, JWT y CSRF
+│   │   ├── models/       # Modelos ORM (21 tablas)
+│   │   ├── schemas/      # DTOs Pydantic
+│   │   ├── services/     # Logica de negocio
+│   │   └── routers/      # auth, acceso, nodos, modelo, deteccion,
+│   │                     # datos, sistema, estado, telemetria
+│   ├── collector/        # Telemetria: metrics, log_event, xe, stream_daemon
+│   ├── ml/               # detector.py, decisor.py, ensamble_z.py (online)
+│   ├── config.py         # Config del collector (STREAM_API_URL, credenciales)
+│   └── security.py       # Utilidades comunes de seguridad
 ├── ml/
-│   ├── artifacts/       # Artefactos ACTIVOS que usa el detector
-│   └── backups/         # Unico lugar de respaldos *.bak_old
-├── tools/               # Utilidades (ver abajo)
-├── training/            # Pipeline CRISP-DM (data_preparation + modeling)
-├── tests/               # (por implementar)
+│   └── artifacts/        # Artefactos ACTIVOS que usa el detector
+├── tools/                # Utilidades (ver abajo)
+├── training/             # Pipeline CRISP-DM (data_preparation + modeling)
+├── tests/                # pytest + utilidades end-to-end
+├── run_backend.bat       # Levanta la API v2 en :8200
+├── crear_admin_v2.py     # Crea el administrador
 ├── requirements.txt
 ├── .env.example
 └── README.md
 ```
 
-## Herramientas de captura y validacion (`tools/`)
+## Herramientas (`tools/`) y pruebas (`tests/`)
 
 | Script | Proposito |
 |--------|-----------|
-| `menu_pipeline.py` | Orquestador: captura normal (`paso_captura_normal`), anomalias, preparacion, modelado, despliegue y resultados. |
+| `menu_pipeline.py` | Orquestador: captura normal, anomalias, preparacion, modelado, despliegue y resultados. |
+| `menu_laboratorio.py` | Menú de laboratorio (experimentos puntuales). |
 | `generar_carga.py` | Genera carga OLTP de trabajo para las capturas. |
 | `inyectar_anomalias.py` | Inyecta anomalias en una captura en marcha. |
-| `simular_carga.py` | Validador end-to-end contra el endpoint real (/telemetria) para verificar que el detector clasifica bien. |
-| `run_scratch.py`, `run_long_scratch.py` | Capturas normales ad-hoc usando `menu_pipeline.paso_captura_normal` (baseline adicional). |
+| `limpieza.py` | Borrado controlado del repositorio (dry-run por defecto). |
+| `tests/simular_telemetria.py` | Validador end-to-end: inyecta muestras sintéticas contra `/api/v2/telemetria/push` y verifica que el detector clasifica bien. |
 
 Los run de comparacion/experimentos viven en `training/nucleo/modeling/experimental/`.
+Pruebas: `python -m pytest tests/ -q` (ver `docs/ARQUITECTURA.md`).
 
 ## Escalar
 
 - Nuevo dominio (alertas, reportes, ML, nodos): cree su modelo en
-  `app/models/model_<dominio>.py`, impórtelo en `app/models/__init__.py`,
-  cree su router en `app/routers/` y registrelo en `main.py`.
+  `app/v2/models/`, su schema en `app/v2/schemas/`, su router en
+  `app/v2/routers/` y registrelo en `app/v2/main.py`.
 - La tabla la crea `init_db()` en el arranque de forma automatica.
