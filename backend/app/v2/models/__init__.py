@@ -1,4 +1,4 @@
-"""Modelos ORM de v2: 24 tablas en 7 familias.
+"""Modelos ORM de v2: 25 tablas en 7 familias.
 
 Se agrupan por caracteristicas compartidas, no una por archivo:
 
@@ -10,7 +10,7 @@ Se agrupan por caracteristicas compartidas, no una por archivo:
                       alerta_regla, heatmap_anomalias                (avisos)
     datos.py          metricas, eventos, logs_sql,
                       estadisticas_carga                             (crudos, alta frecuencia)
-    sistema.py        configuracion_sistema                          (clave/valor)
+    sistema.py        configuracion_sistema, auditoria               (clave/valor y registro)
     notificaciones.py notificaciones, push_suscripciones             (campanita y push)
 
 Al importar este paquete, todas las clases quedan registradas en
@@ -30,7 +30,7 @@ from app.v2.models.modelo import (
 )
 from app.v2.models.nodos import Instancia, SesionSQL
 from app.v2.models.notificaciones import Notificacion, PushSuscripcion
-from app.v2.models.sistema import Configuracion
+from app.v2.models.sistema import Auditoria, Configuracion
 
 TABLAS = [
     Rol,
@@ -55,6 +55,7 @@ TABLAS = [
     Reentrenamiento,
     ReentrenamientoPaso,
     Configuracion,
+    Auditoria,
     Notificacion,
     PushSuscripcion,
 ]

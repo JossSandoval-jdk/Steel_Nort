@@ -9,7 +9,10 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from pydantic import field_validator
+
 from app.v2.schemas.comun import Salida
+from app.v2.services.privacidad import enmascarar_sql
 
 
 class MetricaOut(Salida):
@@ -31,6 +34,13 @@ class EventoOut(Salida):
     eve_lreads: int | None = None
     eve_wait: str | None = None
     eve_sql: str | None = None
+
+    # El SQL crudo puede traer literales con datos de clientes: se enmascara
+    # antes de responder la API. La fila original no se toca en la base.
+    @field_validator("eve_sql")
+    @classmethod
+    def _enmascarar_sql(cls, valor: str | None) -> str | None:
+        return enmascarar_sql(valor)
 
 
 class LogSQLOut(Salida):

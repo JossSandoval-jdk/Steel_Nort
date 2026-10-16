@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../hooks/useAuth.js'
 import api from '../services/api.js'
 import { alertasDesdePagina } from '../services/severidad.js'
 import '../css/Layout.css'

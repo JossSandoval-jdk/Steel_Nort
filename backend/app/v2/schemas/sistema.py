@@ -22,6 +22,18 @@ class ConfiguracionCreate(BaseModel):
     cfg_valor: str = Field(max_length=500)
 
 
+class AuditoriaOut(Salida):
+    """Una fila del registro de auditoria."""
+
+    aud_cod: int
+    aud_usu: int | None = None
+    aud_accion: str
+    aud_recurso: str
+    aud_resultado: int | None = None
+    aud_ip: str | None = None
+    aud_fec: datetime
+
+
 class Resumen(BaseModel):
     """Cifras de una linea por tabla, para el tablero."""
 

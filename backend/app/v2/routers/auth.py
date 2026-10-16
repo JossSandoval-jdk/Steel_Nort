@@ -6,7 +6,7 @@ emite ``app.security``; aqui solo se orquestan usuario, sesion y permisos.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
@@ -15,6 +15,7 @@ from app.v2.models.acceso import Sesion as SesionDB
 from app.v2.schemas.acceso import TokenRespuesta, UsuarioOut
 from app.v2.seguridad import Sesion, UsuarioActual
 from app.v2.services import acceso
+from app.v2.services import auditoria as servicio_auditoria
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -33,7 +34,16 @@ def login(datos: LoginBody, request: Request, db: Sesion) -> TokenRespuesta:
     puede hacerlo todo.
     """
     ip = request.client.host if request.client else None
-    usuario, rol, token, minutos = acceso.autenticar(db, datos.usuario.strip(), datos.clave, ip)
+    try:
+        usuario, rol, token, minutos = acceso.autenticar(db, datos.usuario.strip(), datos.clave, ip)
+    except HTTPException as exc:
+        # El login es la unica accion que no pasa por el middleware de
+        # auditoria (el token no viaja aqui), asi que se registra a mano.
+        accion = "LOGIN_BLK" if exc.status_code == 429 else "LOGIN_FAIL"
+        servicio_auditoria.registrar(db, None, accion, "/api/v2/auth/login", exc.status_code, ip)
+        raise
+
+    servicio_auditoria.registrar(db, usuario.usu_cod, "LOGIN", "/api/v2/auth/login", 200, ip)
     acceso.registrar_sesion(db, usuario.usu_cod, ip)
 
     return TokenRespuesta(

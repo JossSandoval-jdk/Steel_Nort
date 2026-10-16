@@ -33,7 +33,6 @@ class Settings(BaseSettings):
     secret_key: str = "change-me-use-a-secret-key-of-at-least-32-chars"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 120
-    csrf_token_expire_minutes: int = 120
 
     # Credenciales del usuario administrador inicial (seed).
     seed_admin_nombre: str = "Administrador SteelNort"

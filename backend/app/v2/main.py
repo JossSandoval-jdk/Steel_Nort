@@ -1,7 +1,7 @@
 """Punto de entrada de la API v2 (SteelNort).
 
 Arranque:
-  1. comprueba que la base ``bdSteelNort_v2`` tiene las 21 tablas del script canonico;
+  1. comprueba que la base ``bdSteelNort_v2`` tiene las 25 tablas del script canonico;
   2. siembra roles, permisos y el administrador inicial (idempotente);
   3. monta los siete routers bajo el prefijo ``/api/v2``.
 
@@ -17,21 +17,26 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select, text
 
+from app.v2.auditoria import auditar_peticion
+from app.v2.cabeceras import poner_cabeceras
 from app.v2.config import settings
+from app.v2.csrf import proteger_csrf
+from app.v2.limites import limitar_peticion
 from app.v2.database import SessionLocal, init_db, verificar_esquema, version_bd
 from app.v2.models.acceso import Usuario
 from app.v2.routers import acceso, auth, datos, deteccion, modelo, nodos, sistema, notificaciones, push_interno
+from app.v2.routers import informes
 from app.v2.schemas.comun import Salud
 from app.v2.services import semilla
 from app.v2.routers import estado
 from app.v2.routers import telemetria
-from app.ml.detector import get_detector
+from app.tools.motor.detector import get_detector
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("steelnort.v2")
 
-# Las 24 tablas del esquema canonico que expone esta API.
-# 21 originales + notificaciones + push_suscripciones + alerta_regla.
+# Las 25 tablas del esquema canonico que expone esta API.
+# 21 originales + notificaciones + push_suscripciones + alerta_regla + auditoria.
 TABLAS = (
     "rol",
     "permiso",
@@ -57,6 +62,7 @@ TABLAS = (
     "configuracion_sistema",
     "notificaciones",       # ← NUEVA
     "push_suscripciones",   # ← NUEVA
+    "auditoria",            # ← NUEVA
 )
 
 
@@ -81,18 +87,35 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.titulo,
     version=settings.version,
-    description=f"API de SteelNort sobre la base `{settings.nombre_base}` (24 tablas).",
+    description=f"API de SteelNort sobre la base `{settings.nombre_base}` (25 tablas).",
     lifespan=lifespan,
 )
 
+# Limite de peticiones por IP (429). Se registra antes que CORS y auditoria
+# para que quede por dentro de ellos: asi la respuesta 429 sale con cabeceras
+# CORS y queda registrada en la auditoria.
+app.middleware("http")(limitar_peticion)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.lista_cors,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
     max_age=1800,
 )
+
+# Proteccion CSRF por doble-envio (defensa en profundidad, S1-8). Se registra
+# el primero para quedar por DENTRO de la auditoria: asi un 403 por CSRF
+# tambien se registra en dbo.auditoria.
+app.middleware("http")(proteger_csrf)
+
+# Registro de auditoria: una fila por cada peticion que cambia datos.
+app.middleware("http")(auditar_peticion)
+
+# Cabeceras de seguridad (S1-10). Se registra al final para quedar por fuera de
+# los demas middlewares: asi tambien las respuestas 401, 403 y 429 las llevan.
+app.middleware("http")(poner_cabeceras)
 
 API = "/api/v2"
 app.include_router(auth.router, prefix=API)
@@ -101,6 +124,7 @@ app.include_router(nodos.router, prefix=API)
 app.include_router(modelo.router, prefix=API)
 app.include_router(deteccion.router, prefix=API)
 app.include_router(datos.router, prefix=API)
+app.include_router(informes.router, prefix=API)
 app.include_router(sistema.router, prefix=API)
 app.include_router(estado.router, prefix=API)
 app.include_router(telemetria.router, prefix=API)

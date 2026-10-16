@@ -7,8 +7,8 @@ import { logger } from './logger.js'
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 
 // --- Validación de BACKEND_URL ---
-const RAW_BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000'
-const FALLBACK_URL = 'http://localhost:8000'
+const RAW_BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8200'
+const FALLBACK_URL = 'http://localhost:8200'
 
 function parseBackendUrl(raw) {
   try {

@@ -112,6 +112,8 @@ BEGIN
         fec_reg  datetime2(3)  NOT NULL CONSTRAINT DF_usu_fec_reg  DEFAULT SYSUTCDATETIME(),
         eli_usu  int           NULL,
         fec_eli  datetime2(3)  NULL,
+        usu_intentos      int          NOT NULL CONSTRAINT DF_usu_intentos DEFAULT 0,
+        usu_bloqueo_hasta datetime2(3) NULL,
         CONSTRAINT PK_usuario PRIMARY KEY CLUSTERED (usu_cod),
         CONSTRAINT UQ_usu_log UNIQUE (usu_log),
         CONSTRAINT UQ_usu_dni UNIQUE (usu_dni),
@@ -1039,7 +1041,43 @@ BEGIN
 END
 GO
 
-PRINT 'Esquema bdSteelNort listo. 24 tablas (21 + notificaciones + push_suscripciones + alerta_regla).';
+/* ============================================================================
+   13. AUDITORIA
+   ----------------------------------------------------------------------------
+   Historial de acciones: quien hizo que, sobre que recurso, con que resultado.
+   Lo escribe el middleware de la API (backend/app/v2/auditoria.py). No tiene
+   baja logica: es un registro que no se borra.
+   ============================================================================ */
+
+IF OBJECT_ID('dbo.auditoria', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.auditoria (
+        aud_cod        int           IDENTITY(1,1) NOT NULL,
+        aud_usu        int           NULL,
+        aud_accion     varchar(10)   NOT NULL,
+        aud_recurso    varchar(200)  NOT NULL,
+        aud_resultado  int           NULL,
+        aud_ip         varchar(45)   NULL,
+        aud_fec        datetime2(3)  NOT NULL CONSTRAINT DF_aud_fec DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_auditoria PRIMARY KEY CLUSTERED (aud_cod),
+        CONSTRAINT FK_aud_usu FOREIGN KEY (aud_usu) REFERENCES dbo.usuario (usu_cod)
+    );
+    PRINT 'Tabla dbo.auditoria creada.';
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_aud_fec')
+    CREATE INDEX IX_aud_fec
+        ON dbo.auditoria (aud_fec DESC)
+        INCLUDE (aud_usu, aud_accion, aud_resultado);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_aud_usu_fec')
+    CREATE INDEX IX_aud_usu_fec
+        ON dbo.auditoria (aud_usu, aud_fec DESC);
+GO
+
+PRINT 'Esquema bdSteelNort listo. 25 tablas (21 + notificaciones + push_suscripciones + alerta_regla + auditoria).';
 PRINT 'Datos seed minimos:';
 PRINT '  INSERT INTO dbo.rol (rol_nom) VALUES (''Administrador''), (''Operador''), (''Observador'');';
 GO

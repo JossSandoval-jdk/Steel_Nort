@@ -1,51 +1,69 @@
-# Dependencies
-node_modules/
-
-# Python virtual environments (backend)
-.venv/
-venv/
-
-# Python caches y artefactos
-__pycache__/
-*.py[cod]
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-.coverage
-htmlcov/
-*.md
-# Documentacion del proyecto SI va a git (el resto de .md queda local)
-!docs/*.md
-!ERRORES_ENCONTRADOS.md
-!PLAN_TELEMETRIA.md
-*.mjs
-# Build
-dist/
-dist-ssr/
+# Entornos y configuraci�n local (secrets)
+.env
+.env.*
+**/.env
+**/.env.*
 
 # Logs
-logs
 *.log
+logs/
+**/logs/
+
+# Binarios / cach�s de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+build/
+dist/
+
+# Entornos virtuales (nunca subir)
+.venv/
+**/.venv/
+venv/
+**/venv/
+env/
+**/env/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.pytype/
+
+# Node
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+.pnpm-debug.log*
+.eslintcache
 
-# Backend: runtime y backups (no son fuente)
-*.pid
-*.bak_old
-*.sqlite
-*.sqlite3
-*.db
-
-# Local env files
-*.local
-.env
-.env.*
-
-# Editor
-.vscode/*
-!.vscode/extensions.json
-.idea
+# IDEs/editores
+.vscode/
+.idea/
+*.swp
+*.swo
 .DS_Store
+Thumbs.db
+
+# Archivos grandes / salidas temporales (no subir)
+backend/app/tools/output/
+training/output/
+*.parquet
+*.joblib
+*.pkl
+*.xlsx
+*.csv.bak
+
+# Reportes de escaneo generados localmente
+docs/escaneos/*.json
+docs/escaneos/*.txt
+!docs/escaneos/escaneo_api.py
+
+# Certificados / llaves (nunca subir)
+*.key
+*.pem
+*.crt
+*.pfx

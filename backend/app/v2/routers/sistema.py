@@ -9,8 +9,9 @@ from fastapi import APIRouter, Body, Depends, Query
 
 from app.v2.models.acceso import Usuario
 from app.v2.schemas.comun import Mensaje, Pagina
-from app.v2.schemas.sistema import ConfiguracionOut
+from app.v2.schemas.sistema import AuditoriaOut, ConfiguracionOut
 from app.v2.seguridad import Sesion, requiere_permiso
+from app.v2.services import auditoria as servicio_auditoria
 from app.v2.services import sistema as servicio
 
 router = APIRouter(prefix="/sistema", tags=["sistema"])
@@ -53,6 +54,27 @@ def eliminar_configuracion(
 ):
     servicio.eliminar_configuracion(db, clave, actor.usu_cod)
     return {"detalle": f"Parametro {clave} dado de baja"}
+
+
+# =====================================================================
+# AUDITORIA
+# =====================================================================
+# El registro lo escribe el middleware (app/v2/auditoria.py). Aqui solo se
+# consulta. Pide ``sistema:leer`` porque es informacion de administracion.
+
+
+@router.get("/auditoria", response_model=Pagina[AuditoriaOut], summary="Registro de auditoria")
+def listar_auditoria(
+    db: Sesion,
+    _: Annotated[Usuario, Depends(requiere_permiso("sistema:leer"))],
+    pagina: int = Query(1, ge=1),
+    tamano: int = Query(50, ge=1, le=500),
+    orden: str = Query("-aud_fec"),
+    usuario: int | None = Query(None, description="Filtrar por usu_cod"),
+    accion: str | None = Query(None, description="POST, PUT, PATCH o DELETE"),
+    recurso: str | None = Query(None, description="Ruta exacta, p. ej. /api/v2/sistema/configuracion/x"),
+):
+    return servicio_auditoria.listar(db, pagina, tamano, orden, usuario, accion, recurso)
 
 
 # =====================================================================

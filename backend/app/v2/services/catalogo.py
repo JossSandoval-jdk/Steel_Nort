@@ -16,7 +16,7 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from app.ml.detector import ML_ARTIFACTS, get_detector
+from app.tools.motor.detector import ML_ARTIFACTS, get_detector
 from app.utils import utc_now
 from app.v2.models.modelo import ModeloML
 from app.v2.models.nodos import Instancia

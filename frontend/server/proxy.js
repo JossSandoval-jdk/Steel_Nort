@@ -5,8 +5,8 @@ import { logger } from './middleware/logger.js'   // ✅ BIEN
 const isProduction = process.env.NODE_ENV === 'production'
 
 // --- Validación de BACKEND_URL (misma lógica que health.js) ---
-const RAW_BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000'
-const FALLBACK_URL = 'http://localhost:8000'
+const RAW_BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8200'
+const FALLBACK_URL = 'http://localhost:8200'
 
 function parseBackendUrl(raw) {
   try {
@@ -42,9 +42,9 @@ function sanitizeForLog(value) {
 }
 
 // Headers que NO deben llegar al backend tal cual vienen del cliente.
-// ⚠️ Si usas auth por cookie HttpOnly, elimina 'cookie' de esta lista.
+// OJO: la cookie NO se elimina; la API v2 necesita la cookie "csrf_token" para
+// validar el doble-envio del token CSRF (S1-8).
 const STRIP_REQUEST_HEADERS = [
-  'cookie',
   'x-forwarded-for',
   'x-forwarded-host',
   'x-forwarded-proto',

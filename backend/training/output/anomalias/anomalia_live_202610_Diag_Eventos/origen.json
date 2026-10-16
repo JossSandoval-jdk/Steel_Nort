@@ -1,7 +1,0 @@
-{
-  "origen": "telemetria_v2",
-  "es_carga_normal": false,
-  "sospecha_esperada": "R1 (I/O fisico): El disco o la red estan saturados. Revise las operaciones intensas de lectura/escritura o de red.",
-  "regla_aplicada": "Detección estadística sostenida (consenso de ventanas)",
-  "csv_correlacionado": "training\\captures\\anomalias\\anomalias_202610.csv"
-}

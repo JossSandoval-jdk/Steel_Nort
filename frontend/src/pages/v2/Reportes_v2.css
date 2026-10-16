@@ -405,3 +405,47 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ============================================================
+   KPIs del resumen (Reportes v2 con datos reales)
+   ============================================================ */
+.informes-kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.informes-kpi {
+  flex: 1 1 130px;
+  background: #f7f9fb;
+  border: 1px solid #d8dde5;
+  border-radius: 3px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.informes-kpi-valor {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e3a5f;
+  line-height: 1.1;
+}
+
+.informes-kpi-etiqueta {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Formato de exportaciones CSV / JSON */
+.formato-csv  { background: #e8f5e9; color: #1b5e20; }
+.formato-json { background: #e3f2fd; color: #0d47a1; }
+
+.informes-error {
+  color: #b71c1c;
+  font-size: 12px;
+  margin: 0;
+}

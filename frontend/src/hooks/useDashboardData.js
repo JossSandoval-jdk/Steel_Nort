@@ -16,7 +16,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import api from '../services/api.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from './useAuth.js'
 
 // La tabla heatmap_anomalias guarda 3 niveles, pero el trigger
 // TR_alertas_hma_rollup solo escribe dos: 'A' (critica o alta) y 'B'

@@ -46,6 +46,13 @@ class SettingsV2(SettingsV1):
     rate_limit_max: int = 2000
     rate_limit_window_seconds: int = 60
 
+    # --- Bloqueo por intentos fallidos de login -----------------------------
+    # Tras ``login_max_intentos`` fallos seguidos, la cuenta se bloquea durante
+    # ``login_bloqueo_minutos`` minutos (responde 429). Un login correcto
+    # limpia el contador.
+    login_max_intentos: int = 5
+    login_bloqueo_minutos: int = 15
+
     # --- Ciclo de monitoreo -------------------------------------------------
     # El backend lee el SQL Server del escritorio cada ``ciclo_intervalo``
     # segundos, guarda la muestra, la evalua contra la ventana de las ultimas
@@ -75,6 +82,18 @@ class SettingsV2(SettingsV1):
     node_internal_url: str = "http://localhost:3000"
     internal_token: str = ""
 
+    # --- CORS ---------------------------------------------------------------
+    # Origenes permitidos, separados por coma. En desarrollo el front llama a
+    # /api/v2 por el proxy de Vite (mismo origen, aqui no aplica), pero si
+    # algun cliente llama directo a 127.0.0.1:8200 su origen tiene que estar en
+    # esta lista. Antes era ["*"] (cualquiera).
+    #
+    #     V2_CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+    cors_origins: str = (
+        "http://localhost:5173,http://127.0.0.1:5173,"
+        "http://localhost:3000,http://127.0.0.1:3000"
+    )
+
     # Titulo y version que se exponen en /docs.
     titulo: str = "SteelNort API v2"
     version: str = "2.0.0"
@@ -85,6 +104,11 @@ class SettingsV2(SettingsV1):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @property
+    def lista_cors(self) -> list[str]:
+        """Origenes de CORS separados por coma, sin espacios vacios."""
+        return [origen.strip() for origen in self.cors_origins.split(",") if origen.strip()]
 
     @property
     def nombre_base(self) -> str:

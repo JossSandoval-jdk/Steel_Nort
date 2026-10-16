@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from typing import Any, Dict
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from app.ml.detector import get_detector
+from app.tools.motor.detector import get_detector
+from app.v2.routers.push_interno import verificar_token
+from app.v2.seguridad import UsuarioActual
 from app.v2.services.anomalia_v2 import persistir_anomalia, registrar_eventos, registrar_logs
 
 router = APIRouter(prefix="/telemetria", tags=["telemetria"])
@@ -31,11 +33,14 @@ class PayloadMuestra(BaseModel):
     logs: list[Dict[str, Any]] = Field(default_factory=list)
 
 
-@router.post("/push")
+@router.post("/push", dependencies=[Depends(verificar_token)])
 def recibir_y_evaluar_telemetria(payload: PayloadMuestra):
     """
     Recibe la telemetría del demonio, actualiza la caché en RAM para el frontend,
     ejecuta el modelo de Machine Learning y persiste en BD si detecta anomalía.
+
+    Es una ruta **interna**: solo el collector la puede llamar, y lo hace con la
+    cabecera ``X-Internal-Token`` (el mismo valor que ``V2_INTERNAL_TOKEN``).
     """
     nodo = payload.nodo
     ip = payload.ip
@@ -94,11 +99,14 @@ def recibir_y_evaluar_telemetria(payload: PayloadMuestra):
     }
 
 @router.get("/actual")
-def obtener_actual(nodo: str | None = None):
+def obtener_actual(_usuario: UsuarioActual, nodo: str | None = None):
     """
     Endpoint de lectura rápida que alimenta las tarjetas del Frontend 
     (CPU, Memoria, Sesiones conexioes y Transacciones) en tiempo real,
     incorporando todas las métricas transaccionales de SQL Server.
+
+    Exige un usuario con sesión: la muestra cruda del servidor no debe verse
+    sin estar autenticado. El frontend manda su JWT como en el resto de rutas.
 
     Si no se pide un nodo concreto, prioriza el nodo real (``NODO_REAL``) y
     solo cae a otro nodo en caché si aquel no está disponible.

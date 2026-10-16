@@ -19,7 +19,7 @@ import Topbar from '../components/Topbar.jsx'
 import ModalUsuario from '../components/ModalUsuario.jsx'
 import RolesPermisosModal from '../components/RolesPermisosModal.jsx'
 import api from '../services/api'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../hooks/useAuth'
 import '../css/Layout.css'
 import '../css/Configuracion.css'
 
@@ -107,6 +107,9 @@ function PillConexion({ conectado, textoOk, textoOff, textoNull }) {
   )
 }
 
+// Traduce el metodo HTTP de una fila de auditoria a una accion legible.
+const ACCION_LABEL = { POST: 'Crear', PUT: 'Actualizar', PATCH: 'Editar', DELETE: 'Eliminar' }
+
 function Configuracion() {
   const { user, accessToken, rol, tiene } = useAuth()
   const [usuarios, setUsuarios] = useState([])
@@ -130,6 +133,10 @@ function Configuracion() {
   const [mostrarVariables, setMostrarVariables] = useState(false)
   const [reentrenando, setReentrenando] = useState(false)
   const [retrainResult, setRetrainResult] = useState(null)
+
+  // ---- Estado del registro de auditoria ----
+  const [auditoria, setAuditoria] = useState([])
+  const [cargandoAuditoria, setCargandoAuditoria] = useState(true)
 
   const recargar = useCallback(() => setVersion((actual) => actual + 1), [])
 
@@ -216,6 +223,26 @@ function Configuracion() {
       clearInterval(repetido)
     }
   }, [accessToken, cargarModelo])
+
+  // Registro de auditoria: las ultimas acciones que cambiaron datos.
+  const cargarAuditoria = useCallback(async () => {
+    if (!accessToken) return
+    setCargandoAuditoria(true)
+    try {
+      const data = await api.get('/sistema/auditoria?tamano=25', { token: accessToken })
+      setAuditoria(data.items || [])
+    } catch {
+      setAuditoria([])
+    } finally {
+      setCargandoAuditoria(false)
+    }
+  }, [accessToken])
+
+  useEffect(() => {
+    if (!accessToken) return undefined
+    const primero = setTimeout(cargarAuditoria, 0)
+    return () => clearTimeout(primero)
+  }, [accessToken, cargarAuditoria, version])
 
   // Pide un reentrenamiento del modelo.
   // OJO con el cambio de semantica: en la v2 esto NO entrena aqui, registra
@@ -310,6 +337,10 @@ function Configuracion() {
   const logs = conexiones?.logs
   const fpr = modelo?.fpr_actual
   const fprPct = fpr !== null && fpr !== undefined ? fpr * 100 : null
+
+  // usu_cod -> nombre, para la columna "Usuario" del registro de auditoria.
+  const nombreDeUsuario = {}
+  for (const item of usuarios) nombreDeUsuario[item.usu_cod] = item.usu_nom
 
   return (
     <div className="layout">
@@ -562,6 +593,73 @@ function Configuracion() {
                   >
                     <IconRefresh />
                     {reentrenando ? 'Solicitando…' : 'Solicitar reentrenamiento'}
+                  </button>
+                </div>
+              </article>
+            </section>
+
+            {/* ============ AUDITORIA ============ */}
+            <section className="config-col">
+              <article className="card">
+                <div className="card-head">
+                  <div className="head-text">
+                    <h3 className="card-title">Registro de auditoría</h3>
+                    <span className="card-subtitle">
+                      Quién cambió qué y cuándo (últimas acciones)
+                    </span>
+                  </div>
+                </div>
+
+                <table className="users-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Usuario</th>
+                      <th>Acción</th>
+                      <th>Recurso</th>
+                      <th>Resultado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {auditoria.map((fila) => (
+                      <tr key={fila.aud_cod}>
+                        <td>{String(fila.aud_fec).slice(0, 19).replace('T', ' ')}</td>
+                        <td>
+                          {fila.aud_usu != null
+                            ? nombreDeUsuario[fila.aud_usu] || `Usuario ${fila.aud_usu}`
+                            : 'Anónimo'}
+                        </td>
+                        <td>{ACCION_LABEL[fila.aud_accion] || fila.aud_accion}</td>
+                        <td className="aud-recurso" title={fila.aud_recurso}>
+                          {fila.aud_recurso}
+                        </td>
+                        <td>
+                          <span className={`conn-pill ${fila.aud_resultado >= 400 ? 'off' : ''}`}>
+                            <span
+                              className={`status-led ${fila.aud_resultado >= 400 ? 'offline' : 'online'}`}
+                            />
+                            {fila.aud_resultado}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {!cargandoAuditoria && auditoria.length === 0 && (
+                      <tr>
+                        <td colSpan={5}>Sin acciones registradas todavía.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+
+                <div className="card-foot">
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={cargarAuditoria}
+                    disabled={cargandoAuditoria}
+                  >
+                    <IconRefresh />
+                    {cargandoAuditoria ? 'Cargando…' : 'Actualizar'}
                   </button>
                 </div>
               </article>

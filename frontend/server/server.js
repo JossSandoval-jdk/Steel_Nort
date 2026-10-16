@@ -1,5 +1,5 @@
 // Servidor Express que actúa como capa de middleware entre el
-// frontend React y el backend FastAPI (puerto 8000).
+// frontend React y el backend FastAPI (puerto 8200).
 
 // ⚠️ DEBE ser el PRIMER import: carga .env ANTES de que cualquier otro
 // módulo (como push.js) lea process.env. Si se pone después, las variables
@@ -200,7 +200,7 @@ initWebSocket(io)
 
 server.listen(PORT, () => {
   logger.info(`Servidor Express escuchando en http://localhost:${PORT}`)
-  logger.info(`Proxy API -> ${process.env.BACKEND_URL || 'http://localhost:8000'}`)
+  logger.info(`Proxy API -> ${process.env.BACKEND_URL || 'http://localhost:8200'}`)
   logger.info(`Socket.io CORS origin(s): ${SOCKET_CORS_ORIGINS.join(', ')}`)
 
   // Estado de Web Push al arrancar

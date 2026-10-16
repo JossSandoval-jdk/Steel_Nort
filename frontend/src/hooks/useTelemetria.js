@@ -14,7 +14,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import api from '../services/api.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from './useAuth.js'
 
 export function useTelemetria(ventana = 80, intervaloMs = 3000) {
   const { accessToken } = useAuth()

@@ -1,14 +1,16 @@
-"""Modelo de SISTEMA: los parametros de comportamiento del backend.
+"""Modelos de SISTEMA: los parametros del backend y el registro de auditoria.
 
-Una sola tabla de clave/valor del bloque 8 del esquema. No lleva ``cfg_cod``
-porque ``cfg_clave`` ya es la clave natural.
+``configuracion_sistema`` es la tabla de clave/valor del bloque 8 del esquema
+(no lleva ``cfg_cod`` porque ``cfg_clave`` ya es la clave natural). ``auditoria``
+guarda quien hizo que accion sobre que recurso, para poder responder
+"¿quien cambio este umbral y cuando?".
 """
 
 from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String
+from sqlalchemy import DateTime, Identity, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.utils import utc_now
@@ -32,3 +34,24 @@ class Configuracion(Base):
     fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[int | None] = mapped_column(Integer)
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
+
+
+class Auditoria(Base):
+    """Registro de acciones: quien hizo que, sobre que recurso, con que resultado.
+
+    La escribe el middleware ``app/v2/auditoria.py`` en cada peticion que cambia
+    datos (POST/PUT/PATCH/DELETE) sobre ``/api/v2``. No tiene baja logica: es un
+    historial que no se borra. ``aud_usu`` queda en NULL cuando la peticion no
+    traia un token valido (por ejemplo, un login fallido).
+    """
+
+    __tablename__ = "auditoria"
+    __table_args__ = {"schema": "dbo"}
+
+    aud_cod: Mapped[int] = mapped_column(Integer, Identity(), primary_key=True)
+    aud_usu: Mapped[int | None] = mapped_column(Integer)
+    aud_accion: Mapped[str] = mapped_column(String(10), nullable=False)
+    aud_recurso: Mapped[str] = mapped_column(String(200), nullable=False)
+    aud_resultado: Mapped[int | None] = mapped_column(Integer)
+    aud_ip: Mapped[str | None] = mapped_column(String(45))
+    aud_fec: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)

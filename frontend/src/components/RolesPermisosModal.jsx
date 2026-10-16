@@ -18,7 +18,7 @@
 // lo que se asigne aqui se reescribe en el siguiente reinicio del servidor.
 import { useEffect, useState } from 'react'
 import api from '../services/api'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../hooks/useAuth'
 import '../css/RolesPermisos.css'
 import '../css/Modal.css'
 

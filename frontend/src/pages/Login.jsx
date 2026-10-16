@@ -14,7 +14,7 @@ import logo from '../assets/brands/logo_steelNorth.png'
 import facebookIcon from '../assets/icons/facebook_icon.png'
 import instagramIcon from '../assets/icons/instagram_icon.png'
 import whatsappIcon from '../assets/icons/whatsapp_icon.png'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../hooks/useAuth.js'
 import '../css/Login.css'
 
 function Login() {

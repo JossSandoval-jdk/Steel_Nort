@@ -76,6 +76,9 @@ class Usuario(Base):
     fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     eli_usu: Mapped[int | None] = mapped_column(Integer)
     fec_eli: Mapped[datetime | None] = mapped_column(DateTime)
+    # Bloqueo por intentos fallidos de login (lo lleva el servicio de acceso).
+    usu_intentos: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    usu_bloqueo_hasta: Mapped[datetime | None] = mapped_column(DateTime)
 
 
 class RolPermiso(Base):

@@ -25,14 +25,32 @@ const FORMULARIO_VACIO = {
   usu_est: 'A',
 }
 
-function ModalUsuario({ isOpen, onClose, onSave, accessToken, usuario, error }) {
-  const [form, setForm] = useState(FORMULARIO_VACIO)
+// Formulario a partir del usuario que se esta editando (vacio si es alta).
+function formularioDesdeUsuario(usuario) {
+  if (!usuario) return FORMULARIO_VACIO
+  return {
+    usu_nom: usuario.usu_nom || '',
+    usu_log: usuario.usu_log || '',
+    password: '',
+    usu_dni: usuario.usu_dni || '',
+    usu_ema: usuario.usu_ema || '',
+    usu_tel: usuario.usu_tel || '',
+    rol_cod: String(usuario.rol_cod ?? ''),
+    usu_est: usuario.usu_est || 'A',
+  }
+}
+
+// El formulario vive en un componente aparte para poder reiniciarlo con un
+// `key` en lugar de en un useEffect: al abrir el modal se monta de cero y si
+// cambia el usuario, cambia la clave y vuelve a montarse.
+function ModalUsuarioForm({ onClose, onSave, accessToken, usuario, error }) {
+  const [form, setForm] = useState(() => formularioDesdeUsuario(usuario))
   const [roles, setRoles] = useState([])
   const esEdicion = Boolean(usuario)
 
   // Carga los roles activos para el desplegable.
   useEffect(() => {
-    if (!isOpen || !accessToken) return
+    if (!accessToken) return
     let sigueMontado = true
 
     api
@@ -45,26 +63,7 @@ function ModalUsuario({ isOpen, onClose, onSave, accessToken, usuario, error }) 
     return () => {
       sigueMontado = false
     }
-  }, [isOpen, accessToken])
-
-  // Rellena el formulario con el usuario que se esta editando.
-  useEffect(() => {
-    if (!isOpen) return
-    if (!usuario) {
-      setForm(FORMULARIO_VACIO)
-      return
-    }
-    setForm({
-      usu_nom: usuario.usu_nom || '',
-      usu_log: usuario.usu_log || '',
-      password: '',
-      usu_dni: usuario.usu_dni || '',
-      usu_ema: usuario.usu_ema || '',
-      usu_tel: usuario.usu_tel || '',
-      rol_cod: String(usuario.rol_cod ?? ''),
-      usu_est: usuario.usu_est || 'A',
-    })
-  }, [isOpen, usuario])
+  }, [accessToken])
 
   // Un solo manejador para todos los campos.
   function cambiarCampo(evento) {
@@ -95,8 +94,6 @@ function ModalUsuario({ isOpen, onClose, onSave, accessToken, usuario, error }) 
 
     onSave(cuerpo)
   }
-
-  if (!isOpen) return null
 
   return (
     <div className="modal-overlay">
@@ -230,6 +227,24 @@ function ModalUsuario({ isOpen, onClose, onSave, accessToken, usuario, error }) 
         </form>
       </div>
     </div>
+  )
+}
+
+// Envuelve el formulario: solo se renderiza cuando el modal esta abierto y su
+// `key` cambia con el usuario, reiniciando el formulario al abrir o al editar
+// a otra persona.
+function ModalUsuario({ isOpen, onClose, onSave, accessToken, usuario, error }) {
+  if (!isOpen) return null
+
+  return (
+    <ModalUsuarioForm
+      key={usuario?.usu_log ?? 'nuevo'}
+      onClose={onClose}
+      onSave={onSave}
+      accessToken={accessToken}
+      usuario={usuario}
+      error={error}
+    />
   )
 }
 

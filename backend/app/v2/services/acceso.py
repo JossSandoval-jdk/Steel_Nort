@@ -8,12 +8,15 @@ devuelve (``UsuarioOut`` no tiene ese campo).
 
 from __future__ import annotations
 
+from datetime import timedelta
+
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.security import create_access_token, hash_password, verify_password
 from app.utils import utc_now
+from app.v2.config import settings
 from app.v2.models.acceso import Permiso, Rol, RolPermiso, Sesion, Usuario
 from app.v2.schemas.acceso import PermisoCreate, RolCreate, UsuarioCreate, UsuarioUpdate
 from app.v2.services import crud
@@ -188,12 +191,30 @@ def listar_sesiones(
 
 
 def autenticar(db: Session, login: str, clave: str, ip: str | None) -> tuple[Usuario, str, str, int]:
-    """Valida usuario y clave. Devuelve ``(usuario, rol, token, minutos)``."""
+    """Valida usuario y clave, con bloqueo por intentos fallidos.
+
+    Despues de ``login_max_intentos`` fallos seguidos la cuenta queda bloqueada
+    ``login_bloqueo_minutos`` minutos y responde 429. Un login correcto limpia
+    el contador. El fallo en si lo registra el middleware de auditoria (la
+    peticion queda con 401).
+    """
     usuario = db.scalars(
         select(Usuario).where(Usuario.usu_log == login, Usuario.fec_eli.is_(None))
     ).first()
 
+    # Cuenta bloqueada: no se comprueba la clave hasta que pase el plazo.
+    if usuario is not None and usuario.usu_bloqueo_hasta is not None:
+        if usuario.usu_bloqueo_hasta > utc_now():
+            restan = int((usuario.usu_bloqueo_hasta - utc_now()).total_seconds())
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Cuenta bloqueada por intentos fallidos. Intente mas tarde.",
+                headers={"Retry-After": str(max(restan, 1))},
+            )
+
     if usuario is None or not verify_password(clave, usuario.usu_cla):
+        if usuario is not None:
+            _sumar_intento_fallido(db, usuario)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Usuario o clave incorrectos",
@@ -202,9 +223,24 @@ def autenticar(db: Session, login: str, clave: str, ip: str | None) -> tuple[Usu
     if usuario.usu_est != "A":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="El usuario esta inactivo")
 
+    # Login correcto: se limpia el contador de fallos.
+    if usuario.usu_intentos or usuario.usu_bloqueo_hasta:
+        usuario.usu_intentos = 0
+        usuario.usu_bloqueo_hasta = None
+        db.commit()
+
     rol = db.get(Rol, usuario.rol_cod)
     token, minutos = create_access_token(usuario.usu_cod, extra={"rol_cod": usuario.rol_cod})
     return usuario, rol.rol_nom if rol else "", token, minutos
+
+
+def _sumar_intento_fallido(db: Session, usuario: Usuario) -> None:
+    """Suma un fallo y bloquea la cuenta al llegar al maximo."""
+    usuario.usu_intentos = (usuario.usu_intentos or 0) + 1
+    if usuario.usu_intentos >= settings.login_max_intentos:
+        usuario.usu_bloqueo_hasta = utc_now() + timedelta(minutes=settings.login_bloqueo_minutos)
+        usuario.usu_intentos = 0
+    db.commit()
 
 
 def registrar_sesion(db: Session, usuario_cod: int, ip: str | None) -> Sesion:

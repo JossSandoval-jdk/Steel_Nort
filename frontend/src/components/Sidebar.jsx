@@ -5,7 +5,7 @@ import dashboardIcon from '../assets/icons/dashboard_icon.png'
 import reporteIcon from '../assets/icons/reporte_icon.png'
 import alertaIcon from '../assets/icons/alerta_icon.png'
 import configuracionIcon from '../assets/icons/configuracion_icon.png'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../hooks/useAuth.js'
 import '../css/Sidebar.css'
 
 /*

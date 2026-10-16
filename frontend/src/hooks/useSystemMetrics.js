@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import api from '../services/api.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from './useAuth.js'
 
 export function useSystemMetrics(intervaloMs = 3000, ventana = 80) {
   const { accessToken } = useAuth()

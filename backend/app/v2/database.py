@@ -8,7 +8,7 @@ haria que ``create_all`` chocara entre las dos versiones.
 
 La base ``bdSteelNort_v2`` la crea ``database/schema_bdsteelnort.sql``, que ademas
 instala particiones, triggers y procedimientos que SQLAlchemy no sabe crear.
-Por eso el arranque solo **verifica** que existan las 24 tablas; crearlas aqui
+Por eso el arranque solo **verifica** que existan las 25 tablas; crearlas aqui
 deja la base sin particionar y es opcional (``V2_AUTO_CREATE``).
 """
 
@@ -30,7 +30,7 @@ AUTO_CREATE = os.getenv("V2_AUTO_CREATE", "false").lower() in {"1", "true", "yes
 
 
 class Base(DeclarativeBase):
-    """Base declarativa de los modelos de v2 (21 tablas de bdSteelNort_v2)."""
+    """Base declarativa de los modelos de v2 (25 tablas de bdSteelNort_v2)."""
 
 
 engine = create_engine(settings.database_url, pool_pre_ping=True, echo=False)

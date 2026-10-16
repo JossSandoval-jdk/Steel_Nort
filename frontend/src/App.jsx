@@ -12,7 +12,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Alertas from './pages/Alertas.jsx'
 import Reportes from './pages/Reportes.jsx'
 import Configuracion from './pages/Configuracion.jsx'
-import { useAuth } from './context/AuthContext.jsx'
+import { useAuth } from './hooks/useAuth.js'
 import Reportes_v2 from './pages/v2/Reportes_v2.jsx'
 
 // Protege una ruta: si no hay sesion, al login.
@@ -55,13 +55,15 @@ function App() {
             que exigen "tablero:leer". Con "datos:leer" la pagina abria pero
             todas sus llamadas devolvian 403. */}
         <Route path="/dashboard" element={<Privada permiso="tablero:leer"><Dashboard /></Privada>} />
-        <Route path="/reportes" element={<Privada permiso="datos:leer"><Reportes /></Privada>} />
+        {/* Reportes: el menu abre la v2; la v1 sigue disponible en /reportes-v1. */}
+        <Route path="/reportes" element={<Privada permiso="datos:leer"><Reportes_v2 /></Privada>} />
+        <Route path="/reportes-v1" element={<Privada permiso="datos:leer"><Reportes /></Privada>} />
+        <Route path="/reportes-v2" element={<Privada permiso="datos:leer"><Reportes_v2 /></Privada>} />
         <Route path="/alertas" element={<Privada permiso="deteccion:leer"><Alertas /></Privada>} />
         <Route
           path="/configuracion"
           element={<Privada permiso="sistema:leer"><Configuracion /></Privada>}
         />
-        <Route path="/reportes-v2" element={<Reportes_v2 />} />
 
         {/* Cualquier otra ruta va al login */}
         <Route path="*" element={<Navigate to="/" replace />} />

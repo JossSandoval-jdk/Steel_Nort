@@ -1,25 +1,24 @@
-"""Servicios de seguridad: hash de claves, JWT y tokens CSRF.
+"""Servicios de seguridad: hash de claves y JWT.
 
-Centraliza toda la logica de criptografia y validacion de tokens para
-que los routers solo consuman funciones limpias. Estas funciones son
-reutilizables por cualquier modulo futuro (reset de clave, refresh
-token, etc.).
+Centraliza la logica de criptografia y validacion de tokens para que los
+routers solo consuman funciones limpias.
 
-Estrategia de doble token (ver plan):
-  - ``access_token`` (JWT): identifica al usuario autenticado. Se usa
-    en el header ``Authorization: Bearer <token>``. En el frontend se
-    mantiene en memoria.
-  - ``csrf_token`` (opaco): se emite en el login, se envia como cookie
-    ``csrf_token`` y tambien en la respuesta. El frontend lo guarda en
-    localStorage y debe enviarlo de vuelta en el header ``X-CSRF-Token``
-    para cada request protegido. El backend verifica que el valor del
-    header sea IGUAL al de la cookie (mecanismo de doble coincidencia
-    que evita requests forjados / tokens corruptos).
+Diseno real (v2):
+  - ``access_token`` (JWT): identifica al usuario autenticado. Viaja en la
+    cabecera ``Authorization: Bearer <token>`` y el frontend lo mantiene
+    **solo en memoria** (ni ``localStorage`` ni ``sessionStorage``).
+
+  - CSRF: se protege con **doble-envio** (cookie ``csrf_token`` + cabecera
+    ``X-CSRF-Token``), tal como se decidio en la revision de seguridad (S1-8).
+    En este diseno el JWT viaja en una cabecera que una web ajena no puede
+    agregar sola, asi que la superficie clasica de CSRF no existe; el
+    doble-envio se agrega como **defensa en profundidad** (si algun dia las
+    credenciales pasaran a cookies, el control ya esta en su sitio). El
+    middleware vive en ``app/v2/csrf.py``.
 """
 
 from __future__ import annotations
 
-import secrets
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -89,26 +88,3 @@ def decode_access_token(token: str) -> dict | None:
         return payload
     except jwt.PyJWTError:
         return None
-
-
-# ---------------------------------------------------------------------
-# CSRF TOKEN (doble coincidencia)
-# ---------------------------------------------------------------------
-
-
-def generate_csrf_token() -> str:
-    """Genera un token CSRF opaco (secreto) nuevo."""
-    return secrets.token_urlsafe(32)
-
-
-def csrf_is_valid(cookie_token: str | None, header_token: str | None) -> bool:
-    """Valida que el token del header coincida con el de la cookie.
-
-    Ambos deben estar presentes y ser exactamente iguales. De lo
-    contrario se considera no valido (evita requests forjados y tokens
-    modificados en el almacenamiento).
-    """
-    if not cookie_token or not header_token:
-        return False
-    # Comparacion en tiempo constante para evitar ataques de timing.
-    return secrets.compare_digest(cookie_token, header_token)

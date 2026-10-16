@@ -63,6 +63,15 @@
   margin-top: 14px;
 }
 
+/* En el registro de auditoría las rutas son largas: se recortan con puntos
+   suspensivos y el texto completo queda en el atributo title. */
+.aud-recurso {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .users-table th {
   text-align: left;
   font-size: 11px;

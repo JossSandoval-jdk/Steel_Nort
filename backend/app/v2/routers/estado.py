@@ -1,12 +1,25 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
 from sqlalchemy import create_engine, text
 import os
 import glob
 from app.v2.config import settings
+from app.v2.models.acceso import Usuario
+from app.v2.seguridad import requiere_permiso
 
 router = APIRouter(prefix="/estado", tags=["estado"])
+
+
 @router.get("/conexiones")
-def verificar_conexiones():
+def verificar_conexiones(
+    _: Annotated[Usuario, Depends(requiere_permiso("sistema:leer"))],
+):
+    """Estado de las conexiones del servidor monitoreado.
+
+    Pide ``sistema:leer``: es informacion de administracion (que servidor se
+    monitorea y si responde), no una lectura cualquiera.
+    """
     # 1. Verificar SQL Server del sistema monitoreado (Ya funciona)
     conectado_db = False
     if settings.monitoreo_url:

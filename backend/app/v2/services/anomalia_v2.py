@@ -35,13 +35,14 @@ from fastapi import HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from app.ml import reglas as motor_reglas
+from app.tools.motor import reglas as motor_reglas
 from app.utils import utc_now
 from app.v2.database import SessionLocal
 from app.v2.models.datos import EstadisticaCarga, Evento, LogSQL, Metrica
 from app.v2.models.deteccion import Alerta, AlertaRegla, AlertaVariable, CausaRaiz
 from app.v2.models.modelo import PrediccionML
 from app.v2.models.nodos import SesionSQL
+from app.v2.services import clasificador_tipo
 from app.v2.services.catalogo import instancia, modelo_activo
 
 log = logging.getLogger("steelnort.v2.anomalias")
@@ -96,6 +97,11 @@ _EVENTOS: dict[str, deque] = {}
 _LOGS: dict[str, deque] = {}
 _CAPTURA_LOCK = threading.Lock()
 _CAPTURA_CLAVES: dict[str, set[tuple]] = {}
+
+# Alerta abierta por nodo. El diagnostico de una alerta debe describir TODO el
+# evento, no solo la primera ventana: mientras el evento sigue se van sumando
+# las variables que se desvian (ver docs/Indicadores_v2.md, I-3.1 e I-3.3).
+_ALERTA_POR_NODO: dict[str, int] = {}
 
 # Variables agrupadas por lo que significan. Solo cambia el texto del arbol.
 CATEGORIAS = [
@@ -187,39 +193,58 @@ UNIDADES_VARIABLES = {
 # DIAGNOSTICO
 # =====================================================================
 
-def _variables_desviadas(pred: dict) -> list[tuple[str, float, float]]:
+def _variables_desviadas(pred: dict) -> list[tuple[str, float, float | None]]:
     """``(variable, valor, z)`` de las que se separaron del entrenamiento.
 
     El z sale de la media y la desviacion del ``StandardScaler`` que ya cargo
     el detector, asi que no hay que volver a tocar los artefactos.
+
+    Una variable con varianza 0 en el entrenamiento no tiene linea base
+    (sklearn le deja media 0 y escala 1, y el "z" daria el valor crudo): esas
+    se devuelven con ``z=None`` para no compararlas con las demas.
     """
-    from app.ml.detector import get_detector
+    from app.tools.motor.detector import get_detector
 
     det = get_detector()
     scaler = getattr(det, "_scaler", None)
-    if scaler is None or not hasattr(scaler, "mean_"):
+    if scaler is None or not hasattr(scaler, "mean_") or not hasattr(scaler, "var_"):
         return []
 
     posiciones = getattr(det, "_posiciones", {}) or {}
-    todas = []
+    con_z, sin_base = [], []
     for nombre, valor in pred.get("features", {}).items():
         pos = posiciones.get(nombre, -1)
         if pos < 0 or pos >= len(scaler.mean_):
             continue
+        valor = float(valor)
+        if float(scaler.var_[pos]) == 0.0:
+            # Si no cambio respecto del entrenamiento no es una desviacion.
+            if valor != float(scaler.mean_[pos]):
+                sin_base.append((nombre, valor, None))
+            continue
         escala = float(scaler.scale_[pos]) or 1.0
-        z = (float(valor) - float(scaler.mean_[pos])) / escala
-        todas.append((nombre, float(valor), z))
+        z = (valor - float(scaler.mean_[pos])) / escala
+        con_z.append((nombre, valor, z))
 
-    todas.sort(key=lambda t: abs(t[2]), reverse=True)
-    desviadas = [t for t in todas if abs(t[2]) >= Z_MINIMO]
+    con_z.sort(key=lambda t: abs(t[2]), reverse=True)
+    desviadas = [t for t in con_z if abs(t[2]) >= Z_MINIMO]
     # Si ninguna pasa el corte la ventana igual es anomala (lo raro puede ser la
     # CORRELACION entre variables, no un pico aislado): devolvemos las de mayor
     # |z| para que la alerta explique CON QUE se aparto del entrenamiento.
-    return desviadas or todas[:MAX_VARIANTES]
+    # Las "sin linea base" van ultimas: avisan de algo nunca visto, pero su
+    # numero no es un z comparable.
+    return (desviadas or con_z[:MAX_VARIANTES]) + sin_base[:MAX_VARIANTES]
 
+def _severidad(det, score: float, eventos: list[dict] | None = None,
+               regla: str | None = None) -> str:
+    """La severidad la decide la causa raiz (regla R1-R7); el score es respaldo.
 
-def _severidad(det, score: float, eventos: list[dict] | None = None) -> str:
-    """Una desviacion se inicia como media; solo evidencia fuerte escala la alerta."""
+    - Error XE con severity >= 20 -> C (critico)
+    - Deadlock -> A
+    - R1/R2/R4/R5 (I/O, locks, tempdb, memoria) -> A
+    - R3/R6/R7 (CPU, cliente, plan) -> M
+    - Sin regla conocida -> usa el score como respaldo
+    """
     for evento in eventos or []:
         if evento.get("event_name") == "xe.error_reported":
             try:
@@ -231,13 +256,19 @@ def _severidad(det, score: float, eventos: list[dict] | None = None) -> str:
     if any(evento.get("event_name") == "xe.xml_deadlock_report" for evento in eventos or []):
         return "A"
 
+    # La causa raiz manda.
+    if regla in ("R1", "R2", "R4", "R5"):
+        return "A"
+    if regla in ("R3", "R6", "R7"):
+        return "M"
+
+    # Sin regla conocida: el score decide (respaldo).
     umbrales = det.umbrales
     q01 = umbrales.get("q01", 0.0)
     brecha = max(abs(q01 - umbrales.get("q05", q01)), 0.25)
     if score < q01 - 3 * brecha:
         return "A"
     return "M"
-
 
 # =====================================================================
 # ESCRITURA
@@ -491,8 +522,13 @@ def _logs_en_ventana(nodo, pred, logs: list[dict] | None = None) -> list[dict]:
 
 
 def _regla_probable(pred: dict) -> tuple[str, str, str]:
-    """Regla R1-R7 mas probable segun la variable mas desviada (mayor |z|)."""
-    for nombre, _, _ in _variables_desviadas(pred):
+    """Regla R1-R7 mas probable segun la variable mas desviada (mayor |z|).
+
+    Las variables sin linea base no eligen regla: su numero no es un z real.
+    """
+    for nombre, _, z in _variables_desviadas(pred):
+        if z is None:
+            continue
         for codigo, etiqueta, disparadores, frase in REGLAS_PROBABLES:
             if nombre in disparadores:
                 return codigo, etiqueta, frase
@@ -635,6 +671,12 @@ def _resumen_diagnostico(pred: dict, detecciones: list[dict] | None) -> str:
     """
     codigo, etiqueta, frase = _regla_probable(pred)
     partes = [f"{codigo} ({etiqueta}): {frase}"]
+    # Capa supervisada de tipo (top-2 = 96.1 % en validacion LORO). Va segundo
+    # porque es la senal medida mas confiable; la regla queda primero para
+    # auditoria. Si el artefacto no existe, no agrega nada.
+    tipo_txt = clasificador_tipo.resumen(pred)
+    if tipo_txt:
+        partes.append(tipo_txt)
     # Reglas corroboradas por EVENTOS XE (si las hay), sin repetir la probable.
     otras = [d for d in (detecciones or []) if d.get("regla") not in (codigo, "RML")]
     eventos_txt = motor_reglas.resumen(otras)
@@ -644,7 +686,8 @@ def _resumen_diagnostico(pred: dict, detecciones: list[dict] | None) -> str:
     if variables:
         etiquetas = ", ".join(
             ETIQUETAS_VARIABLES.get(nombre, nombre.replace("_", " ")).lower()
-            for nombre, _, _ in variables
+            + ("" if z is not None else " (sin linea base)")
+            for nombre, _, z in variables
         )
         partes.append(f"Indicadores fuera de rango: {etiquetas}.")
     return " ".join(partes)[:500]
@@ -669,7 +712,7 @@ def _motivo_cliente(regla_detector: str | None) -> str:
 def _guardar_alerta(db, nodo, pred, pred_fila, det, eventos=None,
                     detecciones=None) -> Alerta:
     """La cabecera. Su severidad la decide el margen bajo el umbral."""
-    sev = _severidad(det, pred["score"], eventos)
+    sev = _severidad(det, pred["score"], eventos, pred.get("regla"))
     titulo = f"Cambio inusual en {nodo.ins_nom}"
     # El diagnostico arranca con un motivo entendible para el cliente; la regla
     # cruda del detector (R-CRITICA/R-DEBOUNCE...) queda guardada en la fila de
@@ -733,6 +776,46 @@ def _guardar_variables(db, alerta, pred) -> None:
     db.flush()
 
 
+def _ampliar_alerta(db: Session, alt_cod: int, pred: dict) -> None:
+    """Completa el diagnostico de una alerta mientras el evento sigue.
+
+    La alerta nace con la primera ventana (TTFA ~4 s), que todavia puede traer
+    la cola del fallo previo. Para que el diagnostico describa el evento entero
+    (I-3.1/I-3.3) se van sumando las variables que se desvian en las ventanas
+    siguientes, sin duplicar y sin pasar de ``MAX_VARIANTES``. Si una variable
+    ya estaba, se conserva el z de mayor magnitud.
+    """
+    alerta = db.query(Alerta).filter(Alerta.alt_cod == alt_cod).first()
+    if alerta is None:
+        return
+    filas = db.query(AlertaVariable).filter(
+        AlertaVariable.alv_alt == alt_cod).all()
+    existentes = {f.alv_var: f for f in filas}
+    rango = max((f.alv_rank or 0) for f in filas) if filas else 0
+
+    for nombre, valor, z in _variables_desviadas(pred):
+        actual = existentes.get(nombre)
+        if actual is not None:
+            if z is not None and (actual.alv_z is None
+                                  or abs(z) > abs(actual.alv_z)):
+                actual.alv_valor = valor
+                actual.alv_z = z
+            continue
+        if rango >= MAX_VARIANTES:
+            break
+        rango += 1
+        nueva = AlertaVariable(
+            alv_alt=alt_cod,
+            alv_var=nombre,
+            alv_valor=valor,
+            alv_z=z,
+            alv_rank=rango,
+        )
+        db.add(nueva)
+        existentes[nombre] = nueva
+    db.flush()
+
+
 def _guardar_causas(db, alerta, pred) -> None:
     """Arbol de tres niveles: la alerta, la categoria que la empuja, la variable.
 
@@ -755,13 +838,18 @@ def _guardar_causas(db, alerta, pred) -> None:
         dentro = [(nombre, valor, z) for nombre, valor, z in variables if nombre in nombres]
         if not dentro:
             continue
-        nombre, valor, z = max(dentro, key=lambda t: abs(t[2]))
+        # Dentro de la categoria manda el z real; las sin linea base (z=None)
+        # quedan ultimas.
+        nombre, valor, z = max(
+            dentro, key=lambda t: abs(t[2]) if t[2] is not None else -1.0
+        )
 
         aviso = CausaRaiz(
             cra_alt=alerta.alt_cod,
             cra_padre=raiz.cra_cod,
             cra_nivel=NIVEL_ADVERTENCIA,
-            cra_etiq=f"{categoria} (z={z:+.2f})",
+            cra_etiq=(f"{categoria} (z={z:+.2f})" if z is not None
+                      else f"{categoria} (sin linea base)"),
         )
         db.add(aviso)
         db.flush()
@@ -770,7 +858,8 @@ def _guardar_causas(db, alerta, pred) -> None:
             cra_alt=alerta.alt_cod,
             cra_padre=aviso.cra_cod,
             cra_nivel=NIVEL_HOJA,
-            cra_etiq=f"{nombre} = {valor} (z={z:+.2f})",
+            cra_etiq=(f"{nombre} = {valor} (z={z:+.2f})" if z is not None
+                      else f"{nombre} = {valor} (sin linea base)"),
         ))
         db.flush()
 
@@ -817,7 +906,11 @@ def obtener_informe(db: Session, alerta_cod: int) -> dict:
             "alv_valor": fila.alv_valor,
             "alv_z": fila.alv_z,
             "alv_rank": fila.alv_rank,
-            "interpretacion": "Por encima de su nivel habitual" if (fila.alv_z or 0) > 0 else "Por debajo de su nivel habitual",
+            "interpretacion": (
+                "Sin linea base: no se registro en el entrenamiento" if fila.alv_z is None
+                else "Por encima de su nivel habitual" if (fila.alv_z or 0) > 0
+                else "Por debajo de su nivel habitual"
+            ),
         }
         for fila in db.query(AlertaVariable).filter(AlertaVariable.alv_alt == alerta_cod).order_by(AlertaVariable.alv_rank)
     ]
@@ -1001,8 +1094,12 @@ def persistir_anomalia(nodo_nombre: str, nodo_ip: str, pred: dict,
     """
     es_anomalia = bool(pred.get("es_anomalia_cruda", pred.get("es_anomalia")))
     alerta_nueva = bool(pred.get("alerta_nueva", pred.get("es_anomalia")))
+    # ``alerta_activa`` lo aporta la capa zonal (decisor). Con la capa apagada
+    # no llega la clave y cada ventana anomala vuelve a ser una alerta nueva,
+    # que es el comportamiento de siempre.
+    alerta_activa = bool(pred.get("alerta_activa", es_anomalia))
 
-    from app.ml.detector import get_detector
+    from app.tools.motor.detector import get_detector
 
     det = get_detector() if alerta_nueva else None
     db: Session = SessionLocal()
@@ -1050,6 +1147,17 @@ def persistir_anomalia(nodo_nombre: str, nodo_ip: str, pred: dict,
             _guardar_variables(db, alerta, pred)
             _guardar_causas(db, alerta, pred)
             _guardar_reglas(db, alerta, detecciones)
+            # Recuerda la alerta abierta para completarla mientras el evento sigue.
+            _ALERTA_POR_NODO[nodo.ins_nom] = alerta.alt_cod
+        elif alerta_activa:
+            # Ventana de un evento ya abierto: se completa el diagnostico con lo
+            # que aporta esta ventana (no se crea alerta nueva ni se re-notifica).
+            alt_cod = _ALERTA_POR_NODO.get(nodo.ins_nom)
+            if alt_cod is not None:
+                _ampliar_alerta(db, alt_cod, pred)
+        else:
+            # Sin alerta activa, el evento termino.
+            _ALERTA_POR_NODO.pop(nodo.ins_nom, None)
 
         db.commit()
         ruta_captura = None

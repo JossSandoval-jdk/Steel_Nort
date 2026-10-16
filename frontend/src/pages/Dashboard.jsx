@@ -2,7 +2,7 @@ import Sidebar from '../components/Sidebar.jsx'
 import Topbar from '../components/Topbar.jsx'
 import { useSystemMetrics } from '../hooks/useSystemMetrics.js'
 import { useTelemetria } from '../hooks/useTelemetria.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../hooks/useAuth.js'
 import {
   useDashboardHeatmap,
   useDashboardDisponibilidad,

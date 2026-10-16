@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import avatar from '../assets/icons/avatar_default.png'
 import cerrarIcon from '../assets/icons/cerrar_icon.png'
 import ModalNotificaciones from './ModalNotificaciones.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../hooks/useAuth.js'
 import '../css/Topbar.css'
 
 /*
@@ -15,33 +15,31 @@ function Topbar({ nombre = 'Nombre Usuario', cargo = 'Cargo' }) {
   const [modalAbierto, setModalAbierto] = useState(false)
   const [noLeidas, setNoLeidas] = useState(0)
 
-  // Pedir el contador cada 60 s mientras la app está abierta.
-  useEffect(() => {
-    if (!accessToken) return undefined
-
-    let vigente = true
-
-    const consultar = async () => {
-      try {
-        const r = await fetch('/api/v2/notificaciones/contador', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
-        if (!r.ok) return
-        const data = await r.json()
-        if (vigente) setNoLeidas(data.no_leidas || 0)
-      } catch {
-        // Silencioso: si falla el polling, no rompemos la UI.
-      }
-    }
-
-    consultar()
-    const id = setInterval(consultar, 60_000)
-
-    return () => {
-      vigente = false
-      clearInterval(id)
+  // Cuenta las no leídas. Se usa al abrir la app, cada 60 s y cada vez que el
+  // modal marca algo como leído (para que el badge no quede desfasado).
+  const contar = useCallback(async () => {
+    if (!accessToken) return
+    try {
+      const r = await fetch('/api/v2/notificaciones/contador', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!r.ok) return
+      const data = await r.json()
+      setNoLeidas(data.no_leidas || 0)
+    } catch {
+      // Silencioso: si falla el polling, no rompemos la UI.
     }
   }, [accessToken])
+
+  useEffect(() => {
+    if (!accessToken) return undefined
+    // `consultar` local: el linter solo acepta el setState si la llamada
+    // nace dentro del efecto (igual que el sondeo del contador).
+    const consultar = async () => { await contar() }
+    consultar()
+    const id = setInterval(consultar, 60_000)
+    return () => clearInterval(id)
+  }, [accessToken, contar])
 
   return (
     <>
@@ -81,6 +79,7 @@ function Topbar({ nombre = 'Nombre Usuario', cargo = 'Cargo' }) {
       <ModalNotificaciones
         abierto={modalAbierto}
         onCerrar={() => setModalAbierto(false)}
+        onLeidas={contar}
       />
     </>
   )

@@ -1,7 +1,7 @@
 {
   "origen": "telemetria_v2",
   "es_carga_normal": false,
-  "sospecha_esperada": "Cambio en el patrón de carga; revisar los indicadores observados.",
+  "sospecha_esperada": "R2 (Bloqueos): Hay transacciones esperando por bloqueos o consultas que retienen recursos. Revise los procesos lentos y las operaciones que estan bloqueando a los demas.",
   "regla_aplicada": "Detección estadística sostenida (consenso de ventanas)",
   "csv_correlacionado": "training\\captures\\anomalias\\anomalias_202610.csv"
 }

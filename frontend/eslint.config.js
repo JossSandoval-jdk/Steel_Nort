@@ -8,6 +8,7 @@ export default defineConfig([
   globalIgnores(['dist']),
   {
     files: ['**/*.{js,jsx}'],
+    ignores: ['server/**'],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,
@@ -19,17 +20,11 @@ export default defineConfig([
     },
   },
   {
-    // El servidor Express corre en Node.js, no en el browser.
-    files: ['server/**/*.js', 'vite.config.js'],
-    languageOptions: { globals: globals.node },
-  },
-  {
-    // Permite que los archivos de contexto exporten hooks (p. ej.
-    // AuthContext: <AuthProvider> + useAuth()). Es un patron estandar
-    // de React y no rompe el fast refresh.
-    files: ['**/context/*.jsx'],
-    rules: {
-      'react-refresh/only-export-components': 'off',
+    // El servidor Express corre en Node: expone globales como `process`.
+    files: ['server/**/*.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 ])

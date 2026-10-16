@@ -1,0 +1,14 @@
+{
+    "meta_pct": 90.0,
+    "criterio": "Severidad derivada del motor R1-R7 (Microsoft Learn). R1/R2/R5 = alta (I/O, locks, memoria); R3/R6/R7 = media (CPU, cliente, plan).",
+    "fuente": "02_reglas.py (motor R1-R7) + Microsoft Learn",
+    "reglas_a_severidad": {
+        "R1": "A",
+        "R2": "A",
+        "R3": "M",
+        "R4": "A",
+        "R5": "A",
+        "R6": "M",
+        "R7": "M"
+    }
+}

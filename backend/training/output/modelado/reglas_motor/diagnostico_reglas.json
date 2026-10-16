@@ -1,9 +1,0 @@
-{
-  "reglas": {
-    "R3": {
-      "detonante": "Espera de planificador (SOS_SCHEDULER_YIELD) o consumo intensivo de CPU (cpu_time ≈ duration).",
-      "diagnostico": "Presión real de CPU en el motor por consultas ineficientes o carencia de índices.",
-      "fuente": "Microsoft Learn: Troubleshoot High CPU Usage Issues in SQL Server"
-    }
-  }
-}

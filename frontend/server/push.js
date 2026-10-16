@@ -19,7 +19,7 @@ const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:admin@steelnort.local'
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000'
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8200'
 const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN
 
 // Web Push NO está configurado si falta cualquier clave esencial.

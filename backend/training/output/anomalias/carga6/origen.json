@@ -1,5 +1,0 @@
-{
-  "origen": "contenedor_sql",
-  "motor": "SQL Server Podman (localhost:1434/SteelNort)",
-  "experiment_id": "carga6"
-}
