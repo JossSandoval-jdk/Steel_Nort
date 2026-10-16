@@ -17,17 +17,6 @@ DIR_ANOMALIAS  = OUTPUT_BASE_DIR / "anomalias"
 DIR_MODELADO   = OUTPUT_BASE_DIR / "modelado"
 
 # ==========================================
-# 1.b MODO PRUEBA — carpetas v2
-# ==========================================
-# Descomenta estas 4 líneas para probar sin tocar las carpetas originales.
-# Al terminar de validar, vuelve a comentarlas y todo vuelve a la normalidad.
-
-DIR_INVENTARIO = OUTPUT_BASE_DIR / "inventario_v2"
-DIR_LIMPIO     = OUTPUT_BASE_DIR / "limpio_v2"
-DIR_INTEGRADO  = OUTPUT_BASE_DIR / "integrado_v2"
-DIR_MODELADO   = OUTPUT_BASE_DIR / "modelado_v2"
-
-# ==========================================
 # 2. NOMBRES DE ARCHIVOS
 # ==========================================
 NOMBRE_METRICAS       = "metrics.log"
@@ -45,6 +34,7 @@ ARCHIVO_VARIABLES         = "variables_seleccionadas.csv"
 ARCHIVO_DATASET_INTEGRADO = "dataset_steelnort_preparado.csv"
 ARCHIVO_METADATA          = "metadata_transformaciones.json"
 ARCHIVO_REPORTE_CALIDAD   = "reporte_calidad_datos.csv"
+ARCHIVO_INDICE_CALIDAD    = "reporte_indice_calidad.csv"
 
 ENCODING      = "utf-8"
 SEPARADOR_CSV = ","
@@ -55,6 +45,21 @@ SEPARADOR_CSV = ","
 NOMBRE_ORIGEN          = "origen.json"
 TIPO_ORIGEN_LEGADO     = "legacy"
 TIPO_ORIGEN_CONTENEDOR = "contenedor_sql"
+
+MOTOR_SQL_PODMAN = "SQL Server Podman (localhost:1434/SteelNort)"
+
+
+def escribir_origen(ruta_corrida, tipo=TIPO_ORIGEN_CONTENEDOR, **campos):
+    """Escribe origen.json con la etiqueta de procedencia de la corrida."""
+    import json as _json
+    ruta = Path(ruta_corrida)
+    ruta.mkdir(parents=True, exist_ok=True)
+    origen = {"origen": tipo}
+    origen.update(campos)
+    p = ruta / NOMBRE_ORIGEN
+    with open(p, "w", encoding="utf-8") as f:
+        _json.dump(origen, f, ensure_ascii=False, indent=2)
+    return str(p)
 
 ARCHIVOS_ENTRADA = [
     NOMBRE_METRICAS,
@@ -201,6 +206,33 @@ N_MUESTRAS_WARMUP = 1
 CALIDAD_MIN_COMPLETITUD = 0.95
 CALIDAD_MIN_CONSISTENCIA = 0.95
 CALIDAD_MIN_VALIDEZ = 0.95
+# Indice global I-1.2 = (completitud + consistencia + validez) / 3 (meta >= 95%)
+CALIDAD_MIN_INDICE = 0.95
+
+# Descartar columnas con mas de esta fraccion de nulos (casi vacias)
+CALIDAD_MAX_NULOS_COLUMNA = 0.5
+
+# Rangos validos por variable para la dimension VALIDEZ (indicador I-1.2).
+# Variables sin entrada quedan fuera del calculo de validez.
+RANGOS_VALIDEZ = {
+    "cpu_usr": (0, 100), "cpu_sys": (0, 100), "cpu_wai": (0, 100),
+    "cpu_idl": (0, 100), "cpu_stl": (0, 100),
+    "memory_percent": (0, 100),
+    "memory_used_mb": (0, 1e6), "memory_available_mb": (0, 1e6),
+    "load1": (0, 1000), "load5": (0, 1000), "load15": (0, 1000),
+    "api_latency_ms": (0, 60000),
+    "active_sessions": (0, 10000), "active_requests": (0, 10000),
+    "idle_sessions": (0, 10000),
+    "transactions_per_sec": (0, 1e6),
+    "long_queries": (0, 100000), "long_transactions": (0, 100000),
+    "lock_waits": (0, 1e9), "total_locks": (0, 1e12),
+    "deadlocks_per_sec": (0, 1e6),
+    "disk_read_per_sec": (0, 1e12), "disk_write_per_sec": (0, 1e12),
+    "net_send_per_sec": (0, 1e12), "net_recv_per_sec": (0, 1e12),
+    "page_reads_per_sec": (0, 1e12), "page_writes_per_sec": (0, 1e12),
+    "page_life_expectancy": (0, 1e9),
+    "rollbacks_per_sec": (0, 1e6), "sql_compilations_per_sec": (0, 1e6),
+}
 
 # ==========================================
 # 9. CORRIDAS EXCLUIDAS DEL ENTRENAMIENTO

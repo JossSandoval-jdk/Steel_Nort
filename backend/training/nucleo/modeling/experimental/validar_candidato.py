@@ -41,7 +41,9 @@ from pyod.models.lof import LOF
 from pyod.models.ocsvm import OCSVM
 from sklearn.covariance import EllipticEnvelope
 
-import config
+# modeling/ en sys.path para `import config` (igual que medir_discriminacion)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config  # noqa: E402
 
 # UNICA fuente del ENSEMBLE_Z (z-score de componentes) -> app/ml/ensamble_z.py
 sys.path.insert(
@@ -730,12 +732,14 @@ def aplicar_nan(v, V):
 
 
 def verificar_features(bundle):
-    """Comprueba que el bundle reporta las 17 variables correctas y ventana."""
+    """Comprueba que el bundle reporta las variables de config.VARIABLES_MODELO."""
     feat = bundle["features"]
-    if len(feat) != 17:
-        return f"OJO: {len(feat)} variables (esperadas 17)"
+    esperadas = len(config.VARIABLES_MODELO)
+    if len(feat) != esperadas:
+        return f"OJO: {len(feat)} variables (esperadas {esperadas})"
     ok = all(c in config.VARIABLES_MODELO for c in feat)
-    return "OK: 17 variables = VARIABLES_MODELO" if ok else "DESVIACION contra VARIABLES_MODELO"
+    return (f"OK: {esperadas} variables = VARIABLES_MODELO"
+            if ok else "DESVIACION contra VARIABLES_MODELO")
 
 
 # ---------------------------------------------------------------------------

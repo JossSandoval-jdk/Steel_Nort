@@ -1,7 +1,7 @@
 """Modelos de DETECCION: que se avisa y por que.
 
-Las cuatro tablas del bloque 5 del esquema. ``alertas`` es la cabecera;
-``alerta_variable`` y ``causas_raiz`` son sus detalles y
+Las cinco tablas del bloque 5 del esquema. ``alertas`` es la cabecera;
+``alerta_variable``, ``causas_raiz`` y ``alerta_regla`` son sus detalles y
 ``heatmap_anomalias`` es el agregado por hora y severidad.
 """
 
@@ -12,6 +12,7 @@ from datetime import date, datetime
 from sqlalchemy import (
     CHAR,
     DECIMAL,
+    NVARCHAR,
     Date,
     DateTime,
     ForeignKey,
@@ -87,6 +88,29 @@ class CausaRaiz(Base):
     cra_padre: Mapped[int | None] = mapped_column(ForeignKey("dbo.causas_raiz.cra_cod"))
     cra_nivel: Mapped[str] = mapped_column(CHAR(1), nullable=False)
     cra_etiq: Mapped[str] = mapped_column(String(200), nullable=False)
+    fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
+
+
+class AlertaRegla(Base):
+    """Motor de reglas (R1-R7) que se rompe o se emite en una alerta.
+
+    Es el detalle "por que" de la cabecera ``alertas.alt_diag``: una fila por
+    regla disparada, con el detonante observado, el diagnostico de Microsoft
+    Learn, si las metricas la corroboran y la evidencia cruda del evento.
+    """
+
+    __tablename__ = "alerta_regla"
+    __table_args__ = {"schema": "dbo", "implicit_returning": False}
+
+    are_cod: Mapped[int] = mapped_column(Integer, Identity(), primary_key=True)
+    are_alt: Mapped[int] = mapped_column(ForeignKey("dbo.alertas.alt_cod"), nullable=False)
+    are_regla: Mapped[str] = mapped_column(String(10), nullable=False)
+    are_detonante: Mapped[str | None] = mapped_column(String(300))
+    are_diagnostico: Mapped[str | None] = mapped_column(String(300))
+    are_corroborado: Mapped[str | None] = mapped_column(String(20))
+    are_metricas: Mapped[str | None] = mapped_column(String(500))
+    are_evidencia: Mapped[str | None] = mapped_column(NVARCHAR)
+    are_fuente: Mapped[str | None] = mapped_column(String(300))
     fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
 
 

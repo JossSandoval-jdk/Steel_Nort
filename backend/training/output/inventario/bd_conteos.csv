@@ -1,0 +1,26 @@
+﻿fuente,objeto,registros
+tabla_negocio,dbo.almacen,140
+tabla_negocio,dbo.anomalia_scratch,200303
+tabla_negocio,dbo.auditoria,7260
+tabla_negocio,dbo.caja,5
+tabla_negocio,dbo.carga_normal_scratch,145561
+tabla_negocio,dbo.cliente,926
+tabla_negocio,dbo.configuracion,9
+tabla_negocio,dbo.detalle_orden_compra,5705
+tabla_negocio,dbo.detalle_venta,5949
+tabla_negocio,dbo.factura,165
+tabla_negocio,dbo.injector_scaffold,202867
+tabla_negocio,dbo.inventario,2887
+tabla_negocio,dbo.kardex,10241
+tabla_negocio,dbo.movimiento_caja,2151
+tabla_negocio,dbo.orden_compra,934
+tabla_negocio,dbo.producto,1392
+tabla_negocio,dbo.proveedor,224
+tabla_negocio,dbo.serie,2
+tabla_negocio,dbo.usuario,5
+tabla_negocio,dbo.venta,2689
+dmv,sys.dm_exec_query_stats,236
+dmv,sys.dm_os_wait_stats,1420
+query_store,sys.query_store_runtime_stats,2142
+error_log,"xp_readerrorlog(0,1)",155
+(total),(todas las fuentes),593368

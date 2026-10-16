@@ -323,7 +323,7 @@ function Inicio() {
     },
     {
       id: 'sesiones',
-      label: 'Sesiones conexioes',
+      label: 'Sesiones conexiones',
       value: sesionesTxt,
       unit: '',
       trend: sesionesTrend,

@@ -6,7 +6,7 @@ Configuración del módulo de modelado para detección de
 anomalías OLTP en SteelNort.
 
 Reutiliza el dataset final preparado por data_preparation
-(dataset_carga_principales.csv) y escribe sus resultados en
+(dataset_steelnort_preparado.csv) y escribe sus resultados en
 <OUTPUT>/modelado/.
 """
 
@@ -178,15 +178,22 @@ def ruta_corrida(raiz, corrida):
             return str(p)
     return str(raiz / corrida)
 
-DATASET_SET = os.getenv("STEELNORT_DATASET_SET", "integrado_v2")
+DATASET_SET = os.getenv("STEELNORT_DATASET_SET", "integrado")
+
+# Nombre del archivo dentro de DATASET_SET. entrenar.bat lo cambia a
+# dataset_reentreno.csv para entrenar sobre la base reconstruida sin
+# pisar el dataset base.
+DATASET_ARCHIVO = os.getenv(
+    "STEELNORT_DATASET_FILE", "dataset_steelnort_preparado.csv"
+)
 
 DATASET_PRINCIPALES = os.path.join(
     OUTPUT_BASE,
     DATASET_SET,
-    "dataset_steelnort_preparado.csv"
+    DATASET_ARCHIVO
 )
 
-MODELADO_SET = os.getenv("STEELNORT_MODELADO_SET", "modelado_v2")
+MODELADO_SET = os.getenv("STEELNORT_MODELADO_SET", "modelado")
 
 DIR_MODELADO = os.path.join(
     OUTPUT_BASE,
@@ -221,6 +228,12 @@ DIR_REGLAS = os.path.join(
 VENTANA = 10
 
 UMBRAL_CORRELACION = 0.85
+
+# Umbral del INDICADOR I-2.2 (Objetivos_y_requisitos.md): reportar pares con
+# |r| >= 0.6. Solo afecta al reporte variables_correlacion.csv; la PODA de
+# redundancias sigue usando UMBRAL_CORRELACION (0.85) para no descartar
+# de mas variables del modelo.
+UMBRAL_CORRELACION_INDICADOR = 0.6
 
 # Normalización RELATIVA por corrida (mediana/MAD de la propia corrida).
 # DESACTIVADA de forma deliberada: en corridas donde la inyección de fallos

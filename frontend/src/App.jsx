@@ -13,6 +13,7 @@ import Alertas from './pages/Alertas.jsx'
 import Reportes from './pages/Reportes.jsx'
 import Configuracion from './pages/Configuracion.jsx'
 import { useAuth } from './context/AuthContext.jsx'
+import Reportes_v2 from './pages/v2/Reportes_v2.jsx'
 
 // Protege una ruta: si no hay sesion, al login.
 function RequireAuth({ children }) {
@@ -60,6 +61,7 @@ function App() {
           path="/configuracion"
           element={<Privada permiso="sistema:leer"><Configuracion /></Privada>}
         />
+        <Route path="/reportes-v2" element={<Reportes_v2 />} />
 
         {/* Cualquier otra ruta va al login */}
         <Route path="*" element={<Navigate to="/" replace />} />

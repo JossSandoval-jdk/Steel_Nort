@@ -35,10 +35,11 @@ from fastapi import HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
+from app.ml import reglas as motor_reglas
 from app.utils import utc_now
 from app.v2.database import SessionLocal
 from app.v2.models.datos import EstadisticaCarga, Evento, LogSQL, Metrica
-from app.v2.models.deteccion import Alerta, AlertaVariable, CausaRaiz
+from app.v2.models.deteccion import Alerta, AlertaRegla, AlertaVariable, CausaRaiz
 from app.v2.models.modelo import PrediccionML
 from app.v2.models.nodos import SesionSQL
 from app.v2.services.catalogo import instancia, modelo_activo
@@ -63,6 +64,18 @@ NIVEL_A_CODIGO = {
 # Niveles del arbol de causa raiz (CHECK cra_nivel IN ('R','W','L')).
 NIVEL_RAIZ, NIVEL_ADVERTENCIA, NIVEL_HOJA = "R", "W", "L"
 
+# Nombre legible de cada evento XE para el detalle de la alerta.
+ACTIVIDAD_EVENTO = {
+    "xe.error_reported": "Error de SQL",
+    "xe.xml_deadlock_report": "Interbloqueo",
+    "xe.sql_batch_completed": "Consulta completada",
+    "xe.rpc_completed": "Llamada a procedimiento",
+    "xe.wait_info": "Espera de SQL Server",
+    "xe.wait_completed": "Espera de SQL Server",
+    "xe.login": "Inicio de sesión",
+    "xe.logout": "Cierre de sesión",
+}
+
 # Una variable entra al diagnostico cuando se separa asi del entrenamiento.
 Z_MINIMO = 1.8
 Z_HOJA = 2.5
@@ -72,9 +85,12 @@ MAX_VARIANTES = 15   # CK_alv_rank BETWEEN 1 AND 15
 MAX_CAUSAS = 4
 
 # Ring buffer de eventos por nodo: se van denyingindo y solo se guardan los
-# que caen dentro de la ventana anomala.
-BUFFER_EVENTOS = 300
+# que caen dentro de la ventana anomala. (Cubre una ventana con muchos waits.)
+BUFFER_EVENTOS = 800
 BUFFER_LOGS = 300
+
+# Cuantos eventos por ventana se persisten y cuantos se usan para las reglas.
+MAX_EVENTOS_VENTANA = 40
 
 _EVENTOS: dict[str, deque] = {}
 _LOGS: dict[str, deque] = {}
@@ -92,6 +108,41 @@ CATEGORIAS = [
                                    "transactions_per_sec", "long_queries",
                                    "long_transactions")),
     ("Bloqueos", ("lock_waits", "total_locks", "deadlocks_per_sec")),
+]
+
+# Regla R1-R7 mas probable segun la variable que mas se desvio, con la
+# explicacion redactada para el cliente (que se rompio + que revisar). Se usa
+# cuando la anomalia es puramente estadistica (sin eventos XE que disparen el
+# motor R1-R7), para que la alerta igual diga QUE regla se esta violando.
+REGLAS_PROBABLES = [
+    ("R2", "Bloqueos",
+     {"lock_waits", "total_locks", "deadlocks_per_sec", "long_transactions",
+      "long_queries", "wait_lck_count", "active_requests"},
+     "Hay transacciones esperando por bloqueos o consultas que retienen "
+     "recursos. Revise los procesos lentos y las operaciones que estan "
+     "bloqueando a los demas."),
+    ("R3", "CPU",
+     {"cpu_usr", "cpu_sys", "cpu_wai", "load1"},
+     "El procesador esta saturado por la carga de consultas. Revise las "
+     "consultas mas costosas o un aumento subito de actividad."),
+    ("R5", "Memoria",
+     {"memory_percent", "memory_used_mb", "page_life_expectancy"},
+     "La memoria del servidor esta muy ocupada y puede faltar espacio de "
+     "trabajo. Revise el consumo de memoria y las sesiones abiertas."),
+    ("R1", "I/O fisico",
+     {"disk_read_per_sec", "disk_write_per_sec", "net_send_per_sec",
+      "net_recv_per_sec"},
+     "El disco o la red estan saturados. Revise las operaciones intensas de "
+     "lectura/escritura o de red."),
+    ("R7", "plan/indices",
+     {"logical_reads"},
+     "Las consultas leen mas paginas de las necesarias; puede faltar un "
+     "indice en alguna tabla."),
+    ("R6", "cliente lento",
+     {"active_sessions", "transactions_per_sec", "api_latency_ms",
+      "api_status"},
+     "La aplicacion cliente responde lento o con errores y el servidor la "
+     "esta esperando."),
 ]
 
 ETIQUETAS_VARIABLES = {
@@ -150,18 +201,21 @@ def _variables_desviadas(pred: dict) -> list[tuple[str, float, float]]:
         return []
 
     posiciones = getattr(det, "_posiciones", {}) or {}
-    salida = []
+    todas = []
     for nombre, valor in pred.get("features", {}).items():
         pos = posiciones.get(nombre, -1)
         if pos < 0 or pos >= len(scaler.mean_):
             continue
         escala = float(scaler.scale_[pos]) or 1.0
         z = (float(valor) - float(scaler.mean_[pos])) / escala
-        if abs(z) >= Z_MINIMO:
-            salida.append((nombre, float(valor), z))
+        todas.append((nombre, float(valor), z))
 
-    salida.sort(key=lambda t: abs(t[2]), reverse=True)
-    return salida
+    todas.sort(key=lambda t: abs(t[2]), reverse=True)
+    desviadas = [t for t in todas if abs(t[2]) >= Z_MINIMO]
+    # Si ninguna pasa el corte la ventana igual es anomala (lo raro puede ser la
+    # CORRELACION entre variables, no un pico aislado): devolvemos las de mayor
+    # |z| para que la alerta explique CON QUE se aparto del entrenamiento.
+    return desviadas or todas[:MAX_VARIANTES]
 
 
 def _severidad(det, score: float, eventos: list[dict] | None = None) -> str:
@@ -255,7 +309,7 @@ def _guardar_muestras(db, nodo, pred, pred_fila) -> None:
     db.flush()
 
 
-def _guardar_eventos(db, nodo, pred, pred_fila, limite: int = 20) -> None:
+def _guardar_eventos(db, nodo, pred, pred_fila, limite: int = MAX_EVENTOS_VENTANA) -> None:
     """Los eventos de la ventana que explican la anomalia.
 
     Del buffer se toman los que caen entre ``prd_ini`` y ``prd_fin``, y se
@@ -281,6 +335,8 @@ def _guardar_eventos(db, nodo, pred, pred_fila, limite: int = 20) -> None:
             session_id = int(ev["session_id"]) if ev.get("session_id") is not None else None
         except (TypeError, ValueError):
             session_id = None
+        tipo = ev.get("event_name") or None
+        texto = ev.get("sql_text") or ev.get("message") or ""
         db.add(Evento(
             eve_ins=nodo.ins_cod,
             eve_prd=pred_fila.prd_cod,
@@ -289,8 +345,10 @@ def _guardar_eventos(db, nodo, pred, pred_fila, limite: int = 20) -> None:
             eve_dur=int(ev.get("duration") or 0),
             eve_cpu=int(ev.get("cpu_time") or 0),
             eve_lreads=int(ev.get("logical_reads") or 0),
-            eve_wait=(ev.get("wait_type") or ev.get("event_name") or None),
-            eve_sql=(ev.get("sql_text") or ev.get("message") or "")[:500] or None,
+            eve_wait=(ev.get("wait_type") or None),
+            eve_sql=texto[:500] or None,
+            eve_tipo=tipo,
+            eve_json=json.dumps(ev, ensure_ascii=False, default=str),
         ))
     db.flush()
 
@@ -399,7 +457,7 @@ def _eventos_en_ventana(nodo, pred) -> list[dict]:
         -float(par[1].get("duration") or 0),
         -float(par[1].get("logical_reads") or 0),
     ))
-    return [evento for _, evento in eventos[:20]]
+    return [evento for _, evento in eventos[:MAX_EVENTOS_VENTANA]]
 
 
 def _logs_en_ventana(nodo, pred, logs: list[dict] | None = None) -> list[dict]:
@@ -432,22 +490,21 @@ def _logs_en_ventana(nodo, pred, logs: list[dict] | None = None) -> list[dict]:
     return salida
 
 
+def _regla_probable(pred: dict) -> tuple[str, str, str]:
+    """Regla R1-R7 mas probable segun la variable mas desviada (mayor |z|)."""
+    for nombre, _, _ in _variables_desviadas(pred):
+        for codigo, etiqueta, disparadores, frase in REGLAS_PROBABLES:
+            if nombre in disparadores:
+                return codigo, etiqueta, frase
+    return ("RML", "Cambio general",
+            "Cambio en el patron de carga sin una causa dominante. "
+            "Revise los indicadores observados.")
+
+
 def _sospecha_esperada(pred: dict) -> str:
-    """Describe una causa probable; no la presenta como regla confirmada."""
-    causas = {nombre for nombre, _, _ in _variables_desviadas(pred)}
-    if causas & {"lock_waits", "total_locks", "long_transactions", "active_requests"}:
-        return "Posible contención entre transacciones o sesiones bloqueadas."
-    if causas & {"total_writes", "transactions_per_sec", "long_queries"}:
-        return "Posible carga elevada de escrituras o consultas concurrentes."
-    if causas & {"disk_read_per_sec", "disk_write_per_sec", "net_recv_per_sec"}:
-        return "Posible presión de lectura o escritura en disco o red."
-    if causas & {"cpu_usr", "cpu_sys", "cpu_wai", "load1"}:
-        return "Posible aumento de carga del procesador."
-    if causas & {"memory_percent", "memory_used_mb", "page_life_expectancy"}:
-        return "Posible presión de memoria."
-    if causas & {"api_latency_ms", "api_status"}:
-        return "Posible lentitud o error de respuesta de la aplicación."
-    return "Cambio en el patrón de carga; revisar los indicadores observados."
+    """Regla R1-R7 probable, redactada en lenguaje de negocio."""
+    codigo, etiqueta, frase = _regla_probable(pred)
+    return f"{codigo} ({etiqueta}): {frase}"
 
 
 def _claves_captura(ruta: Path, tipo: str) -> set[tuple]:
@@ -570,28 +627,95 @@ def _archivar_anomalia(nodo_nombre: str, pred: dict, pred_cod: int, alerta_cod: 
     return str(ruta_csv)
 
 
-def _guardar_alerta(db, nodo, pred, pred_fila, det, eventos=None) -> Alerta:
+def _resumen_diagnostico(pred: dict, detecciones: list[dict] | None) -> str:
+    """Frase de la alerta: regla R1-R7 probable + eventos + indicadores.
+
+    Es la misma informacion que ve el operador en el detalle, pero resumida
+    para la columna de la tabla de alertas.
+    """
+    codigo, etiqueta, frase = _regla_probable(pred)
+    partes = [f"{codigo} ({etiqueta}): {frase}"]
+    # Reglas corroboradas por EVENTOS XE (si las hay), sin repetir la probable.
+    otras = [d for d in (detecciones or []) if d.get("regla") not in (codigo, "RML")]
+    eventos_txt = motor_reglas.resumen(otras)
+    if eventos_txt:
+        partes.append(f"Tambien se detecto: {eventos_txt}.")
+    variables = _variables_desviadas(pred)[:3]
+    if variables:
+        etiquetas = ", ".join(
+            ETIQUETAS_VARIABLES.get(nombre, nombre.replace("_", " ")).lower()
+            for nombre, _, _ in variables
+        )
+        partes.append(f"Indicadores fuera de rango: {etiquetas}.")
+    return " ".join(partes)[:500]
+
+
+def _motivo_cliente(regla_detector: str | None) -> str:
+    """Traduce la regla interna del detector a una frase entendible por el cliente."""
+    if not regla_detector:
+        return ""
+    r = regla_detector.upper()
+    if r.startswith("R-CRITICA"):
+        return "Comportamiento muy distinto al habitual, sostenido en varias lecturas."
+    if r.startswith("R-ADVERTENCIA"):
+        return "Comportamiento distinto al habitual (nivel de aviso)."
+    if r.startswith("R-DEBOUNCE"):
+        return "El comportamiento inusual se mantiene lectura tras lectura."
+    if r.startswith("R-VALVE"):
+        return "El comportamiento inusual se prolonga demasiado; conviene revisarlo."
+    return ""
+
+
+def _guardar_alerta(db, nodo, pred, pred_fila, det, eventos=None,
+                    detecciones=None) -> Alerta:
     """La cabecera. Su severidad la decide el margen bajo el umbral."""
     sev = _severidad(det, pred["score"], eventos)
     titulo = f"Cambio inusual en {nodo.ins_nom}"
-    # El diagnostico arranca con la REGLA que disparo la alerta, para que se
-    # lea el porque sin tener que consultar el codigo del decisor.
+    # El diagnostico arranca con un motivo entendible para el cliente; la regla
+    # cruda del detector (R-CRITICA/R-DEBOUNCE...) queda guardada en la fila de
+    # alerta_regla por si hace falta auditar el porque tecnico.
+    diagnostico = _resumen_diagnostico(pred, detecciones)
+    motivo = _motivo_cliente(pred.get("regla"))
+    if motivo:
+        diagnostico = f"{motivo} {diagnostico}"[:500]
     fila = Alerta(
         alt_prd=pred_fila.prd_cod,
         alt_ins=nodo.ins_cod,
         alt_tipo="anomalia_ml",
         alt_sev=sev,
         alt_titulo=titulo[:200],
-        alt_diag=(
-            "Cambio sostenido respecto al comportamiento habitual del servidor. "
-            "Consulte los indicadores, eventos y sesiones relacionados para identificar la posible causa."
-        ),
+        alt_diag=diagnostico,
         alt_est="A",
         alt_fec=pred["prd_fin"],
     )
     db.add(fila)
     db.flush()
     return fila
+
+
+def _guardar_reglas(db, alerta, detecciones: list[dict] | None) -> None:
+    """Una fila por regla R1-R7 disparada, con su evidencia cruda."""
+    vistos = set()
+    for det in detecciones or []:
+        regla = det.get("regla")
+        if not regla or regla in vistos:
+            continue
+        vistos.add(regla)
+        evidencia = {
+            "evento": det.get("evidencia") or {},
+            "apoyo": det.get("apoyo") or [],
+        }
+        db.add(AlertaRegla(
+            are_alt=alerta.alt_cod,
+            are_regla=str(regla)[:10],
+            are_detonante=(det.get("detonante") or "")[:300] or None,
+            are_diagnostico=(det.get("diagnostico") or "")[:300] or None,
+            are_corroborado=(det.get("corroborado") or "")[:20] or None,
+            are_metricas=(det.get("metricas") or "")[:500] or None,
+            are_evidencia=json.dumps(evidencia, ensure_ascii=False, default=str),
+            are_fuente=(det.get("fuente") or "")[:300] or None,
+        ))
+    db.flush()
 
 
 def _guardar_variables(db, alerta, pred) -> None:
@@ -730,21 +854,44 @@ def obtener_informe(db: Session, alerta_cod: int) -> dict:
     eventos = []
     for fila in db.query(Evento).filter(Evento.eve_prd == pred.prd_cod).order_by(Evento.eve_fec):
         sesion = sesiones_por_id.get(fila.eve_sid)
+        raw = _leer_json(fila.eve_json)
+        tipo = fila.eve_tipo
+        wait_type = None
+        if tipo:
+            if "wait" in tipo.lower():
+                wait_type = fila.eve_wait
+        else:
+            # Filas antiguas: eve_wait guardaba el nombre del evento.
+            tipo = fila.eve_wait
+        sql = raw.get("sql_text") or raw.get("message") or fila.eve_sql
         eventos.append({
             "fecha": fila.eve_fec,
-            "tipo": fila.eve_wait,
-            "actividad": {
-                "xe.error_reported": "Error de SQL",
-                "xe.xml_deadlock_report": "Interbloqueo",
-                "xe.sql_batch_completed": "Consulta completada",
-                "xe.rpc_completed": "Llamada a procedimiento",
-            }.get(fila.eve_wait, "Actividad de SQL"),
+            "tipo": tipo,
+            "tipo_texto": (tipo or "").replace("xe.", "").replace("_", " "),
+            "wait_type": wait_type,
+            "actividad": ACTIVIDAD_EVENTO.get(tipo, "Actividad de SQL"),
             "duracion": fila.eve_dur,
             "cpu": fila.eve_cpu,
             "lecturas": fila.eve_lreads,
-            "sql": fila.eve_sql,
+            "sql": sql,
+            "raw": raw,
             "sesion": sesion,
         })
+
+    reglas = []
+    for fila in db.query(AlertaRegla).filter(AlertaRegla.are_alt == alerta_cod).order_by(AlertaRegla.are_cod):
+        evidencia = _leer_json(fila.are_evidencia)
+        reglas.append({
+            "codigo": fila.are_regla,
+            "detonante": fila.are_detonante,
+            "diagnostico": fila.are_diagnostico,
+            "corroborado": fila.are_corroborado,
+            "metricas": fila.are_metricas,
+            "fuente": fila.are_fuente,
+            "evidencia": evidencia.get("evento") or {},
+            "apoyo": evidencia.get("apoyo") or [],
+        })
+    reglas_txt = motor_reglas.resumen([{"regla": r["codigo"]} for r in reglas])
 
     return {
         "alerta": {
@@ -752,14 +899,20 @@ def obtener_informe(db: Session, alerta_cod: int) -> dict:
             "fecha": alerta.alt_fec,
             "severidad": alerta.alt_sev,
             "titulo": alerta.alt_titulo,
-            "diagnostico": alerta.alt_diag,
+            "diagnostico": alerta.alt_diag or _resumen_diagnostico(
+                {"features": features}, []
+            ),
             "estado": alerta.alt_est,
         },
         "explicacion": {
             "titulo": "Desviación del comportamiento habitual",
             "texto": explicacion,
             "sospecha": sospecha,
-            "regla_aplicada": "Detección estadística sostenida: la desviación apareció en varias lecturas consecutivas.",
+            "reglas": reglas,
+            "regla_aplicada": (
+                f"Reglas de motor detectadas: {reglas_txt}." if reglas_txt
+                else "Detección estadística sostenida: la desviación apareció en varias lecturas consecutivas."
+            ),
             "criterio": "La alerta se genera cuando la desviación se mantiene en varias lecturas, no por un cambio aislado.",
         },
         "prediccion": {
@@ -787,6 +940,7 @@ def obtener_informe(db: Session, alerta_cod: int) -> dict:
         ],
         "sesiones_sql": sesiones,
         "variables": variables,
+        "reglas": reglas,
         "captura_csv": f"training/captures/anomalias/anomalias_{pred.prd_fin:%Y%m}.csv",
         "causas": [
             {
@@ -871,9 +1025,31 @@ def persistir_anomalia(nodo_nombre: str, nodo_ip: str, pred: dict,
                 momento = _momento(evento.get("timestamp"))
                 if momento and pred["prd_ini"] <= momento <= pred["prd_fin"]:
                     eventos_ventana.append(evento)
-            alerta = _guardar_alerta(db, nodo, pred, pred_fila, det, eventos_ventana)
+            detecciones = motor_reglas.evaluar(
+                eventos_ventana, pred.get("features") or {}
+            )
+            # La regla R1-R7 mas probable (segun la variable mas desviada) se
+            # guarda como una regla mas: es la "regla violada" cuando la
+            # anomalia es puramente estadistica y no hay eventos XE. El detalle
+            # crudo del detector (R-CRITICA/R-DEBOUNCE...) queda como detonante.
+            regla_detector = pred.get("regla")
+            codigo_prob, etiqueta_prob, frase_prob = _regla_probable(pred)
+            detecciones = [{
+                "regla": codigo_prob,
+                "detonante": (regla_detector or etiqueta_prob)[:300],
+                "diagnostico": f"{etiqueta_prob}: {frase_prob}",
+                "corroborado": "confirmado",
+                "metricas": (f"score={pred.get('score')} "
+                             f"umbral={pred.get('umbral')} "
+                             f"zona={pred.get('zona')}"),
+                "fuente": "Detector estadistico (IsolationForest+COPOD)",
+                "evidencia": {},
+            }, *detecciones]
+            alerta = _guardar_alerta(db, nodo, pred, pred_fila, det,
+                                     eventos_ventana, detecciones)
             _guardar_variables(db, alerta, pred)
             _guardar_causas(db, alerta, pred)
+            _guardar_reglas(db, alerta, detecciones)
 
         db.commit()
         ruta_captura = None
@@ -894,6 +1070,16 @@ def persistir_anomalia(nodo_nombre: str, nodo_ip: str, pred: dict,
                 ruta_informe = _guardar_informe(db, alerta.alt_cod)
             except Exception:
                 log.exception("No se pudo guardar el informe de la alerta %s", alerta.alt_cod)
+            # Avisar a Node (WebSocket + Web Push). El trigger TR_alertas_notifica
+            # ya creo la fila en `notificaciones`; aqui falta el empujon a Node,
+            # que antes solo ocurria para alertas creadas a mano.
+            try:
+                if alerta.alt_sev in ("C", "A"):
+                    from app.v2.services.deteccion import _avisar_push
+
+                    _avisar_push(db, alerta)
+            except Exception:
+                log.exception("No se pudo avisar el push de la alerta %s", alerta.alt_cod)
         log.info("Ventana guardada: pred=%s nodo=%s score=%s anomalía=%s alerta=%s",
                  pred_fila.prd_cod, nodo_nombre, pred["score"], es_anomalia,
                  alerta.alt_cod if alerta else None)

@@ -5,7 +5,7 @@
 Paso 3: limpieza de logs crudos por corrida.
 
 Entrada: metrics.log, events.log, sqlserver_logs.log
-Salida:  output/limpio_v2/<corrida>/*_limpio.csv
+Salida:  output/limpio/<corrida>/*_limpio.csv
 """
 
 import json

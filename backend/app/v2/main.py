@@ -20,7 +20,7 @@ from sqlalchemy import func, select, text
 from app.v2.config import settings
 from app.v2.database import SessionLocal, init_db, verificar_esquema, version_bd
 from app.v2.models.acceso import Usuario
-from app.v2.routers import acceso, auth, datos, deteccion, modelo, nodos, sistema
+from app.v2.routers import acceso, auth, datos, deteccion, modelo, nodos, sistema, notificaciones, push_interno
 from app.v2.schemas.comun import Salud
 from app.v2.services import semilla
 from app.v2.routers import estado
@@ -30,7 +30,8 @@ from app.ml.detector import get_detector
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("steelnort.v2")
 
-# Las 21 tablas del esquema canonico que expone esta API.
+# Las 24 tablas del esquema canonico que expone esta API.
+# 21 originales + notificaciones + push_suscripciones + alerta_regla.
 TABLAS = (
     "rol",
     "permiso",
@@ -47,12 +48,15 @@ TABLAS = (
     "alertas",
     "alerta_variable",
     "causas_raiz",
+    "alerta_regla",         # ← NUEVA
     "heatmap_anomalias",
     "metricas",
     "eventos",
     "logs_sql",
     "estadisticas_carga",
     "configuracion_sistema",
+    "notificaciones",       # ← NUEVA
+    "push_suscripciones",   # ← NUEVA
 )
 
 
@@ -77,7 +81,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.titulo,
     version=settings.version,
-    description=f"API de SteelNort sobre la base `{settings.nombre_base}` (21 tablas).",
+    description=f"API de SteelNort sobre la base `{settings.nombre_base}` (24 tablas).",
     lifespan=lifespan,
 )
 
@@ -100,6 +104,8 @@ app.include_router(datos.router, prefix=API)
 app.include_router(sistema.router, prefix=API)
 app.include_router(estado.router, prefix=API)
 app.include_router(telemetria.router, prefix=API)
+app.include_router(notificaciones.router, prefix="/api/v2")
+app.include_router(push_interno.router, prefix="/api/v2")
 
 @app.get(f"{API}/salud", response_model=Salud, tags=["sistema"], summary="Estado de la API")
 def salud() -> Salud:

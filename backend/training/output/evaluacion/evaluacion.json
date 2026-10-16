@@ -1,0 +1,376 @@
+{
+  "impacto": {
+    "umbral_base": {
+      "cpu_usr": 90.0,
+      "memory_percent": 95.0
+    },
+    "horas_normales": 0.633,
+    "muestras_normales": 433,
+    "sistema": {
+      "cobertura": 0.9871,
+      "mttd_s": 10.29,
+      "fpr": 0.0417
+    },
+    "umbral_estatico": {
+      "cobertura": 0.1667,
+      "mttd_s": 7.5,
+      "fpr": 0.0023,
+      "faults_detectados": 4,
+      "faults_total": 24
+    }
+  },
+  "deteccion": {
+    "modelo": "ENSEMBLE_Z",
+    "umbral": "q01",
+    "matriz": {
+      "tp": 153,
+      "fn": 2,
+      "fp": 3,
+      "tn": 69
+    },
+    "tpr_recall": 0.9871,
+    "fpr": 0.0417,
+    "precision": 0.9808,
+    "f1": 0.9839,
+    "accuracy": 0.978,
+    "roc_auc": 0.9986,
+    "pr_auc": 0.9993,
+    "mttd_s_global": 10.29,
+    "mttd_s_por_fault": {
+      "fault1": 2.2,
+      "fault2": 8.6,
+      "fault3": 4.4,
+      "fault5": 12.5,
+      "lockwait": 24.2
+    },
+    "n_faults_con_alerta": 24
+  },
+  "diagnostico": {
+    "metodo": "regla por variable mas desviada (lo que muestra el sistema)",
+    "intervalos": 24,
+    "aciertos": 6,
+    "precision_diagnostico": 0.25,
+    "esperado_por_fault": {
+      "fault1": [
+        "R1",
+        "R6"
+      ],
+      "fault2": [
+        "R1",
+        "R3"
+      ],
+      "fault3": [
+        "R3",
+        "R6"
+      ],
+      "fault5": [
+        "R1",
+        "R6"
+      ],
+      "lockwait": [
+        "R2"
+      ]
+    },
+    "matriz_confusion": {
+      "fault1->R2": 4,
+      "fault1->R6": 1,
+      "fault2->R2": 5,
+      "fault3->R2": 5,
+      "fault5->R2": 4,
+      "lockwait->R2": 5
+    },
+    "reglas_por_eventos": {
+      "R3": 7
+    },
+    "coincidencia_huella": {
+      "faults_con_variable_esperada": 13,
+      "faults_total": 24,
+      "tasa": 0.5417
+    },
+    "detalle": [
+      {
+        "corrida": "11",
+        "fault": "lockwait",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R2"
+        ],
+        "variable_top": "lock_waits",
+        "z": 4.9,
+        "acierto": true
+      },
+      {
+        "corrida": "11",
+        "fault": "fault1",
+        "regla_sistema": "R6",
+        "esperado": [
+          "R1",
+          "R6"
+        ],
+        "variable_top": "active_sessions",
+        "z": 4.1,
+        "acierto": true
+      },
+      {
+        "corrida": "11",
+        "fault": "fault2",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R3"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 52.0,
+        "acierto": false
+      },
+      {
+        "corrida": "11",
+        "fault": "fault5",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R6"
+        ],
+        "variable_top": "total_locks",
+        "z": 1342.5,
+        "acierto": false
+      },
+      {
+        "corrida": "11",
+        "fault": "fault3",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R3",
+          "R6"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 52.0,
+        "acierto": false
+      },
+      {
+        "corrida": "6",
+        "fault": "lockwait",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R2"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 37.0,
+        "acierto": true
+      },
+      {
+        "corrida": "6",
+        "fault": "fault1",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R6"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 39.0,
+        "acierto": false
+      },
+      {
+        "corrida": "6",
+        "fault": "fault2",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R3"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 74.0,
+        "acierto": false
+      },
+      {
+        "corrida": "6",
+        "fault": "fault5",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R6"
+        ],
+        "variable_top": "total_locks",
+        "z": 816.7,
+        "acierto": false
+      },
+      {
+        "corrida": "6",
+        "fault": "fault3",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R3",
+          "R6"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 74.0,
+        "acierto": false
+      },
+      {
+        "corrida": "carga11",
+        "fault": "fault5",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R6"
+        ],
+        "variable_top": "total_locks",
+        "z": 1675.1,
+        "acierto": false
+      },
+      {
+        "corrida": "carga11",
+        "fault": "fault3",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R3",
+          "R6"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 121.0,
+        "acierto": false
+      },
+      {
+        "corrida": "carga11",
+        "fault": "lockwait",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R2"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 121.0,
+        "acierto": true
+      },
+      {
+        "corrida": "carga12",
+        "fault": "fault2",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R3"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 121.0,
+        "acierto": false
+      },
+      {
+        "corrida": "carga12",
+        "fault": "fault3",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R3",
+          "R6"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 121.0,
+        "acierto": false
+      },
+      {
+        "corrida": "carga12",
+        "fault": "fault1",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R6"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 150.5,
+        "acierto": false
+      },
+      {
+        "corrida": "carga5",
+        "fault": "lockwait",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R2"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 52.0,
+        "acierto": true
+      },
+      {
+        "corrida": "carga5",
+        "fault": "fault1",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R6"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 59.5,
+        "acierto": false
+      },
+      {
+        "corrida": "carga5",
+        "fault": "fault2",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R3"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 105.0,
+        "acierto": false
+      },
+      {
+        "corrida": "carga5",
+        "fault": "fault5",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R6"
+        ],
+        "variable_top": "total_locks",
+        "z": 551.3,
+        "acierto": false
+      },
+      {
+        "corrida": "carga5",
+        "fault": "fault3",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R3",
+          "R6"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 105.0,
+        "acierto": false
+      },
+      {
+        "corrida": "carga6",
+        "fault": "lockwait",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R2"
+        ],
+        "variable_top": "lock_waits",
+        "z": 4.9,
+        "acierto": true
+      },
+      {
+        "corrida": "carga6",
+        "fault": "fault1",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R6"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 9.0,
+        "acierto": false
+      },
+      {
+        "corrida": "carga6",
+        "fault": "fault2",
+        "regla_sistema": "R2",
+        "esperado": [
+          "R1",
+          "R3"
+        ],
+        "variable_top": "deadlocks_per_sec",
+        "z": 121.0,
+        "acierto": false
+      }
+    ]
+  }
+}

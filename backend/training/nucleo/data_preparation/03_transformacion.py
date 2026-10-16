@@ -10,7 +10,7 @@ Paso 4: transforma cada corrida por separado.
 - Convierte duration de μs a ms
 
 Salida por corrida:
-    output/limpio_v2/<corrida>/datos_transformados.csv
+    output/limpio/<corrida>/datos_transformados.csv
 """
 
 import os

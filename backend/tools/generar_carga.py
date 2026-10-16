@@ -1,6 +1,6 @@
 """Generador de carga de trabajo REAL sobre el SQL Server de negocio (VPS/Podman).
 
-A diferencia de ``tools/simular_carga.py`` (que inyecta muestras sinteticas
+A diferencia de ``tests/simular_telemetria.py`` (que inyecta muestras sinteticas
 directo a la API web y nunca toca el motor), este script ejecuta actividad
 T-SQL real contra ``SQL_HOST:SQL_PORT`` (el SQL Server de Podman en ``1434``
 que simula el VPS):

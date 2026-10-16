@@ -13,7 +13,7 @@ export default defineConfig({
       // El 8200 es el mismo que arranca backend\run_backend.bat y el que
       // espera server\.env (BACKEND_URL).
       '/api': {
-        target: 'http://127.0.0.1:8200',
+        target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,
       }

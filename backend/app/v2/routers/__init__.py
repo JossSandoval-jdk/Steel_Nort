@@ -2,4 +2,4 @@
 
 from app.v2.routers import acceso, auth, datos, deteccion, modelo, nodos, sistema
 
-__all__ = ["acceso", "auth", "datos", "deteccion", "modelo", "nodos", "sistema"]
+__all__ = ["acceso", "auth", "datos", "deteccion", "modelo", "nodos", "sistema","notificaciones","push_interno"]

@@ -1,0 +1,6 @@
+﻿dimension,valor,minimo,cumple
+completitud,1.0,0.95,True
+consistencia,1.0,0.95,True
+validez,1.0,0.95,True
+timestamps_ordenados,1.0,1.0,True
+indice_calidad,1.0,0.95,True

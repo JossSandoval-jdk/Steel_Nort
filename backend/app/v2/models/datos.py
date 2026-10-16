@@ -54,6 +54,8 @@ class Evento(Base):
     eve_lreads: Mapped[int | None] = mapped_column(Integer)
     eve_wait: Mapped[str | None] = mapped_column(String(60))
     eve_sql: Mapped[str | None] = mapped_column(String(500))
+    eve_tipo: Mapped[str | None] = mapped_column(String(60))
+    eve_json: Mapped[str | None] = mapped_column(NVARCHAR)
     fec_reg: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
 
 

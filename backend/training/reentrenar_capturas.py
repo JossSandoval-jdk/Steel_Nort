@@ -1,6 +1,6 @@
 """Prepara y modela capturas anómalas al llegar a 1000 ventanas o 30 días.
 
-Genera un candidato de diagnóstico en ``training/output/modelado_v2``.
+Genera un candidato de diagnóstico en ``training/output/modelado``.
 No promueve artefactos a producción: las capturas son anomalías y no deben
 mezclarse con las corridas normales que forman el baseline del detector.
 """
@@ -108,8 +108,8 @@ def main() -> None:
 
     entorno = os.environ.copy()
     entorno["STEELNORT_OUTPUT_DIR"] = str(BACKEND / "training" / "output")
-    entorno.setdefault("STEELNORT_DATASET_SET", "integrado_v2")
-    entorno.setdefault("STEELNORT_MODELADO_SET", "modelado_v2")
+    entorno.setdefault("STEELNORT_DATASET_SET", "integrado")
+    entorno.setdefault("STEELNORT_MODELADO_SET", "modelado")
 
     if not ejecutar_pasos(PREPARACION, PASOS_PREPARACION, entorno):
         return

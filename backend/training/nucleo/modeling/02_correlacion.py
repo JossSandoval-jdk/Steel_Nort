@@ -144,14 +144,14 @@ def main():
     corr_spearman = df_num.corr(method="spearman")
 
     df_pares = reporte_pares(corr_pearson, corr_spearman,
-                             config.UMBRAL_CORRELACION)
+                             config.UMBRAL_CORRELACION_INDICADOR)
     os.makedirs(config.DIR_CORRELACION, exist_ok=True)
 
     ruta = lambda nombre: os.path.join(config.DIR_CORRELACION, nombre)
     df_pares.to_csv(ruta("variables_correlacion.csv"),
                     index=False, encoding="utf-8-sig")
-    log(f"Pares con |correlación| >= {config.UMBRAL_CORRELACION}: "
-        f"{len(df_pares)}")
+    log(f"Pares con |correlación| >= {config.UMBRAL_CORRELACION_INDICADOR} "
+        f"(indicador I-2.2): {len(df_pares)}")
 
     mantenidas = [c for c in config.VARIABLES_MODELO if c in features]
     log(f"Variables del modelo: {len(mantenidas)} / {len(features)}")
@@ -200,7 +200,7 @@ def main():
         index=False, encoding="utf-8-sig")
 
     mostrar("PARES CORRELACIONADOS", df_pares if len(df_pares) else None,
-            f"No hay pares con |correlación| >= {config.UMBRAL_CORRELACION}")
+            f"No hay pares con |correlación| >= {config.UMBRAL_CORRELACION_INDICADOR}")
     mostrar("VARIABLES MANTENIDAS (VIF)", df_vif)
     mostrar("PODA AUTOMÁTICA (RECOMENDACIÓN)",
             pd.DataFrame(descartadas_auto) if descartadas_auto else None,

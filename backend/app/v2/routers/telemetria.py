@@ -14,6 +14,11 @@ router = APIRouter(prefix="/telemetria", tags=["telemetria"])
 # Almacén temporal en RAM para el endpoint /actual y el dashboard
 MEMORIA_CACHE: Dict[str, Dict[str, Any]] = {}
 
+# Nodo real del servidor. `/actual` lo prefiere como fuente por defecto para que
+# el dashboard nunca muestre por accidente un nodo de prueba inyectado, que
+# puede traer valores fuera de rango (p. ej. cpu_sys > 100% o memoria > 100%).
+NODO_REAL = "Servidor Negocio"
+
 
 class PayloadMuestra(BaseModel):
     nodo: str
@@ -89,13 +94,21 @@ def recibir_y_evaluar_telemetria(payload: PayloadMuestra):
     }
 
 @router.get("/actual")
-def obtener_actual():
+def obtener_actual(nodo: str | None = None):
     """
     Endpoint de lectura rápida que alimenta las tarjetas del Frontend 
     (CPU, Memoria, Sesiones conexioes y Transacciones) en tiempo real,
     incorporando todas las métricas transaccionales de SQL Server.
+
+    Si no se pide un nodo concreto, prioriza el nodo real (``NODO_REAL``) y
+    solo cae a otro nodo en caché si aquel no está disponible.
     """
-    nodo_default = next(iter(MEMORIA_CACHE), "Servidor Negocio")
+    if nodo and nodo in MEMORIA_CACHE:
+        nodo_default = nodo
+    elif NODO_REAL in MEMORIA_CACHE:
+        nodo_default = NODO_REAL
+    else:
+        nodo_default = next(iter(MEMORIA_CACHE), NODO_REAL)
     data_nodo = MEMORIA_CACHE.get(nodo_default, {})
     muestra = data_nodo.get("muestra", {})
 
@@ -104,6 +117,9 @@ def obtener_actual():
         "nodo": data_nodo.get("nodo", nodo_default),
         "ip": data_nodo.get("ip", "127.0.0.1"),
         "fecha_str": data_nodo.get("fecha_str"),
+        # Muestra cruda completa: la usan las utilidades de captura
+        # (training/capturar_live.py) para armar el dataset de reentreno.
+        "muestra": muestra,
         "metricas": {
             # Métricas básicas del sistema
             "cpu_usr": muestra.get("cpu_usr", 0.0),
