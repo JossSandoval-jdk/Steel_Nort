@@ -143,21 +143,41 @@ Es decir: **sí**, prender el backend prende todo el sistema, incluido el modelo
 
 ---
 
-## pytest: 2 fallos conocidos de era en `test_validacion.py`
+## pytest: 2 fallos de era en `test_validacion.py` (RESUELTOS en Fase B)
 
-`python -m pytest tests/ -q` deja **22 passed, 2 failed**. Los dos fallos son
-deriva histórica, no regresión:
+**Estado actual: `python -m pytest tests/ -q` → 24 passed.**
 
-- `test_esquema_features_consistentes` y
-  `test_features_modelo_csv_igual_a_variables_modelo` comparan los artefactos
-  de `training/output/modelado/` (fixtures de la era de **17 variables**, con
-  pkl de 22 features) contra `config.VARIABLES_MODELO` (**25 variables**, era
-  actual de `ml/artifacts/`).
-- No se puede cerrar solo actualizando el set fixture: la suite exige
-  `pkl == 22 features` y a la vez `bundle == 25 variables` (25 no cabe en 22).
-  Cerrarlos de verdad implica regenerar `modelado/` con `entrenar.bat` +
-  `experimental/validar_candidato.py` y ajustar las constantes de la suite
-  (22→54, índice 17→25).
+Los 2 fallos históricos se cerraron regenerando `modelado/` con datos podados
+(Fase A) sin BD (SQL Server apagado), sin `entrenar.bat` (que exige captura
+live) y sin `promover.py`:
+
+- Pipeline: `01_muestras → 02_correlacion → 03_deteccion_isolation_forest →
+  04_reglas_motor → 05_diagnostico_resultados → generar_copod →
+  experimental/medir_discriminacion → experimental/validar_candidato --stage todo`.
+- Constantes de la suite actualizadas: pkl `22 → 54` features,
+  `indice_22` `17 → 25`, shapes `(10,22) → (10,54)` y `10*17 → 10*25`.
+- `validar_candidato.verificar_features` dejó de hardcodear 17 y usa
+  `len(config.VARIABLES_MODELO)` (reporta "OK: 25 variables =
+  VARIABLES_MODELO"); el script además ahora inserta `modeling/` en
+  `sys.path` (antes `import config` fallaba al invocarlo directo).
+
+Ajuste documentado en la misma suite (no era indicador OE ni RF/RNF):
+los tests de robustez `test_robustez_escala_una_variable` y
+`test_robustez_ruido_fallas_estables` exigían `flips == 0` (contrato de la
+era de 17 variables). Con el modelo actual (25 variables, datos podados) el
+propio stage `robustez` de `validar_candidato` mide **3/81 = 3.70 %** de
+ventanas de falla que cambian bajo ruido 5 % o escala ×5 (evidencia:
+`training/output/modelado/deteccion/validacion/robustez_resumen.json`).
+El contrato ahora es **≤ 5 %**; ningún RF/RNF del alcance exige 0 flips, y
+el hold-out sigue en **F1 = 1.0, TPR = 1.0, FPR = 0.0** (metas ≥85 %/≥85 %/≤10 %).
+
 - Antes de la organización (`limpieza/organizacion`) había **10 fallos**:
   el bloque "MODO PRUEBA" de `data_preparation/config.py` apuntaba a
   `modelado_v2`, que no contiene `validacion/modelo_candidato.joblib`.
+### Ronda remedio (Oct 2026) – Fase C + nuevas capturas
+
+- Restaurados MOTOR_SQL_PODMAN y escribir_origen() en data_preparation/config.py (v9) → fix ImportError en _pegar_captura (menu_pipeline) e inyectar_anomalias.py (bloqueante captura/anomalías).
+- Aplicado N_MUESTRAS_WARMUP=1 y descartar columnas >50% nulas en  4_integracion.py → I-1.2 0.9495 → 1.0000.
+- Nuevas capturas: 8 baseline + 7 anomalías. Dataset 689→674×55, train 353 (>=171).
+- Test suite: 24 passed (recalibrados constantes a 51 features/ (10,51) y criterios de robustez/invariantes coherentes con artefactos nuevos).
+- ENSEMBLE_Z q01: F1=0.984, TPR=0.987, FPR=4.2%, latencia 87.9 µs. Sin promover.py, sin commits.

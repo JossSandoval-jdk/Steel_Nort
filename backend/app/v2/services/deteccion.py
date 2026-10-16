@@ -10,19 +10,29 @@ Reglas propias de esta familia:
     base), asi que el servicio los escribe si no vienen;
   * variables y causas cuelgan de la alerta: si la alerta se da de baja, ellas
     tambien.
+  * cuando se crea una alerta C o A, el trigger ``TR_alertas_notifica`` inserta
+    una fila en ``notificaciones``. Aqui avisamos a Node para que envie el
+    Web Push (best-effort: si falla, no tumba la alerta).
 """
 
 from __future__ import annotations
 
+import logging
 from datetime import date, datetime
 
 from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.utils import utc_now
 from app.v2.models.deteccion import Alerta, AlertaVariable, CausaRaiz, HeatmapAnomalia
+from app.v2.models.notificaciones import Notificacion
 from app.v2.schemas.deteccion import AlertaCreate, AlertaUpdate, CausaRaizCreate
 from app.v2.services import crud
+from app.v2.services.notificador import notificar_push
+
+log = logging.getLogger("steelnort.v2.deteccion")
+
 
 # =====================================================================
 # ALERTAS
@@ -67,7 +77,49 @@ def obtener_alerta(db: Session, cod: int) -> Alerta:
 def crear_alerta(db: Session, datos: AlertaCreate, actor: int | None) -> Alerta:
     campos = datos.model_dump(exclude_none=True)
     campos.setdefault("alt_fec", utc_now())
-    return crud.nuevo(db, Alerta, campos, actor)
+    alerta = crud.nuevo(db, Alerta, campos, actor)
+
+    # El trigger TR_alertas_notifica ya inserto la notificacion en BD si la
+    # severidad es C o A. Aqui avisamos a Node para que emita por WebSocket
+    # y envie el Web Push a todos los suscriptores.
+    if alerta.alt_sev in ("C", "A"):
+        _avisar_push(db, alerta)
+
+    return alerta
+
+
+def _avisar_push(db: Session, alerta: Alerta) -> None:
+    """Notifica a Node para que envie el Web Push. Nunca lanza excepcion."""
+    try:
+        notificacion = db.scalars(
+            select(Notificacion)
+            .where(Notificacion.not_ref_cod == alerta.alt_cod)
+            .order_by(Notificacion.not_cod.desc())
+            .limit(1)
+        ).first()
+
+        if notificacion is None:
+            log.debug(
+                "No se encontro notificacion para la alerta %s (severidad=%s).",
+                alerta.alt_cod,
+                alerta.alt_sev,
+            )
+            return
+
+        notificar_push(
+            titulo=notificacion.not_titulo,
+            detalle=notificacion.not_detalle,
+            severidad=notificacion.not_sev,
+            url=notificacion.not_url,
+            not_cod=notificacion.not_cod,
+        )
+    except Exception as exc:
+        # El push es un extra: NUNCA debe tumbar la creacion de la alerta.
+        log.warning(
+            "No se pudo avisar a Node del push para la alerta %s: %s",
+            alerta.alt_cod,
+            exc,
+        )
 
 
 def actualizar_alerta(db: Session, cod: int, datos: AlertaUpdate, actor: int | None) -> Alerta:

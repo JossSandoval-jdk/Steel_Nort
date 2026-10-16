@@ -107,7 +107,7 @@ def main() -> int:
     print(f" Listo: {usuario.usu_nom} (id {usuario.usu_cod})")
     print(f" Usuario: {usuario.usu_log}   Rol: {rol}")
     print(f" Clave guardada cifrada: si ({len(clave)} caracteres)")
-    print(" Entra en  http://127.0.0.1:8200/docs  ->  POST /api/v2/auth/login")
+    print(" Entra en  http://127.0.0.1:8000/docs  ->  POST /api/v2/auth/login")
     print("-" * 62)
     print()
     return 0

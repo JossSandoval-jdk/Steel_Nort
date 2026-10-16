@@ -7,4 +7,4 @@ obtener, nuevo, cambiar, borrar) y el resto solo anade las reglas del dominio.
 
 from app.v2.services import acceso, crud, datos, deteccion, modelo, nodos, sistema
 
-__all__ = ["acceso", "crud", "datos", "deteccion", "modelo", "nodos", "sistema"]
+__all__ = ["acceso", "crud", "datos", "deteccion", "modelo", "nodos", "sistema","notificaciones"]

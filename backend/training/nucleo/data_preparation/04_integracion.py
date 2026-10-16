@@ -75,15 +75,43 @@ def construir_integrado(frames):
 
     df = pd.concat(frames, ignore_index=True, sort=False)
 
-    # Baseline primero, luego anomalías; dentro, por timestamp
+    # Baseline primero, luego anomalías; dentro, por corrida y timestamp.
+    # (orden alfabético de "grupo" pondría anomalias antes que baseline)
+    df["_orden_grupo"] = df["grupo"].map(
+        {"baseline": 0, "anomalias": 1}).fillna(9)
     df = df.sort_values(
-        ["grupo", "run_name", "timestamp"]
-    ).reset_index(drop=True)
+        ["_orden_grupo", "run_name", "timestamp"]
+    ).drop(columns="_orden_grupo").reset_index(drop=True)
+
+    # Warm-up: descartar las primeras N muestras de cada corrida. La 1a
+    # muestra no tiene "anterior" -> tasas (x_per_sec) quedan nulas.
+    if config.N_MUESTRAS_WARMUP > 0:
+        antes = len(df)
+        df = df[df.groupby("run_name").cumcount() >= config.N_MUESTRAS_WARMUP]
+        df = df.reset_index(drop=True)
+        log(f"   Warm-up: -{antes - len(df)} muestras "
+            f"({config.N_MUESTRAS_WARMUP} por corrida)")
+
+    # Descartar columnas casi vacias (ej. metricas de una sola captura)
+    umbral = config.CALIDAD_MAX_NULOS_COLUMNA
+    if umbral is not None:
+        proteger = {"timestamp", "run_name", "grupo", "experiment_id"}
+        nulos = df.isna().mean()
+        descartar = [c for c in df.columns
+                     if c not in proteger and nulos[c] > umbral]
+        if descartar:
+            df = df.drop(columns=descartar)
+            log(f"   Columnas descartadas (>{umbral:.0%} nulos): {descartar}")
 
     # experiment_id secuencial por corrida
     runs = df["run_name"].drop_duplicates().tolist()
     mapa = {r: f"exp_{i+1:02d}" for i, r in enumerate(runs)}
     df["experiment_id"] = df["run_name"].map(mapa)
+
+    # Columnas de contexto al inicio (no cambia el orden relativo de las
+    # features, así que scaler/bundle siguen compatibles)
+    contexto = ["timestamp", "run_name", "grupo", "experiment_id"]
+    df = df[contexto + [c for c in df.columns if c not in contexto]]
 
     return df
 
@@ -109,6 +137,58 @@ def reporte_calidad(df, features):
             "max": round(float(s.max()), 4) if len(s) else np.nan,
         })
     return pd.DataFrame(filas)
+
+
+def calidad_indice(df):
+    """Indice I-1.2 (Objetivos_y_requisitos.md) = (C + Co + V) / 3.
+
+    - completitud: 1 - celdas_nulas / celdas_totales
+    - consistencia: 1 - filas_duplicadas / filas_totales
+    - validez: % de valores dentro de config.RANGOS_VALIDEZ (promedio)
+    - timestamps_ordenados: 1 si cada corrida queda ordenada por timestamp
+    """
+    celdas = df.size
+    nulas = int(df.isna().sum().sum())
+    completitud = 1 - nulas / celdas if celdas else np.nan
+
+    duplicadas = int(df.duplicated().sum())
+    consistencia = 1 - duplicadas / len(df) if len(df) else np.nan
+
+    rangos = {c: r for c, r in config.RANGOS_VALIDEZ.items()
+              if c in df.columns}
+    validez = (
+        float(np.mean([df[c].between(lo, hi).mean()
+                       for c, (lo, hi) in rangos.items()]))
+        if rangos else np.nan
+    )
+
+    if {"run_name", "timestamp"} <= set(df.columns):
+        orden_ok = bool(
+            df.groupby("run_name")["timestamp"]
+            .apply(lambda s: s.is_monotonic_increasing).all()
+        )
+    else:
+        orden_ok = True
+
+    indice = float(np.nanmean([completitud, consistencia, validez]))
+    dimensiones = [
+        ("completitud", completitud, config.CALIDAD_MIN_COMPLETITUD),
+        ("consistencia", consistencia, config.CALIDAD_MIN_CONSISTENCIA),
+        ("validez", validez, config.CALIDAD_MIN_VALIDEZ),
+        ("timestamps_ordenados", 1.0 if orden_ok else 0.0, 1.0),
+        ("indice_calidad", indice, config.CALIDAD_MIN_INDICE),
+    ]
+    filas = [
+        {"dimension": d, "valor": round(float(v), 6),
+         "minimo": m, "cumple": bool(v >= m)}
+        for d, v, m in dimensiones
+    ]
+    detalle = {
+        "nulas": nulas, "duplicadas": duplicadas,
+        "celdas": int(celdas), "filas": int(len(df)),
+        "variables_con_rango": sorted(rangos),
+    }
+    return pd.DataFrame(filas), indice, detalle
 
 
 def main():
@@ -142,6 +222,18 @@ def main():
     reporte.to_csv(ruta_rep, index=False, encoding="utf-8-sig")
     log(f"Reporte de calidad: {ruta_rep}")
 
+    # Indice de calidad I-1.2 = (completitud + consistencia + validez) / 3
+    df_indice, calidad, detalle_cal = calidad_indice(df)
+    ruta_ind = os.path.join(config.DIR_INTEGRADO,
+                            config.ARCHIVO_INDICE_CALIDAD)
+    df_indice.to_csv(ruta_ind, index=False, encoding="utf-8-sig")
+    for _, row in df_indice.iterrows():
+        log(f"  {row['dimension']}: {row['valor']} (min {row['minimo']}) "
+            f"{'OK' if row['cumple'] else 'FALLA'}")
+    log(f"Indice de calidad I-1.2 = {calidad:.4f} -> "
+        f"{'CUMPLE' if calidad >= config.CALIDAD_MIN_INDICE else 'NO CUMPLE'} "
+        f"(>= {config.CALIDAD_MIN_INDICE}) -> {ruta_ind}")
+
     # Metadata
     metadata = {
         "fase_crispdm": "Data Preparation",
@@ -158,6 +250,13 @@ def main():
             "La columna 'grupo' indica procedencia (baseline/anomalias). "
             "No se usa para entrenamiento; solo para validación post-hoc."
         ),
+        "calidad_i_1_2": {
+            "indice": round(calidad, 6),
+            "meta": config.CALIDAD_MIN_INDICE,
+            "cumple": bool(calidad >= config.CALIDAD_MIN_INDICE),
+            "dimensiones": df_indice.to_dict(orient="records"),
+            **detalle_cal,
+        },
     }
     ruta_meta = os.path.join(config.DIR_INTEGRADO, config.ARCHIVO_METADATA)
     with open(ruta_meta, "w", encoding="utf-8") as f:
@@ -169,7 +268,7 @@ def main():
     print(f"Columnas totales: {df.shape[1]}")
     print(f"Features del modelo: {len(config.FEATURES_MODELO)}")
     print("\nFilas por corrida:")
-    print(df.groupby("run_name").size().to_string())
+    print(df.groupby("run_name", sort=False).size().to_string())
 
 
 if __name__ == "__main__":

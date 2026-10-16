@@ -1,6 +1,8 @@
 {
-  "fn": {},
+  "fn": {
+    "fault": 2
+  },
   "fp": {
-    "normal": 4
+    "normal": 3
   }
 }

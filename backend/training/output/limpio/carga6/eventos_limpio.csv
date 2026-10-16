@@ -1,0 +1,447 @@
+﻿event_name,timestamp,session_id,login_name,program_name,database_name,resource_type,mode,severity,error_number,message
+login,2026-10-07 23:20:04.334,72.0,sa,Python,SteelNort,,,,,
+login,2026-10-07 23:20:04.334,73.0,sa,Python,SteelNort,,,,,
+login,2026-10-07 23:20:04.334,75.0,sa,SteelNortCargaNormal,SteelNort,,,,,
+lock_acquired,2026-10-07 23:20:04.334,75.0,,,,OBJECT,Sch-S,,,
+lock_acquired,2026-10-07 23:20:04.334,75.0,,,,METADATA,Sch-S,,,
+lock_acquired,2026-10-07 23:20:04.334,75.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:20:04.334,72.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:20:04.334,73.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:20:09.367,75.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:20:09.367,75.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:20:09.367,75.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:20:09.367,75.0,,,,OBJECT,Sch-S,,,
+lock_released,2026-10-07 23:20:09.367,75.0,,,,METADATA,Sch-S,,,
+lock_acquired,2026-10-07 23:20:14.390,75.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:20:14.390,75.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:20:14.390,75.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:20:14.390,75.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:20:19.425,75.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:20:19.425,75.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:20:19.425,75.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:20:19.425,75.0,,,,PAGE,S,,,
+lock_acquired,2026-10-07 23:20:24.448,75.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:20:24.448,75.0,,,,PAGE,IX,,,
+login,2026-10-07 23:20:29.469,76.0,NT AUTHORITY\SYSTEM,SQLServerCEIP,SteelNort,,,,,
+login,2026-10-07 23:20:29.469,77.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+login,2026-10-07 23:20:29.469,78.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+login,2026-10-07 23:20:29.469,79.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+login,2026-10-07 23:20:29.469,80.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+login,2026-10-07 23:20:29.469,81.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+login,2026-10-07 23:20:29.469,82.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+login,2026-10-07 23:20:29.469,83.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+lock_acquired,2026-10-07 23:20:29.469,80.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,78.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:20:29.469,83.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,77.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:20:29.469,80.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:20:29.469,77.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:20:29.469,79.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,83.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,81.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,82.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,79.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,83.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:20:29.469,82.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,77.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,81.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,78.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,81.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:20:29.469,78.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,79.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:20:29.469,80.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,77.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:20:29.469,82.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:20:29.469,75.0,,,,OBJECT,IS,,,
+login,2026-10-07 23:20:34.507,84.0,unknown,Microsoft SQL Server,SteelNort,,,,,
+logout,2026-10-07 23:20:39.541,84.0,,,,,,,,
+logout,2026-10-07 23:20:54.638,87.0,,,,,,,,
+logout,2026-10-07 23:20:54.638,88.0,,,,,,,,
+logout,2026-10-07 23:20:54.638,90.0,,,,,,,,
+logout,2026-10-07 23:20:54.638,91.0,,,,,,,,
+logout,2026-10-07 23:20:54.638,92.0,,,,,,,,
+logout,2026-10-07 23:20:54.638,93.0,,,,,,,,
+logout,2026-10-07 23:20:59.674,89.0,,,,,,,,
+logout,2026-10-07 23:20:59.674,85.0,,,,,,,,
+logout,2026-10-07 23:20:59.674,86.0,,,,,,,,
+lock_acquired,2026-10-07 23:20:59.674,75.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:20:59.674,75.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:20:59.674,75.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:20:59.674,80.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:20:59.674,78.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:20:59.674,81.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:20:59.674,82.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:20:59.674,77.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:20:59.674,78.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:20:59.674,79.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:20:59.674,79.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:20:59.674,83.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:20:59.674,80.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:20:59.674,83.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:20:59.674,77.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:20:59.674,82.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:20:59.674,77.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:20:59.674,81.0,,,,PAGE,IX,,,
+logout,2026-10-07 23:21:04.718,68.0,,,,,,,,
+lock_acquired,2026-10-07 23:21:04.718,75.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:04.718,75.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:21:04.718,75.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:21:04.718,68.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:21:04.718,75.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:04.718,75.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:09.738,75.0,,,,OBJECT,Sch-S,,,
+lock_released,2026-10-07 23:21:09.738,75.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:09.738,75.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:21:14.760,75.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:21:14.760,75.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:21:14.760,75.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:21:14.760,75.0,,,,OBJECT,Sch-S,,,
+lock_acquired,2026-10-07 23:21:19.802,75.0,,,,OBJECT,Sch-S,,,
+lock_released,2026-10-07 23:21:19.802,75.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:19.802,75.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:21:19.802,75.0,,,,PAGE,S,,,
+xml_deadlock_report,2026-10-07 23:21:24.821,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+login,2026-10-07 23:21:24.821,68.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+login,2026-10-07 23:21:24.821,85.0,d92eb817e91c\Administrator,Microsoft SQL Server,SteelNort,,,,,
+login,2026-10-07 23:21:24.821,84.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+lock_acquired,2026-10-07 23:21:24.821,73.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:24.821,68.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,79.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:24.821,80.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,84.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,79.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:24.821,73.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,82.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:24.821,80.0,,,,KEY,S,,,
+lock_acquired,2026-10-07 23:21:24.821,78.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:24.821,68.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:21:24.821,84.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:21:24.821,77.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:24.821,79.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,68.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:24.821,78.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:24.821,73.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,84.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:24.821,80.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:24.821,68.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:24.821,82.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,84.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:24.821,79.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,82.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:24.821,82.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,77.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,78.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,68.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,77.0,,,,KEY,U,,,
+lock_acquired,2026-10-07 23:21:24.821,84.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,73.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:24.821,78.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,82.0,,,,KEY,S,,,
+lock_acquired,2026-10-07 23:21:24.821,80.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,77.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:21:24.821,80.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:24.821,75.0,,,,OBJECT,Sch-S,,,
+xml_deadlock_report,2026-10-07 23:21:29.848,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+logout,2026-10-07 23:21:29.848,85.0,,,,,,,,
+lock_acquired,2026-10-07 23:21:29.848,80.0,,,,KEY,U,,,
+lock_acquired,2026-10-07 23:21:29.848,77.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:29.848,80.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:29.848,77.0,,,,KEY,U,,,
+lock_released,2026-10-07 23:21:29.848,80.0,,,,KEY,S,,,
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:34.878,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+lock_acquired,2026-10-07 23:21:34.878,84.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:34.878,84.0,,,,KEY,S,,,
+lock_acquired,2026-10-07 23:21:34.878,77.0,,,,KEY,S,,,
+lock_acquired,2026-10-07 23:21:34.878,79.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:34.878,82.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:34.878,79.0,,,,KEY,S,,,
+lock_acquired,2026-10-07 23:21:34.878,73.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:34.878,77.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:34.878,73.0,,,,KEY,S,,,
+lock_acquired,2026-10-07 23:21:34.878,68.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:34.878,68.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:34.878,79.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:34.878,73.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:34.878,77.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:34.878,82.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:34.878,68.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:34.878,82.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:34.878,84.0,,,,PAGE,IS,,,
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:39.912,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+lock_acquired,2026-10-07 23:21:39.912,78.0,,,,KEY,U,,,
+lock_acquired,2026-10-07 23:21:39.912,80.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:39.912,77.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:39.912,68.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:39.912,80.0,,,,KEY,U,,,
+lock_released,2026-10-07 23:21:39.912,78.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:39.912,77.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:39.912,77.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:39.912,68.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:39.912,68.0,,,,KEY,S,,,
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:44.945,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+lock_acquired,2026-10-07 23:21:44.945,78.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:44.945,77.0,,,,KEY,U,,,
+lock_acquired,2026-10-07 23:21:44.945,68.0,,,,KEY,S,,,
+lock_acquired,2026-10-07 23:21:44.945,68.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:44.945,82.0,,,,KEY,S,,,
+lock_acquired,2026-10-07 23:21:44.945,82.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:44.945,84.0,,,,PAGE,IS,,,
+lock_acquired,2026-10-07 23:21:44.945,80.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:44.945,80.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:44.945,84.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:44.945,84.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:44.945,77.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:44.945,82.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:44.945,78.0,,,,KEY,U,,,
+lock_released,2026-10-07 23:21:44.945,68.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:44.945,80.0,,,,PAGE,IS,,,
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+xml_deadlock_report,2026-10-07 23:21:49.978,,,,SteelNort,,,13.0,1205.0,Deadlock detected
+lock_acquired,2026-10-07 23:21:49.978,75.0,,,,KEY,X,,,
+lock_acquired,2026-10-07 23:21:49.978,75.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:49.978,73.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:21:49.978,68.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:21:49.978,80.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:21:49.978,84.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:21:49.978,79.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:21:49.978,73.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:49.978,82.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:21:49.978,80.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:49.978,68.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:49.978,78.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:49.978,77.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:21:49.978,73.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:49.978,79.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:49.978,78.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:21:49.978,73.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:21:49.978,84.0,,,,PAGE,IS,,,
+lock_released,2026-10-07 23:21:49.978,68.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:49.978,68.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:21:49.978,79.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:49.978,80.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:21:49.978,82.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:49.978,84.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:21:49.978,79.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:21:49.978,73.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:49.978,82.0,,,,PAGE,IU,,,
+lock_released,2026-10-07 23:21:49.978,82.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:21:49.978,77.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:49.978,78.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:49.978,68.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:49.978,77.0,,,,KEY,U,,,
+lock_released,2026-10-07 23:21:49.978,84.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:49.978,79.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:49.978,78.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:21:49.978,82.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:21:49.978,80.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:21:49.978,77.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:21:49.978,80.0,,,,PAGE,IU,,,
+lock_acquired,2026-10-07 23:21:55.009,75.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:21:55.009,75.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:21:55.009,75.0,,,,KEY,X,,,
+logout,2026-10-07 23:22:00.065,81.0,,,,,,,,
+logout,2026-10-07 23:22:00.065,83.0,,,,,,,,
+lock_released,2026-10-07 23:22:00.065,81.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:22:00.065,83.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:22:00.065,75.0,,,,PAGE,S,,,
+lock_acquired,2026-10-07 23:22:05.111,75.0,,,,PAGE,S,,,
+lock_acquired,2026-10-07 23:22:10.140,75.0,,,,OBJECT,Sch-S,,,
+lock_acquired,2026-10-07 23:22:10.140,75.0,,,,KEY,S,,,
+lock_acquired,2026-10-07 23:22:10.140,75.0,,,,METADATA,Sch-S,,,
+lock_released,2026-10-07 23:22:10.140,75.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:22:10.140,75.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:22:10.140,75.0,,,,PAGE,S,,,
+login,2026-10-07 23:22:15.170,81.0,sa,SteelNortCargaAnomalia,SteelNort,,,,,
+login,2026-10-07 23:22:15.170,83.0,d92eb817e91c\Administrator,Microsoft SQL Server,SteelNort,,,,,
+lock_acquired,2026-10-07 23:22:15.170,77.0,,,,PAGE,S,,,
+lock_acquired,2026-10-07 23:22:15.170,82.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:22:15.170,82.0,,,,PAGE,S,,,
+lock_acquired,2026-10-07 23:22:15.170,79.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:22:15.170,81.0,,,,DATABASE,S,,,
+lock_acquired,2026-10-07 23:22:15.170,77.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:22:15.170,81.0,,,,PAGE,S,,,
+lock_acquired,2026-10-07 23:22:15.170,68.0,,,,PAGE,S,,,
+lock_acquired,2026-10-07 23:22:15.170,78.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:22:15.170,68.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:22:15.170,79.0,,,,PAGE,S,,,
+lock_acquired,2026-10-07 23:22:15.170,81.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:22:15.170,78.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:22:15.170,75.0,,,,OBJECT,Sch-S,,,
+lock_released,2026-10-07 23:22:15.170,75.0,,,,KEY,S,,,
+lock_released,2026-10-07 23:22:15.170,75.0,,,,METADATA,Sch-S,,,
+logout,2026-10-07 23:22:20.209,83.0,,,,,,,,
+lock_acquired,2026-10-07 23:22:25.242,72.0,,,,OBJECT,Sch-S,,,
+login,2026-10-07 23:22:30.274,83.0,d92eb817e91c\Administrator,Microsoft SQL Server,SteelNort,,,,,
+lock_released,2026-10-07 23:22:30.274,72.0,,,,OBJECT,Sch-S,,,
+logout,2026-10-07 23:22:35.329,83.0,,,,,,,,
+lock_acquired,2026-10-07 23:22:40.366,75.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:22:40.366,75.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:22:40.366,75.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:22:40.366,77.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:22:40.366,82.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:22:40.366,82.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:22:40.366,79.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:22:40.366,81.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:22:40.366,77.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:22:40.366,68.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:22:40.366,78.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:22:40.366,68.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:22:40.366,79.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:22:40.366,81.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:22:40.366,78.0,,,,PAGE,S,,,
+lock_acquired,2026-10-07 23:22:45.403,75.0,,,,PAGE,IX,,,
+lock_acquired,2026-10-07 23:22:45.403,75.0,,,,KEY,U,,,
+lock_acquired,2026-10-07 23:22:45.403,75.0,,,,KEY,X,,,
+lock_released,2026-10-07 23:22:45.403,75.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:22:45.403,75.0,,,,PAGE,S,,,
+login,2026-10-07 23:22:50.438,83.0,d92eb817e91c\Administrator,Microsoft SQL Server,SteelNort,,,,,
+lock_acquired,2026-10-07 23:22:50.438,75.0,,,,OBJECT,Sch-S,,,
+lock_released,2026-10-07 23:22:50.438,75.0,,,,PAGE,IX,,,
+lock_released,2026-10-07 23:22:50.438,75.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:22:50.438,75.0,,,,KEY,U,,,
+lock_released,2026-10-07 23:22:50.438,75.0,,,,KEY,X,,,
+login,2026-10-07 23:22:55.462,88.0,sa,unknown,SteelNort,,,,,
+login,2026-10-07 23:22:55.462,85.0,sa,unknown,SteelNort,,,,,
+login,2026-10-07 23:22:55.462,86.0,sa,unknown,SteelNort,,,,,
+login,2026-10-07 23:22:55.462,87.0,sa,unknown,SteelNort,,,,,
+lock_acquired,2026-10-07 23:22:55.462,75.0,,,,OBJECT,IX,,,
+lock_acquired,2026-10-07 23:22:55.462,75.0,,,,OBJECT,IS,,,
+lock_acquired,2026-10-07 23:22:55.462,75.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:22:55.462,75.0,,,,OBJECT,Sch-S,,,
+logout,2026-10-07 23:23:00.515,80.0,,,,,,,,
+logout,2026-10-07 23:23:00.515,73.0,,,,,,,,
+logout,2026-10-07 23:23:00.515,84.0,,,,,,,,
+lock_released,2026-10-07 23:23:00.515,73.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:23:00.515,80.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:23:00.515,84.0,,,,DATABASE,S,,,
+logout,2026-10-07 23:23:05.549,68.0,,,,,,,,
+logout,2026-10-07 23:23:05.549,75.0,,,,,,,,
+logout,2026-10-07 23:23:05.549,77.0,,,,,,,,
+logout,2026-10-07 23:23:05.549,78.0,,,,,,,,
+logout,2026-10-07 23:23:05.549,79.0,,,,,,,,
+logout,2026-10-07 23:23:05.549,81.0,,,,,,,,
+logout,2026-10-07 23:23:05.549,82.0,,,,,,,,
+lock_released,2026-10-07 23:23:05.549,68.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:23:05.549,75.0,,,,OBJECT,IX,,,
+lock_released,2026-10-07 23:23:05.549,81.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:23:05.549,78.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:23:05.549,75.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:23:05.549,79.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:23:05.549,75.0,,,,OBJECT,IS,,,
+lock_released,2026-10-07 23:23:05.549,75.0,,,,PAGE,S,,,
+lock_released,2026-10-07 23:23:05.549,77.0,,,,DATABASE,S,,,
+lock_released,2026-10-07 23:23:05.549,82.0,,,,DATABASE,S,,,

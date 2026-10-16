@@ -42,7 +42,80 @@
     "run_name",
     "experiment_id"
   ],
-  "total_corridas": 21,
-  "total_filas": 1313,
-  "nota_etiquetado": "La columna 'grupo' indica procedencia (baseline/anomalias). No se usa para entrenamiento; solo para validación post-hoc."
+  "total_corridas": 15,
+  "total_filas": 674,
+  "nota_etiquetado": "La columna 'grupo' indica procedencia (baseline/anomalias). No se usa para entrenamiento; solo para validación post-hoc.",
+  "calidad_i_1_2": {
+    "indice": 1.0,
+    "meta": 0.95,
+    "cumple": true,
+    "dimensiones": [
+      {
+        "dimension": "completitud",
+        "valor": 1.0,
+        "minimo": 0.95,
+        "cumple": true
+      },
+      {
+        "dimension": "consistencia",
+        "valor": 1.0,
+        "minimo": 0.95,
+        "cumple": true
+      },
+      {
+        "dimension": "validez",
+        "valor": 1.0,
+        "minimo": 0.95,
+        "cumple": true
+      },
+      {
+        "dimension": "timestamps_ordenados",
+        "valor": 1.0,
+        "minimo": 1.0,
+        "cumple": true
+      },
+      {
+        "dimension": "indice_calidad",
+        "valor": 1.0,
+        "minimo": 0.95,
+        "cumple": true
+      }
+    ],
+    "nulas": 0,
+    "duplicadas": 0,
+    "celdas": 37070,
+    "filas": 674,
+    "variables_con_rango": [
+      "active_requests",
+      "active_sessions",
+      "api_latency_ms",
+      "cpu_idl",
+      "cpu_stl",
+      "cpu_sys",
+      "cpu_usr",
+      "cpu_wai",
+      "deadlocks_per_sec",
+      "disk_read_per_sec",
+      "disk_write_per_sec",
+      "idle_sessions",
+      "load1",
+      "load15",
+      "load5",
+      "lock_waits",
+      "long_queries",
+      "long_transactions",
+      "memory_available_mb",
+      "memory_percent",
+      "memory_used_mb",
+      "net_recv_per_sec",
+      "net_send_per_sec",
+      "page_life_expectancy",
+      "page_reads_per_sec",
+      "page_writes_per_sec",
+      "rollbacks_per_sec",
+      "sql_compilations_per_sec",
+      "total_locks",
+      "transactions_per_sec"
+    ]
+  }
 }

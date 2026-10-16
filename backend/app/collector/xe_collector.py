@@ -44,27 +44,19 @@ def setup_xe():
 
         # Sesion compacta: archivos de max 100 MB y filtro de duracion para no
         # capturar TODOS los batches (evita .xel de 500 MB que ahogan el lector).
+        #
+        # El evento base se crea con la sesion y el resto se AÑADE uno a uno con
+        # ALTER. Motivo: hay eventos vetados segun la edicion/contenedor (p.ej.
+        # sqlserver.wait_info devuelve "event name invalid" aunque aparezca en
+        # sys.dm_xe_objects) y un CREATE unico fallaba entero por culpa de ese
+        # solo evento, dejando la sesion sin crear y sin ningun evento.
         cursor.execute(
             "CREATE EVENT SESSION [SteelNortMonitor] ON SERVER "
             "ADD EVENT sqlserver.sql_batch_completed("
             "ACTION(sqlserver.sql_text, sqlserver.database_name, sqlserver.session_id, "
             "sqlserver.username, sqlserver.client_hostname, sqlserver.client_app_name) "
             "WHERE sqlserver.database_name = N'SteelNort' AND duration >= 500000"
-            "), "
-            "ADD EVENT sqlserver.rpc_completed("
-            "ACTION(sqlserver.sql_text, sqlserver.database_name, sqlserver.session_id, "
-            "sqlserver.username) "
-            "WHERE sqlserver.database_name = N'SteelNort' AND duration >= 500000"
-            "), "
-            "ADD EVENT sqlserver.error_reported("
-            "ACTION(sqlserver.sql_text, sqlserver.session_id, sqlserver.database_name) "
-            "WHERE sqlserver.database_name = N'SteelNort'"
-            "), "
-            "ADD EVENT sqlserver.xml_deadlock_report, "
-            "ADD EVENT sqlserver.login(ACTION(sqlserver.session_id, sqlserver.username, "
-            "sqlserver.client_hostname, sqlserver.client_app_name)), "
-            "ADD EVENT sqlserver.logout(ACTION(sqlserver.session_id, sqlserver.username, "
-            "sqlserver.client_hostname, sqlserver.client_app_name)) "
+            ") "
             "ADD TARGET package0.event_file("
             "SET filename = N'/var/opt/mssql/log/steel_events.xel', "
             "max_file_size = 100, max_rollover_files = 5"
@@ -72,7 +64,38 @@ def setup_xe():
             "WITH (MAX_MEMORY = 4096 KB, STARTUP_STATE = ON); "
         )
         conn.commit()
-        log("Sesion SteelNortMonitor recreada (max_file_size=100MB, duration>=500ms)")
+
+        eventos_opcionales = [
+            ("rpc_completed",
+             "ADD EVENT sqlserver.rpc_completed("
+             "ACTION(sqlserver.sql_text, sqlserver.database_name, sqlserver.session_id, "
+             "sqlserver.username) "
+             "WHERE sqlserver.database_name = N'SteelNort' AND duration >= 500000)"),
+            ("error_reported",
+             "ADD EVENT sqlserver.error_reported("
+             "ACTION(sqlserver.sql_text, sqlserver.session_id, sqlserver.database_name) "
+             "WHERE sqlserver.database_name = N'SteelNort')"),
+            ("xml_deadlock_report", "ADD EVENT sqlserver.xml_deadlock_report"),
+            ("locks_lock_waits",
+             "ADD EVENT sqlserver.locks_lock_waits(ACTION(sqlserver.session_id))"),
+            ("blocked_process_report", "ADD EVENT sqlserver.blocked_process_report"),
+            ("login",
+             "ADD EVENT sqlserver.login(ACTION(sqlserver.session_id, sqlserver.username, "
+             "sqlserver.client_hostname, sqlserver.client_app_name))"),
+            ("logout",
+             "ADD EVENT sqlserver.logout(ACTION(sqlserver.session_id, sqlserver.username, "
+             "sqlserver.client_hostname, sqlserver.client_app_name))"),
+        ]
+        activos = ["sql_batch_completed"]
+        for nombre, ddl in eventos_opcionales:
+            try:
+                cursor.execute("ALTER EVENT SESSION [SteelNortMonitor] ON SERVER " + ddl)
+                conn.commit()
+                activos.append(nombre)
+            except Exception as exc:
+                log(f"Evento XE opcional omitido ({nombre}): {exc}")
+
+        log(f"Sesion SteelNortMonitor recreada con eventos: {', '.join(activos)}")
 
         cursor.execute(
             "IF NOT EXISTS (SELECT 1 FROM sys.dm_xe_sessions WHERE name = 'SteelNortMonitor') "
@@ -154,7 +177,12 @@ def read_xe_events(conn, last_timestamp):
         event_data.value('(event/data[@name="result"]/value)[1]', 'varchar(50)') AS result,
         event_data.value('(event/data[@name="error"]/value)[1]', 'int') AS error_number,
         event_data.value('(event/data[@name="severity"]/value)[1]', 'int') AS severity,
-        event_data.value('(event/data[@name="state"]/value)[1]', 'int') AS state
+        event_data.value('(event/data[@name="state"]/value)[1]', 'int') AS state,
+        event_data.value('(event/data[@name="wait_type"]/text)[1]', 'varchar(60)') AS wait_type_text,
+        event_data.value('(event/data[@name="wait_type"]/value)[1]', 'varchar(40)') AS wait_type_value,
+        event_data.value('(event/data[@name="signal_duration"]/value)[1]', 'bigint') AS signal_duration,
+        event_data.value('(event/data[@name="wait_resource"]/value)[1]', 'nvarchar(128)') AS wait_resource,
+        event_data.value('(event/data[@name="blocking_session_id"]/value)[1]', 'int') AS blocking_session_id
     FROM (
         SELECT CAST(event_data AS XML) AS event_data
         FROM sys.fn_xe_file_target_read_file(
@@ -190,17 +218,28 @@ def map_xe_event(row):
         base["logical_reads"] = row[4] or 0
         base["writes"] = row[5] or 0
         base["row_count"] = row[6] or 0
-        base["sql_text"] = (row[7] or row[8] or "")[:500]
+        base["sql_text"] = (row[7] or row[8] or "")
         base["result"] = row[14]
 
+    elif event_name in ("wait_info", "wait_completed", "locks_lock_waits"):
+        # El tipo de espera llega como texto del mapa XE; si no, el valor crudo.
+        # locks_lock_waits sustituye a wait_info en ediciones donde ese evento
+        # esta vetado (aqui: SQL Server 2022 en contenedor).
+        wt_text = (row[18] or "").strip() if row[18] is not None else ""
+        base["wait_type"] = wt_text or (str(row[19]) if row[19] is not None else None)
+        base["duration"] = row[2] or 0
+        base["signal_duration"] = row[20]
+        base["wait_resource"] = row[21]
+        base["blocking_session_id"] = row[22]
+
     elif event_name == "error_reported":
-        base["sql_text"] = (row[7] or row[8] or "")[:500]
+        base["sql_text"] = (row[7] or row[8] or "")
         base["error_number"] = row[15]
         base["severity"] = row[16]
         base["state"] = row[17]
 
-    elif event_name == "xml_deadlock_report":
-        base["message"] = "Deadlock detected via Extended Events"
+    elif event_name in ("xml_deadlock_report", "lock_deadlock"):
+        base["message"] = "Deadlock detectado por Extended Events"
 
     elif event_name in ("login", "logout"):
         pass

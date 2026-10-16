@@ -60,3 +60,49 @@
   height: 22px;
   object-fit: contain;
 }
+
+/* ============================================================
+   Campanita de notificaciones
+   ============================================================ */
+
+.topbar-acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-campanita {
+  position: relative;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+  line-height: 1;
+}
+
+.topbar-campanita:hover {
+  background: #f0f4f7;
+}
+
+.topbar-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 2px solid #ffffff;
+  box-sizing: border-box;
+}

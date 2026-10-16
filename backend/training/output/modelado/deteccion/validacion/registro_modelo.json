@@ -1,26 +1,34 @@
 {
   "modelo": "ENSEMBLE_Z",
-  "fecha_validacion": "2026-09-25T09:27:33.890092",
+  "fecha_validacion": "2026-10-08T20:53:10.126904",
   "seed": 42,
   "ventana": 10,
   "features": [
     "cpu_usr",
     "cpu_sys",
     "cpu_wai",
-    "memory_available_mb",
+    "memory_percent",
+    "memory_used_mb",
     "page_life_expectancy",
     "disk_read_per_sec",
     "disk_write_per_sec",
-    "total_reads",
-    "total_writes",
+    "net_send_per_sec",
+    "net_recv_per_sec",
+    "load1",
     "active_sessions",
     "active_requests",
     "transactions_per_sec",
-    "duration_avg_ms",
-    "cpu_time_sum_ms",
+    "long_queries",
+    "long_transactions",
     "api_latency_ms",
     "api_status",
-    "load1"
+    "lock_waits",
+    "total_locks",
+    "deadlocks_per_sec",
+    "events_wait_count",
+    "batch_count",
+    "batch_duration_avg_ms",
+    "batch_duration_max_ms"
   ],
   "hiperparametros": {
     "iso": {
@@ -33,20 +41,20 @@
       "contamination": 0.05
     },
     "scaler": "standard",
-    "n_train_windows": 230
+    "n_train_windows": 353
   },
   "umbrales_ensamble_z": {
-    "q10": -1.1803875809736193,
-    "q05": -1.3568800960414211,
-    "q01": -2.144584110802836
+    "q10": -1.4032439734491318,
+    "q05": -1.592285475727022,
+    "q01": -2.0825049924535297
   },
   "ens_stats": {
-    "mu_iso": 0.060774,
-    "sd_iso": 0.030416,
-    "mu_copod": -155.079815,
-    "sd_copod": 28.735199
+    "mu_iso": 0.048005,
+    "sd_iso": 0.031321,
+    "mu_copod": -227.233487,
+    "sd_copod": 37.583552
   },
-  "n_train_windows": 230,
+  "n_train_windows": 353,
   "experimento": {
     "train_norm": [
       "normal_baja_02",

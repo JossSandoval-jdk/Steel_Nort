@@ -158,6 +158,7 @@ function DetalleAlerta({ alerta, informe }) {
   const eventos = informe?.eventos || []
   const logs = informe?.logs_sql || []
   const prediccion = informe?.prediccion
+  const reglas = informe?.reglas || explicacion?.reglas || []
   const severidad = alerta?.alt_sev || 'media'
 
   return (
@@ -185,6 +186,30 @@ function DetalleAlerta({ alerta, informe }) {
         )}
       </div>
 
+      {reglas.length > 0 && (
+        <div className="detalle-seccion">
+          <h4 className="detalle-titulo">Reglas de diagnóstico (R1–R7)</h4>
+          {reglas.map((regla) => (
+            <article className="evento-explicado" key={regla.codigo}>
+              <div className="evento-explicado-cabecera">
+                <strong>{regla.codigo}</strong>
+                <span className="detalle-vacio">
+                  {regla.corroborado === 'confirmado'
+                    ? 'Confirmada por métricas'
+                    : regla.corroborado === 'sin_pico'
+                      ? 'Sin pico en métricas'
+                      : 'Sin baseline en vivo'}
+                </span>
+              </div>
+              <p className="detalle-diag">{regla.diagnostico}</p>
+              {regla.detonante && <p className="detalle-vacio">{regla.detonante}</p>}
+              {regla.metricas && <p className="detalle-vacio">{regla.metricas}</p>}
+              {regla.fuente && <p className="detalle-vacio">{regla.fuente}</p>}
+            </article>
+          ))}
+        </div>
+      )}
+
       <div className="detalle-seccion">
         <h4 className="detalle-titulo">Indicadores fuera de su nivel habitual</h4>
         {variables.length ? variables.slice(0, 5).map((variable) => (
@@ -201,7 +226,10 @@ function DetalleAlerta({ alerta, informe }) {
         {eventos.length ? eventos.map((evento, indice) => (
           <article className="evento-explicado" key={`${evento.fecha}-${indice}`}>
             <div className="evento-explicado-cabecera">
-              <strong>{evento.actividad}</strong>
+              <strong>
+                {evento.actividad}
+                {evento.wait_type ? ` · ${evento.wait_type}` : ''}
+              </strong>
               <time>{formatearFecha(evento.fecha, true)}</time>
             </div>
             <p className="detalle-vacio">
@@ -222,6 +250,12 @@ function DetalleAlerta({ alerta, informe }) {
               <details className="evento-sql">
                 <summary>Ver detalle de la consulta</summary>
                 <pre>{evento.sql}</pre>
+              </details>
+            )}
+            {evento.raw && Object.keys(evento.raw).length > 0 && (
+              <details className="evento-sql">
+                <summary>Ver evento completo (JSON)</summary>
+                <pre>{JSON.stringify(evento.raw, null, 2)}</pre>
               </details>
             )}
           </article>
@@ -423,9 +457,8 @@ function Alertas() {
                             </td>
                             <td><span className={`rol-pill ${a.alt_sev}`}>{etiquetaSeveridad(a.alt_sev)}</span></td>
                             <td className="t-diagnostico">
-                              {a.alt_tipo === 'anomalia_ml'
-                                ? 'Cambio sostenido en el comportamiento del servidor.'
-                                : a.alt_diag || 'Sin diagnóstico'}
+                              {a.alt_diag
+                                || 'Cambio sostenido en el comportamiento del servidor.'}
                             </td>
                           </tr>
                         </Fragment>

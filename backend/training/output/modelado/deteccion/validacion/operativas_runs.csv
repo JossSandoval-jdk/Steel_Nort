@@ -1,7 +1,8 @@
 ﻿run,tipo,n_ventanas,alertas_q01,ttfa_desde_inicio_seg,ttfa_desde_falla_seg,inicio_falla_timeline
-11,falla,27,27,0.0,-20.0,2026-09-11 08:50:33
-6,falla,27,27,0.0,-20.0,2026-09-11 03:52:47
-carga5,falla,27,27,0.0,-20.0,2026-09-11 10:39:37
-run5,falla,27,27,0.0,-20.0,2026-09-11 03:06:05
-normal_larga_01,normal,73,2,191.0,,None
-normal_prueba_01,normal,10,2,0.0,,None
+11,falla,26,26,0.0,-14.0,2026-09-11 08:50:33
+6,falla,26,26,0.0,-15.0,2026-09-11 03:52:47
+carga11,falla,23,23,0.0,-24.0,2026-10-07 23:23:41
+carga12,falla,27,27,0.0,-27.0,2026-10-07 23:26:38
+carga5,falla,26,26,0.0,-12.0,2026-09-11 10:39:37
+carga6,falla,27,25,0.0,-24.0,2026-10-07 23:20:29
+normal_larga_01,normal,72,3,180.0,,None

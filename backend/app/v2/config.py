@@ -66,6 +66,15 @@ class SettingsV2(SettingsV1):
     ciclo_umbral_z: float = 3.0
     ciclo_simulado: bool = True
 
+    # --- Webhook hacia Node (Web Push) -------------------------------------
+    # Cuando se crea una alerta C o A, el trigger de la base inserta la
+    # notificacion y aqui se avisa a Node para que envie el Web Push.
+    #
+    #     V2_NODE_INTERNAL_URL=http://localhost:3000
+    #     V2_INTERNAL_TOKEN=<el mismo token que en frontend/.env>
+    node_internal_url: str = "http://localhost:3000"
+    internal_token: str = ""
+
     # Titulo y version que se exponen en /docs.
     titulo: str = "SteelNort API v2"
     version: str = "2.0.0"

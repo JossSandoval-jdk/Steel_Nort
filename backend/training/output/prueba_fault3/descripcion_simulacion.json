@@ -1,0 +1,31 @@
+{
+  "corrida": "prueba_fault3",
+  "inicio": "2026-10-09 11:29:58",
+  "duracion_total_s": 90,
+  "faults": [
+    "fault3"
+  ],
+  "secuencia": [
+    {
+      "fase": "normal",
+      "segundos": 30
+    },
+    {
+      "fase": "fault3",
+      "segundos": 30
+    },
+    {
+      "fase": "normal",
+      "segundos": 30
+    }
+  ],
+  "timeline": [
+    {
+      "tipo": "fault3",
+      "inicio": "2026-10-09 11:30:28",
+      "fin": "2026-10-09 11:30:34"
+    }
+  ],
+  "motor": "SQL Server Podman (localhost:1434/SteelNort)",
+  "nota": "fases intercaladas normal/fault; el ground truth se expresa en el reloj local del collector"
+}

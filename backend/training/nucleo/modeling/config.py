@@ -229,6 +229,12 @@ VENTANA = 10
 
 UMBRAL_CORRELACION = 0.85
 
+# Umbral del INDICADOR I-2.2 (Objetivos_y_requisitos.md): reportar pares con
+# |r| >= 0.6. Solo afecta al reporte variables_correlacion.csv; la PODA de
+# redundancias sigue usando UMBRAL_CORRELACION (0.85) para no descartar
+# de mas variables del modelo.
+UMBRAL_CORRELACION_INDICADOR = 0.6
+
 # Normalización RELATIVA por corrida (mediana/MAD de la propia corrida).
 # DESACTIVADA de forma deliberada: en corridas donde la inyección de fallos
 # cubre toda la corrida, el baseline interno YA es el fallo, así que la
